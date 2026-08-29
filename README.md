@@ -2,9 +2,13 @@
 
 > 실시간 이상 신호를 현장 조치로 연결하는 배터리 제조 운영 OS 포트폴리오
 
-NEXUS Forge는 배터리 셀 제조 라인의 설비와 센서 데이터를 하나의 공정 맥락으로 묶고, 이상 발생 시 원인 후보를 좁힌 뒤 현장 검증 작업까지 발행하는 웹 애플리케이션입니다. [프로덕션 데모](https://nexus-forge-ten.vercel.app/overview)에서 전체 흐름을 확인할 수 있습니다.
+NEXUS Forge는 배터리 셀 제조 라인의 설비와 센서 데이터를 하나의 공정 맥락으로 묶고, 이상 발생 시 원인 후보를 좁힌 뒤 현장 검증 작업까지 발행하는 웹 애플리케이션입니다. [공개 데모](https://nexus-forge-ten.vercel.app/overview)에서 전체 흐름을 확인할 수 있습니다.
 
 보기 좋은 KPI 대시보드보다 **“지금 무엇이 잘못되었고, 다음에 무엇을 해야 하는가”**를 빠르게 판단할 수 있는 도구에 초점을 맞췄습니다.
+
+[공개 데모](https://nexus-forge-ten.vercel.app/overview) | [3분 검토 동선](#3분-검토-동선) | [성능 측정](#실측-성능-비교) | [기술 결정 기록](./docs/DECISIONS.md) | [CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
+
+[![CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
 
 ![NEXUS Forge 설비 진단 화면](./docs/design/implementation-diagnostic-final.png)
 
@@ -13,12 +17,29 @@ NEXUS Forge는 배터리 셀 제조 라인의 설비와 센서 데이터를 하�
 | 항목 | 내용 |
 | --- | --- |
 | 프로젝트 성격 | Enterprise AI 제조 운영 도메인 개인 포트폴리오 |
+| 개발 기록 | 2026년 8월 30일 시작, 지속 개선 중 |
+| 작업 방식 | 개인 프로젝트, AI 개발 도구를 활용한 설계·구현·검증 협업 |
 | 대상 사용자 | 라인 엔지니어, 교대 관리자 |
 | 핵심 시나리오 | 공정 이상 발견 → 다중 센서 분석 → 원인 후보 확인 → 현장 검증 작업 발행 |
 | 프론트엔드 | React 19, TypeScript, Vite, TanStack Query, Zustand, ECharts |
 | 플랫폼 | Node.js, REST, WebSocket, 공유 계약 패키지 |
-| 품질 체계 | Vitest, Testing Library, Playwright, Storybook, GitHub Actions, Sentry |
+| 품질 체계 | Vitest, Testing Library, Playwright, Storybook, GitHub Actions, 선택적 Sentry 연동 |
 | 데이터 | 실제 기업 정보를 사용하지 않은 결정론적 합성 제조 데이터 |
+
+## 3분 검토 동선
+
+1. [공정 개요](https://nexus-forge-ten.vercel.app/overview)에서 `COATER-02` 복합 이상 카드를 선택합니다.
+2. 진단 화면에서 18,000개 이력, 실시간 수신 상태, 동기화된 이상 구간과 원인 근거를 확인합니다.
+3. `현장 검증 시작`으로 안전 조건을 확인하고 작업 지시를 발행합니다. 역할을 교대 관리자로 바꾸면 담당자 지정 흐름도 확인할 수 있습니다.
+4. 아래의 성능 비교와 [기술 결정 기록](./docs/DECISIONS.md), [CI 결과](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)에서 구현 근거를 확인합니다.
+
+## 기여 범위와 작업 방식
+
+개인 포트폴리오로 문제 정의와 범위 설정, 사용자 흐름, 디자인 시안, 프론트엔드와 스트림 서버 아키텍처, 구현, 테스트, 배포 구성을 하나의 저장소에서 처음부터 끝까지 진행했습니다.
+
+공개 자료 조사, 디자인 대안 생성, 구현 보조, 코드 검토와 QA에 AI 도구를 활용했습니다. 생성 결과 자체를 완료로 간주하지 않고 TypeScript 계약, 자동 테스트, 브라우저 검수, 공개 배포에서 다시 확인했습니다.
+
+이 프로젝트가 증명하려는 범위는 공개 데모의 제품 설계와 구현 역량입니다. 실제 제조 고객사에서 상용 서비스를 운영한 성과를 의미하지 않습니다.
 
 ## 해결하려는 문제
 
@@ -54,11 +75,13 @@ NEXUS Forge는 다음 세 가지 문제를 하나의 흐름으로 해결합니�
 
 ![현장 검증 작업 발행](./docs/design/implementation-verification-success.png)
 
-## 프론트엔드 설계 판단
+## 프론트엔드 기술 의사결정
 
 ### 서버 상태와 고빈도 스트림 상태 분리
 
-TanStack Query는 설비 요약, 이력, 검증 작업처럼 요청과 캐시 수명주기가 있는 서버 상태를 담당합니다. Zustand는 연결 상태, 선택 시점, 역할, 실시간 링 버퍼처럼 화면 상호작용과 밀접한 상태를 담당합니다. 이 경계 덕분에 서버 캐시 갱신과 고빈도 센서 업데이트가 서로 불필요하게 영향을 주지 않습니다.
+TanStack Query는 설비 요약, 이력, 검증 작업처럼 요청과 캐시 수명주기가 있는 서버 상태를 담당합니다. Zustand는 연결 상태, 선택 시점, 역할, 실시간 링 버퍼처럼 화면 상호작용과 밀접한 상태를 담당합니다.
+
+이 경계 덕분에 서버 캐시 갱신과 고빈도 센서 업데이트가 서로 불필요하게 영향을 주지 않습니다.
 
 ### 수신 빈도와 렌더링 빈도 분리
 
@@ -71,6 +94,8 @@ TanStack Query는 설비 요약, 이력, 검증 작업처럼 요청과 캐시 �
 ### 역할별 정보 구조
 
 라인 엔지니어에게는 즉시 실행 가능한 검증 절차를, 교대 관리자에게는 담당자 위임 흐름을 제공합니다. 같은 사고를 보더라도 역할에 따라 다음 행동이 달라지는 제조 현장 특성을 UI에 반영했습니다.
+
+각 결정에서 검토한 대안, 감수한 비용, 다시 검토할 조건은 [기술 결정 기록](./docs/DECISIONS.md)에 정리했습니다.
 
 ## 아키텍처
 
@@ -98,6 +123,23 @@ packages/
 docs/              제품, 아키텍처, 성능, API, 디자인 QA
 ```
 
+## 실측 성능 비교
+
+| 측정 항목 | 기준 구현 | 현재 구현 | 변화 |
+| --- | ---: | ---: | ---: |
+| ECharts 전용 번들, gzip | 전체 패키지 380.2KB | 필요한 모듈 199.5KB | 47.5% 감소 |
+| Canvas 렌더 중앙값 | 18,000개 시점 25.7ms | 1,800개 시점 4.7ms | 81.7% 감소 |
+| Canvas 렌더 p95 | 32.5ms | 5.8ms | 82.2% 감소 |
+| 차트 입력 시점 수 | 18,000개 | 1,800개 | 90.0% 감소 |
+
+2026년 8월 30일 Apple M2, Chromium 151, 1200×700, DPR 1 환경에서 애니메이션을 끈 ECharts Canvas 4개 패널과 5개 시리즈를 9회 반복 측정했습니다. 번들은 동일한 Vite minify와 gzip 조건에서 ECharts import 방식만 바꿔 비교했습니다.
+
+```bash
+npm run benchmark:performance
+```
+
+이 결과는 단일 장비의 합성 벤치마크이며 현장 SLA가 아닙니다. 재현 방법과 해석 범위는 [성능 전략](./docs/PERFORMANCE.md)에 정리했습니다.
+
 ## 운영 품질을 위한 구성
 
 - WebSocket 지수 백오프 재연결과 연결 상태 표시
@@ -114,17 +156,19 @@ docs/              제품, 아키텍처, 성능, API, 디자인 QA
 
 ## 검증 결과
 
-| 검증 | 결과 |
-| --- | --- |
-| ESLint | 통과, warning 0 |
-| TypeScript | 전체 워크스페이스 통과 |
-| 단위 및 컴포넌트 테스트 | 16개 통과 |
-| Playwright 핵심 사용자 흐름 | Chromium 1440×1024 통과 |
-| 프로덕션 빌드 | 통과 |
-| Storybook 정적 빌드 | 통과 |
-| 의존성 감사 | 취약점 0건 |
-| 브라우저 런타임 | 오류 및 경고 0건 |
-| 시안 비교 | P0, P1, P2 이슈 없음 |
+| 검증 | 최근 확인 결과 | 확인 방법 |
+| --- | --- | --- |
+| ESLint | 웹 소스 warning 0 | `npm run lint` |
+| TypeScript | 전체 워크스페이스와 Vercel API 통과 | `npm run typecheck` |
+| 단위 및 컴포넌트 테스트 | 16개 통과 | `npm test` |
+| 핵심 사용자 흐름 | Chromium 1440×1024 통과 | `npm run test:e2e` |
+| 배포용 빌드 | 웹, 서버, 공유 패키지 통과 | `npm run build` |
+| 컴포넌트 문서 | Storybook 정적 빌드 통과 | `npm run storybook:build` |
+| 의존성 감사 | 2026년 8월 30일 취약점 0건 | `npm audit` |
+| 브라우저와 반응형 QA | 오류 로그 없이 핵심 흐름 완료 | [디자인 검수 기록](./docs/design-qa.md) |
+| 화면 문구와 접근성 이름 | 주요 사용자 흐름 검토 완료 | [화면 문구 검토 기록](./docs/COPY_AUDIT.md) |
+
+최신 자동 검증 상태는 [GitHub Actions](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)에서 확인할 수 있습니다. 테스트 개수와 감사 결과는 코드와 의존성이 바뀌면 함께 갱신합니다.
 
 ```bash
 npm run lint
@@ -151,16 +195,26 @@ npm run dev
 
 ## 배포
 
-- Vercel이 기본 프로덕션 배포 환경입니다.
-- GitHub 기능 브랜치 푸시는 미리보기 배포를, `main` 브랜치 푸시는 프로덕션 배포를 자동으로 생성합니다.
+- [Vercel 공개 데모](https://nexus-forge-ten.vercel.app/overview)는 제품 흐름을 검토하기 위한 포트폴리오 배포입니다.
+- GitHub 기능 브랜치 푸시는 미리보기 배포를, `main` 브랜치 푸시는 공개 데모 배포를 자동으로 생성합니다.
 - 정적 웹 자산, REST API, WebSocket 스트림을 같은 출처로 제공합니다.
 - Vercel Functions와 로컬 Node 서버가 같은 런타임 모듈을 사용해 API 계약과 센서 시뮬레이션 동작을 공유합니다.
+
+## 현재 범위와 운영 한계
+
+- 실제 PLC, SCADA, MES, OPC-UA, MQTT 시스템과 연결하지 않은 합성 데이터 기반 데모입니다.
+- 작업 지시는 Vercel Function 인스턴스의 메모리에 최대 100건만 보관합니다. 재시작 시 사라질 수 있고 여러 인스턴스에서 공유되지 않습니다.
+- 인증, 역할 기반 권한, 감사 로그와 승인 절차는 서버에 구현하지 않았습니다. 화면의 역할 전환은 정보 구조를 검증하기 위한 기능입니다.
+- WebSocket은 실시간 UX와 재연결 동작을 검토하기 위한 데모 스트림입니다. 산업 현장의 연결 지속성, 수평 확장, 메시지 내구성을 보장하지 않습니다.
+- Sentry는 `VITE_SENTRY_DSN`이 설정된 환경에서만 로드됩니다. 공개 데모에 운영 모니터링이 상시 구성됐다는 의미는 아닙니다.
+- 성능 수치는 합성 데이터와 단일 개발 장비에서 측정한 값이며 실제 설비 부하나 현장 네트워크의 성능을 대표하지 않습니다.
 
 ## 상세 문서
 
 - [제품 명세](./docs/PRODUCT_SPEC.md)
 - [아키텍처와 데이터 흐름](./docs/ARCHITECTURE.md)
 - [성능 전략](./docs/PERFORMANCE.md)
+- [기술 결정 기록](./docs/DECISIONS.md)
 - [API 계약](./docs/API.md)
 - [채용 요건 대응표](./docs/REQUIREMENTS_MAPPING.md)
 - [디자인 검수 기록](./docs/design-qa.md)
@@ -180,3 +234,7 @@ npm run dev
 - 오프라인 구간 재생과 사고 비교 분석
 - 권한, 감사 로그, SSO를 포함한 엔터프라이즈 운영 기능
 - WebGL 기반 2D/3D 공장 레이아웃과 설비 상태 오버레이
+
+## 작성자
+
+- GitHub: [kwakhyun](https://github.com/kwakhyun)

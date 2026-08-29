@@ -6,7 +6,7 @@
 | 재사용 가능한 컴포넌트와 아키텍처 | `packages/ui` 토큰과 프리미티브, 공정 스트립, 설비 트리, 원인 레일 분리 |
 | WebSocket, SSE 실시간 갱신 | 250ms WebSocket 스트림, 500ms 클라이언트 배치, 재연결 상태 머신 |
 | 대용량 시계열 시각화 | 18,000개 이력, 20,000개 링 버퍼, 동기화 다운샘플링, ECharts Canvas |
-| 성능 병목 진단과 개선 | 차트 트리 셰이킹, 진단 라우트 코드 분할, Sentry 조건부 로딩, 렌더링 주기 제한 |
+| 성능 병목 진단과 개선 | 차트 트리 셰이킹, 진단 라우트 코드 분할, Sentry 조건부 로딩, 렌더링 주기 제한, 재현 가능한 Canvas와 번들 벤치마크 |
 | 작업자와 관리자 UX | 역할 선택, 라인 개요에서 증거 기반 진단과 안전 검증 작업까지 이어지는 흐름 |
 | API와 데이터 흐름 협업 | `packages/contracts` 공유 스키마, REST와 WebSocket 경계, API 문서 |
 | 상태 관리 | TanStack Query 서버 상태와 Zustand 실시간/UI 상태의 책임 분리 |
@@ -17,7 +17,7 @@
 | 테스트 | Vitest, Testing Library, Playwright 핵심 흐름, Storybook a11y 설정 |
 | CI/CD | GitHub Actions에서 lint, typecheck, unit, build, Storybook, Chromium E2E |
 | 운영 도구 | 선택적 Sentry 초기화, 헬스 체크, 연결 상태 노출, 소스맵 빌드 |
-| AI 도구 활용 | 공개 자료 조사, 디자인 생성, 구현, 테스트와 시각 QA 전 과정을 AI 협업으로 기록 |
+| AI 도구 활용 | 공개 자료 조사, 디자인 대안, 구현 보조와 QA에 AI를 사용하고 코드, 자동 테스트, 브라우저 검수로 결과를 재검증 |
 
 ## 면접에서 설명할 핵심 기술 판단
 

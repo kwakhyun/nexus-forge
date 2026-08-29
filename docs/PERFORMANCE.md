@@ -1,5 +1,26 @@
 # 성능 전략
 
+## 실측 결과
+
+2026년 8월 30일 Apple M2, Node.js 22.21.0, Chromium 151 환경에서 측정했습니다. 차트 측정은 1200×700, DPR 1, 애니메이션 비활성화, ECharts Canvas 4개 패널과 5개 시리즈 조건으로 각 시나리오를 한 차례 예열한 뒤 9회 반복했습니다.
+
+| 측정 항목 | 기준 구현 | 현재 구현 | 변화 |
+| --- | ---: | ---: | ---: |
+| ECharts 전용 번들, minified | 1,132.1KB | 589.9KB | 47.9% 감소 |
+| ECharts 전용 번들, gzip | 380.2KB | 199.5KB | 47.5% 감소 |
+| Canvas 렌더 중앙값 | 18,000개 시점 25.7ms | 1,800개 시점 4.7ms | 81.7% 감소 |
+| Canvas 렌더 p95 | 32.5ms | 5.8ms | 82.2% 감소 |
+
+번들 비교는 전체 `echarts` 패키지를 가져오는 방식과 현재 화면이 사용하는 Core 모듈만 가져오는 방식을 동일한 Vite minify와 gzip 조건에서 각각 빌드한 결과입니다. 렌더 비교는 같은 합성 시계열에서 원본 18,000개 시점과 변화량 기반으로 선택한 1,800개 시점을 같은 차트 옵션에 전달한 결과입니다.
+
+렌더 시간은 `setOption` 호출부터 zrender `flush` 완료까지의 동기 구간입니다. 데이터 생성과 다운샘플링 계산, 네트워크 전송은 측정에서 제외해 차트에 전달하는 시점 수의 영향만 비교했습니다.
+
+```bash
+npm run benchmark:performance
+```
+
+스크립트는 측정 시각, 운영체제, CPU, Node.js와 Chromium 버전, 반복 횟수, 중앙값과 p95를 JSON으로 출력합니다. 결과는 장비와 브라우저 상태에 따라 달라지는 로컬 합성 벤치마크이므로 현장 SLA나 사용자 성능 개선율로 일반화하지 않습니다.
+
 ## 목표
 
 - 초기 공정 개요는 진단 차트 코드를 내려받지 않습니다.
@@ -16,7 +37,9 @@
 
 ### 트리 셰이킹 가능한 ECharts 구성
 
-전체 ECharts 번들 대신 LineChart와 Grid, Tooltip, DataZoom, MarkArea, MarkLine, CanvasRenderer만 등록했습니다. 이 변경으로 차트 청크의 압축 전 크기를 약 1.13MB에서 약 557KB로 줄였습니다.
+전체 ECharts 번들 대신 LineChart와 Grid, Tooltip, DataZoom, MarkArea, MarkLine, CanvasRenderer 등 화면에 필요한 모듈만 등록했습니다.
+
+격리된 번들 벤치마크에서 minified 크기는 1,132.1KB에서 589.9KB로, gzip 크기는 380.2KB에서 199.5KB로 감소했습니다.
 
 ### 고정 용량 스트림 버퍼
 

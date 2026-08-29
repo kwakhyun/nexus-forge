@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Production-grade manufacturing operations OS portfolio project",
+  "description": "Public battery manufacturing operations OS portfolio demo",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -12,11 +12,12 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck && tsc -p tsconfig.vercel.json",
-    "lint": "turbo run lint && tsc -p tsconfig.vercel.json",
+    "lint": "turbo run lint && tsc -p tsconfig.vercel.json && node --check scripts/benchmark-performance.mjs",
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e --filter=@nexus/web",
     "storybook": "npm --workspace @nexus/web run storybook",
-    "storybook:build": "npm --workspace @nexus/web run storybook:build"
+    "storybook:build": "npm --workspace @nexus/web run storybook:build",
+    "benchmark:performance": "node scripts/benchmark-performance.mjs"
   },
   "engines": {
     "node": "22.x"
