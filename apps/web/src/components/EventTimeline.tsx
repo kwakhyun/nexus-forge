@@ -8,11 +8,11 @@ interface EventTimelineProps {
 
 export function EventTimeline({ incident }: EventTimelineProps) {
   const items = [
-    { time: incident.startedAt - 15 * 60_000, title: "오븐 Z3 온도 편차 시작", tone: "warning" },
-    { time: incident.startedAt - 5 * 60_000 - 34_000, title: "웹 장력 기울기 상승 시작", tone: "warning" },
-    { time: incident.startedAt, title: "비전 결함률 급증", tone: "critical" },
-    { time: incident.startedAt + 2 * 60_000 + 41_000, title: "웹 속도 변동 발생", tone: "warning" },
-    { time: incident.startedAt + 3 * 60_000 + 43_000, title: "운영자 확인 요청", tone: "info" },
+    { time: incident.startedAt - 15 * 60_000, title: "오븐 Z3 온도 편차 발생", tone: "warning" },
+    { time: incident.startedAt - 5 * 60_000 - 34_000, title: "웹 장력 상승 추세 감지", tone: "warning" },
+    { time: incident.startedAt, title: "비전 검사 결함률 급증", tone: "critical" },
+    { time: incident.startedAt + 2 * 60_000 + 41_000, title: "라인 속도 변동 발생", tone: "warning" },
+    { time: incident.startedAt + 3 * 60_000 + 43_000, title: "운영자 확인 요청 발행", tone: "info" },
   ];
 
   return (

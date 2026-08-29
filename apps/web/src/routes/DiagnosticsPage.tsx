@@ -22,11 +22,11 @@ export function DiagnosticsPage() {
   }, [historyQuery.data, setHistoricalPoints]);
 
   if (summaryQuery.isLoading) {
-    return <div className="route-loading">NEXUS Forge를 준비하는 중입니다…</div>;
+    return <div className="route-loading">신호 분석 화면을 불러오는 중입니다…</div>;
   }
 
   if (!summaryQuery.data) {
-    return <div className="route-error"><strong>운영 데이터를 불러오지 못했습니다.</strong><span>스트림 서버가 실행 중인지 확인해 주세요.</span></div>;
+    return <div className="route-error"><strong>센서 데이터를 불러오지 못했습니다.</strong><span>잠시 후 다시 시도해 주세요.</span></div>;
   }
 
   const summary = summaryQuery.data;

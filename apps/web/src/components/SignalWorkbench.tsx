@@ -115,7 +115,7 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
       axisPointer: { link: [{ xAxisIndex: "all" }] },
       legend: [
         {
-          data: ["웹 장력 좌", "웹 장력 우"],
+          data: ["좌측 장력", "우측 장력"],
           left: 176,
           top: 31,
           itemWidth: 14,
@@ -123,7 +123,7 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
           textStyle: { color: "#9ba8b0", fontSize: 10 },
         },
         {
-          data: ["온도 설정값", "오븐 온도"],
+          data: ["설정 온도", "측정 온도"],
           left: 176,
           top: "28%",
           itemWidth: 14,
@@ -138,10 +138,10 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
         { left: 165, right: 20, top: "73%", height: "17%" },
       ],
       title: [
-        { text: "웹 장력 (좌/우)", subtext: "N", left: 0, top: 29 },
-        { text: "오븐 존 온도 (Z3)", subtext: "°C", left: 0, top: "28%" },
+        { text: "웹 장력(좌/우)", subtext: "N", left: 0, top: 29 },
+        { text: "오븐 Z3 온도", subtext: "°C", left: 0, top: "28%" },
         { text: "라인 속도", subtext: "m/min", left: 0, top: "50%" },
-        { text: "비전 결함률", subtext: "%", left: 0, top: "72%" },
+        { text: "비전 검사 결함률", subtext: "%", left: 0, top: "72%" },
       ].map((item) => ({
         ...item,
         textStyle: { color: "#bcc6cc", fontSize: 13, fontWeight: 600 },
@@ -166,7 +166,7 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
       }],
       series: [
         {
-          name: "웹 장력 좌",
+          name: "좌측 장력",
           type: "line",
           xAxisIndex: 0,
           yAxisIndex: 0,
@@ -188,7 +188,7 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
           },
         },
         {
-          name: "웹 장력 우",
+          name: "우측 장력",
           type: "line",
           xAxisIndex: 0,
           yAxisIndex: 0,
@@ -199,7 +199,7 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
           data: sampled.map((point) => [point.timestamp, point.webTensionRight]),
         },
         {
-          name: "온도 설정값",
+          name: "설정 온도",
           type: "line",
           xAxisIndex: 1,
           yAxisIndex: 1,
@@ -210,7 +210,7 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
           data: sampled.map((point) => [point.timestamp, 160]),
         },
         {
-          name: "오븐 온도",
+          name: "측정 온도",
           type: "line",
           xAxisIndex: 1,
           yAxisIndex: 1,
@@ -234,7 +234,7 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
           markArea,
         },
         {
-          name: "비전 결함률",
+          name: "비전 검사 결함률",
           type: "line",
           xAxisIndex: 3,
           yAxisIndex: 3,
@@ -287,10 +287,10 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
   };
 
   return (
-    <section className="signal-workbench" aria-label="동기화 센서 신호">
+    <section className="signal-workbench" aria-label="센서 신호 비교">
       <div className="signal-toolbar">
         <button type="button" onClick={() => setViewRange(null)}>최근 30분</button>
-        <button type="button">샘플링 1초</button>
+        <button type="button">1초 간격</button>
         <span className="toolbar-divider" />
         <button type="button" aria-label="축소" onClick={() => zoom(1.45)}><MagnifyingGlassMinusIcon size={17} /></button>
         <button type="button" aria-label="확대" onClick={() => zoom(0.65)}><MagnifyingGlassPlusIcon size={17} /></button>
@@ -298,29 +298,29 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
         <button type="button" aria-label="다음 구간" onClick={() => pan(1)}><ArrowRightIcon size={17} /></button>
         <time>{formatTime(incident.startedAt)}</time>
         <span className="toolbar-spacer" />
-        <button type="button" aria-label="이상 시점으로 이동" onClick={focusIncident}><CrosshairIcon size={17} /></button>
-        <button type="button" onClick={() => setViewRange(null)}>자동 스케일</button>
-        <span className="render-stat">{points.length.toLocaleString()} pts · Canvas</span>
+        <button type="button" aria-label="이상 구간으로 이동" onClick={focusIncident}><CrosshairIcon size={17} /></button>
+        <button type="button" onClick={() => setViewRange(null)}>전체 구간</button>
+        <span className="render-stat">{points.length.toLocaleString()}개 시점 · Canvas</span>
       </div>
       <div className="signal-chart-wrap">
         {loading ? (
-          <div className="chart-loading"><CircleNotchIcon size={28} className="spin" /> 센서 이력을 불러오는 중</div>
+          <div className="chart-loading"><CircleNotchIcon size={28} className="spin" /> 센서 이력을 불러오는 중입니다…</div>
         ) : null}
-        <div className="signal-chart" ref={chartRef} role="img" aria-label="웹 장력, 오븐 온도, 라인 속도, 비전 결함률 동기화 추세 그래프" />
+        <div className="signal-chart" ref={chartRef} role="img" aria-label="웹 장력, 오븐 온도, 라인 속도, 비전 검사 결함률을 같은 시간축으로 비교한 그래프" />
         {selectedPoint ? (
-          <dl className="current-values" aria-label="현재 센서값">
+          <dl className="current-values" aria-label="선택 시점 센서값">
             <div className="current-values__pair">
-              <dt>현재값</dt>
-              <dd>좌 {selectedPoint.webTensionLeft.toFixed(1)} N</dd>
-              <dd>우 {selectedPoint.webTensionRight.toFixed(1)} N</dd>
+              <dt>선택값</dt>
+              <dd>좌측 {selectedPoint.webTensionLeft.toFixed(1)} N</dd>
+              <dd>우측 {selectedPoint.webTensionRight.toFixed(1)} N</dd>
             </div>
             <div className="current-values__pair current-values__temperature">
-              <dt>현재값</dt>
+              <dt>선택값</dt>
               <dd>{selectedPoint.ovenTemperature.toFixed(1)} °C</dd>
-              <dd>설정 160.0 °C</dd>
+              <dd>설정값 160.0 °C</dd>
             </div>
-            <div><dt>현재값</dt><dd>{selectedPoint.lineSpeed.toFixed(1)} m/min</dd></div>
-            <div><dt>현재값</dt><dd>{selectedPoint.defectRate.toFixed(2)} %</dd></div>
+            <div><dt>선택값</dt><dd>{selectedPoint.lineSpeed.toFixed(1)} m/min</dd></div>
+            <div><dt>선택값</dt><dd>{selectedPoint.defectRate.toFixed(2)}%</dd></div>
           </dl>
         ) : null}
       </div>

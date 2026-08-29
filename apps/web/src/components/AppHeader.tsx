@@ -25,10 +25,10 @@ export function AppHeader() {
   }, []);
 
   const streamLabel = {
-    connecting: "연결 중",
-    live: "스트림 정상",
-    reconnecting: "재연결 중",
-    offline: "스트림 오프라인",
+    connecting: "데이터 연결 중",
+    live: "데이터 수신 정상",
+    reconnecting: "데이터 재연결 중",
+    offline: "데이터 연결 끊김",
   }[connection];
 
   const streamTone = connection === "live" ? "normal" : connection === "offline" ? "critical" : "warning";
@@ -45,7 +45,7 @@ export function AppHeader() {
         <CaretDownIcon size={14} />
       </button>
       <button className="header-context" type="button">
-        코팅 라인 2
+        코팅 2호 라인
         <CaretDownIcon size={14} />
       </button>
       <div className="header-status">
@@ -58,7 +58,7 @@ export function AppHeader() {
         </NavLink>
         <NavLink to="/overview" className={({ isActive }) => isActive ? "active" : ""}>
           <SquaresFourIcon size={18} weight="duotone" />
-          공정 전체 보기
+          전체 공정
         </NavLink>
       </nav>
       <div className="header-spacer" />

@@ -25,7 +25,7 @@ export function ProcessStrip({ stages }: ProcessStripProps) {
             ) : (
               <CheckCircleIcon size={18} weight="fill" />
             )}
-            {stage.id === "coating" ? <small>COATER-02 · 복합 이상 감지</small> : null}
+            {stage.id === "coating" ? <small>COATER-02 · 복합 이상</small> : null}
           </button>
           {index < stages.length - 1 ? <ArrowRightIcon className="process-arrow" size={26} /> : null}
         </div>

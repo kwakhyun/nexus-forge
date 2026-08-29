@@ -24,9 +24,9 @@ export function OverviewMap({ summary, onSelectEquipment }: OverviewMapProps) {
     <section className="overview-map" aria-labelledby="line-status-title">
       <div className="overview-title-row">
         <div>
-          <span className="eyebrow">REAL-TIME LINE STATUS</span>
+          <span className="eyebrow">실시간 라인 현황</span>
           <h1 id="line-status-title">라인 현황</h1>
-          <p>{summary.lineName}의 이상 위치와 소재 흐름을 확인합니다.</p>
+          <p>{summary.lineName}의 이상 설비와 소재 흐름을 한눈에 확인합니다.</p>
         </div>
         <div className="overview-legend">
           <StatusBadge tone="normal">정상 12</StatusBadge>
@@ -53,7 +53,7 @@ export function OverviewMap({ summary, onSelectEquipment }: OverviewMapProps) {
                       key={equipmentId}
                       onClick={() => critical && onSelectEquipment(equipmentId)}
                       disabled={!critical}
-                      aria-label={critical ? `${equipmentId} 이상 진단 열기` : `${equipmentId} 정상`}
+                      aria-label={critical ? `${equipmentId} 이상 신호 진단 열기` : `${equipmentId} 정상`}
                     >
                       <HardDrivesIcon size={22} weight="duotone" />
                       <span><strong>{equipmentId}</strong><small>{critical ? "복합 이상" : "정상"}</small></span>

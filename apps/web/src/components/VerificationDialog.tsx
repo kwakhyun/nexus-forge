@@ -16,9 +16,9 @@ interface VerificationDialogProps {
 }
 
 const checklist = [
-  "댄서 롤 가드와 접근 동선을 확인했습니다.",
-  "라인 속도 76 m/min 유지 조건을 확인했습니다.",
-  "현장 작업자에게 점검 목적을 공유했습니다.",
+  "댄서 롤 안전 가드와 작업 동선에 이상이 없는지 확인했습니다.",
+  "라인 속도가 76 m/min으로 유지되는지 확인했습니다.",
+  "현장 작업자에게 점검 목적과 절차를 공유했습니다.",
 ];
 
 export function VerificationDialog({ incident }: VerificationDialogProps) {
@@ -58,13 +58,13 @@ export function VerificationDialog({ incident }: VerificationDialogProps) {
     }}>
       <div className="verification-dialog" role="dialog" aria-modal="true" aria-labelledby="verification-title" ref={dialogRef}>
         <header>
-          <div><ShieldCheckIcon size={22} weight="duotone" /><span>안전 검증 절차</span></div>
+          <div><ShieldCheckIcon size={22} weight="duotone" /><span>현장 검증 전 안전 확인</span></div>
           <button type="button" onClick={() => setOpen(false)} aria-label="닫기"><XIcon size={19} /></button>
         </header>
         {mutation.isSuccess ? (
           <div className="verification-success" data-testid="verification-success">
             <CheckCircleIcon size={54} weight="duotone" />
-            <h2 id="verification-title">현장 확인 요청이 발행되었습니다</h2>
+            <h2 id="verification-title">현장 검증 작업 지시를 발행했습니다</h2>
             <p>작업 지시 <strong>{mutation.data.id}</strong>가 담당자에게 전달되었습니다.</p>
             <Button onClick={() => setOpen(false)}>진단 화면으로 돌아가기</Button>
           </div>
@@ -73,12 +73,12 @@ export function VerificationDialog({ incident }: VerificationDialogProps) {
             <div className="dialog-intro">
               <ClipboardTextIcon size={28} weight="duotone" />
               <div>
-                <h2 id="verification-title">{incident.equipmentId} 원인 검증</h2>
-                <p>가동 중 점검이 가능한 항목입니다. 현장 요청 전에 안전 조건을 확인하세요.</p>
+                <h2 id="verification-title">{incident.equipmentId} 현장 검증</h2>
+                <p>라인 가동 중에도 점검할 수 있습니다. 작업 지시를 발행하기 전에 아래 안전 조건을 확인해 주세요.</p>
               </div>
             </div>
             <fieldset>
-              <legend>사전 확인</legend>
+              <legend>안전 조건</legend>
               {checklist.map((label, index) => (
                 <label className="check-row" key={label}>
                   <input
@@ -90,11 +90,11 @@ export function VerificationDialog({ incident }: VerificationDialogProps) {
                 </label>
               ))}
             </fieldset>
-            {mutation.isError ? <p className="form-error">요청을 발행하지 못했습니다. 스트림 서버 연결을 확인해 주세요.</p> : null}
+            {mutation.isError ? <p className="form-error">작업 지시를 발행하지 못했습니다. 잠시 후 다시 시도해 주세요.</p> : null}
             <footer>
               <Button variant="secondary" onClick={() => setOpen(false)}>취소</Button>
               <Button disabled={!allChecked || mutation.isPending} onClick={() => mutation.mutate()}>
-                {mutation.isPending ? "발행 중…" : "현장 확인 요청"}
+                {mutation.isPending ? "작업 지시 발행 중…" : "검증 작업 지시 발행"}
               </Button>
             </footer>
           </>

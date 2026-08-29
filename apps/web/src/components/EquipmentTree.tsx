@@ -52,32 +52,32 @@ export function EquipmentTree({ summary, selectedId }: EquipmentTreeProps) {
   );
 
   return (
-    <aside className="equipment-tree" aria-label="설비 트리">
+    <aside className="equipment-tree" aria-label="설비 목록">
       <div className="equipment-search">
         <MagnifyingGlassIcon size={17} />
-        <input aria-label="장비 검색" placeholder="장비 검색" />
-        <button type="button" aria-label="장비 필터"><FunnelIcon size={16} /></button>
+        <input aria-label="설비 검색" placeholder="설비 검색" />
+        <button type="button" aria-label="설비 필터"><FunnelIcon size={16} /></button>
       </div>
       <button type="button" className="tree-branch root">
         <CaretDownIcon size={13} />
         <FactoryIcon size={17} weight="duotone" />
         <span>{summary.plantName}</span>
       </button>
-      {renderLine("코팅 라인 1", lineOne)}
-      {renderLine("코팅 라인 2", lineTwo)}
+      {renderLine("코팅 1호 라인", lineOne)}
+      {renderLine("코팅 2호 라인", lineTwo)}
       <button type="button" className="tree-branch collapsed">
         <CaretRightIcon size={13} />
         <HardDrivesIcon size={16} weight="duotone" />
-        <span>Calendaring 라인 1</span>
+        <span>롤 프레싱 1호 라인</span>
       </button>
       <button type="button" className="tree-branch collapsed">
         <CaretRightIcon size={13} />
         <HardDrivesIcon size={16} weight="duotone" />
-        <span>Slitting 라인 1</span>
+        <span>슬리팅 1호 라인</span>
       </button>
       <button type="button" className="tree-collapse">
         <SidebarSimpleIcon size={17} />
-        설비 트리 접기
+        설비 목록 접기
       </button>
     </aside>
   );

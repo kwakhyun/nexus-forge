@@ -18,7 +18,7 @@ export function App() {
       <Route
         path="/diagnostics/:equipmentId"
         element={(
-          <Suspense fallback={<div className="route-loading">진단 도구를 준비하는 중입니다…</div>}>
+          <Suspense fallback={<div className="route-loading">신호 분석 화면을 준비하는 중입니다…</div>}>
             <DiagnosticsPage />
           </Suspense>
         )}

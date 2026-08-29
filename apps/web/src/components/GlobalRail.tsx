@@ -8,7 +8,7 @@ import {
 } from "@phosphor-icons/react";
 
 const items = [
-  { label: "개요", icon: SquaresFourIcon, active: true },
+  { label: "공정 개요", icon: SquaresFourIcon, active: true },
   { label: "생산 분석", icon: ChartLineUpIcon },
   { label: "이상 관리", icon: ShieldWarningIcon },
   { label: "정비 관리", icon: WrenchIcon },
