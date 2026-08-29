@@ -1,0 +1,31 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "devCommand": "npm --workspace @nexus/web run dev -- --host 0.0.0.0 --port $PORT",
+  "outputDirectory": "apps/web/dist/client",
+  "fluid": true,
+  "functions": {
+    "api/stream.ts": {
+      "maxDuration": 300
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "/api?__path=health"
+    },
+    {
+      "source": "/stream",
+      "destination": "/api/stream"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api?__path=:path"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

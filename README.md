@@ -2,7 +2,7 @@
 
 > 실시간 이상 신호를 현장 조치로 연결하는 배터리 제조 운영 OS 포트폴리오
 
-NEXUS Forge는 배터리 셀 제조 라인의 설비와 센서 데이터를 하나의 공정 맥락으로 묶고, 이상 발생 시 원인 후보를 좁힌 뒤 현장 검증 작업까지 발행하는 웹 애플리케이션입니다.
+NEXUS Forge는 배터리 셀 제조 라인의 설비와 센서 데이터를 하나의 공정 맥락으로 묶고, 이상 발생 시 원인 후보를 좁힌 뒤 현장 검증 작업까지 발행하는 웹 애플리케이션입니다. [프로덕션 데모](https://nexus-forge-ten.vercel.app/overview)에서 전체 흐름을 확인할 수 있습니다.
 
 보기 좋은 KPI 대시보드보다 **“지금 무엇이 잘못되었고, 다음에 무엇을 해야 하는가”**를 빠르게 판단할 수 있는 도구에 초점을 맞췄습니다.
 
@@ -106,7 +106,7 @@ docs/              제품, 아키텍처, 성능, API, 디자인 QA
 - 200% 확대와 좁은 패널을 위한 단계별 반응형 재배치
 - API 헬스 체크와 오류 상태 처리
 - 진단 라우트 `React.lazy` 분리
-- ECharts 전용 비동기 청크 구성
+- ECharts와 zrender 전용 비동기 청크 분리
 - `VITE_SENTRY_DSN`이 있을 때만 Sentry 동적 로딩
 - Storybook 컴포넌트 문서와 접근성 애드온
 - GitHub Actions 기반 lint, typecheck, unit, build, Storybook, Chromium E2E
@@ -118,7 +118,7 @@ docs/              제품, 아키텍처, 성능, API, 디자인 QA
 | --- | --- |
 | ESLint | 통과, warning 0 |
 | TypeScript | 전체 워크스페이스 통과 |
-| 단위 및 컴포넌트 테스트 | 13개 통과 |
+| 단위 및 컴포넌트 테스트 | 16개 통과 |
 | Playwright 핵심 사용자 흐름 | Chromium 1440×1024 통과 |
 | 프로덕션 빌드 | 통과 |
 | Storybook 정적 빌드 | 통과 |
@@ -137,7 +137,7 @@ npm run test:e2e
 
 ## 로컬 실행
 
-Node.js 22 이상이 필요합니다.
+Node.js 22.x가 필요합니다.
 
 ```bash
 npm install
@@ -148,6 +148,13 @@ npm run dev
 - 진단 화면: `http://127.0.0.1:5173/diagnostics/COATER-02`
 - 스트림 서버 상태: `http://127.0.0.1:8787/health`
 - Storybook: `npm run storybook`
+
+## 배포
+
+- Vercel이 기본 프로덕션 배포 환경입니다.
+- GitHub 기능 브랜치 푸시는 미리보기 배포를, `main` 브랜치 푸시는 프로덕션 배포를 자동으로 생성합니다.
+- 정적 웹 자산, REST API, WebSocket 스트림을 같은 출처로 제공합니다.
+- Vercel Functions와 로컬 Node 서버가 같은 런타임 모듈을 사용해 API 계약과 센서 시뮬레이션 동작을 공유합니다.
 
 ## 상세 문서
 

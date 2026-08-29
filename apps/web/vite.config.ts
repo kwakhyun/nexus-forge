@@ -30,9 +30,16 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          charts: ["echarts"],
-          monitoring: ["@sentry/react"],
+        manualChunks(id) {
+          if (id.includes("/node_modules/echarts/")) {
+            return "charts";
+          }
+          if (id.includes("/node_modules/zrender/")) {
+            return "chart-renderer";
+          }
+          if (id.includes("/node_modules/@sentry/")) {
+            return "monitoring";
+          }
         },
       },
     },

@@ -2,6 +2,7 @@
   "name": "nexus-forge",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Production-grade manufacturing operations OS portfolio project",
   "workspaces": [
     "apps/*",
@@ -10,15 +11,15 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "typecheck": "turbo run typecheck",
-    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck && tsc -p tsconfig.vercel.json",
+    "lint": "turbo run lint && tsc -p tsconfig.vercel.json",
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e --filter=@nexus/web",
     "storybook": "npm --workspace @nexus/web run storybook",
     "storybook:build": "npm --workspace @nexus/web run storybook:build"
   },
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "packageManager": "npm@10.9.4",
   "devDependencies": {
