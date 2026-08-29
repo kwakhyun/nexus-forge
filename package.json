@@ -1,0 +1,30 @@
+{
+  "name": "nexus-forge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-grade manufacturing operations OS portfolio project",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "npm --workspace @nexus/web run test:e2e",
+    "storybook": "npm --workspace @nexus/web run storybook",
+    "storybook:build": "npm --workspace @nexus/web run storybook:build"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "npm@10.9.4",
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "turbo": "^2.10.12",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
+  }
+}

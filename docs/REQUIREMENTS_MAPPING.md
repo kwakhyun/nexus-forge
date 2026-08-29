@@ -1,0 +1,28 @@
+# 채용 요건 대응표
+
+| 포지션 요구 | 구현 근거 |
+|---|---|
+| React, TypeScript 제조 운영 앱 | 공정 개요와 이상 진단의 두 핵심 라우트, 공유 계약을 사용한 전체 TypeScript 구현 |
+| 재사용 가능한 컴포넌트와 아키텍처 | `packages/ui` 토큰과 프리미티브, 공정 스트립, 설비 트리, 원인 레일 분리 |
+| WebSocket, SSE 실시간 갱신 | 250ms WebSocket 스트림, 500ms 클라이언트 배치, 재연결 상태 머신 |
+| 대용량 시계열 시각화 | 18,000개 이력, 20,000개 링 버퍼, 동기화 다운샘플링, ECharts Canvas |
+| 성능 병목 진단과 개선 | 차트 트리 셰이킹, 진단 라우트 코드 분할, Sentry 조건부 로딩, 렌더링 주기 제한 |
+| 작업자와 관리자 UX | 역할 선택, 라인 개요에서 증거 기반 진단과 안전 검증 작업까지 이어지는 흐름 |
+| API와 데이터 흐름 협업 | `packages/contracts` 공유 스키마, REST와 WebSocket 경계, API 문서 |
+| 상태 관리 | TanStack Query 서버 상태와 Zustand 실시간/UI 상태의 책임 분리 |
+| 제조 도메인 | 배터리 셀 코팅 공정, 설비 계층, 장력, 오븐, 라인 속도, 비전 검사 신호 모델 |
+| 차트 라이브러리 | ECharts Core의 LineChart, DataZoom, AxisPointer, MarkArea, MarkLine 사용 |
+| 디자인 시스템 | 색상, 간격, 서체, 상태 토큰과 Button, StatusBadge, KpiValue 패키지 |
+| 모노레포 | npm workspaces와 Turborepo, 앱 2개와 패키지 2개 구성 |
+| 테스트 | Vitest, Testing Library, Playwright 핵심 흐름, Storybook a11y 설정 |
+| CI/CD | GitHub Actions에서 lint, typecheck, unit, build, Storybook, Chromium E2E |
+| 운영 도구 | 선택적 Sentry 초기화, 헬스 체크, 연결 상태 노출, 소스맵 빌드 |
+| AI 도구 활용 | 공개 자료 조사, 디자인 생성, 구현, 테스트와 시각 QA 전 과정을 AI 협업으로 기록 |
+
+## 면접에서 설명할 핵심 기술 판단
+
+1. 왜 진단 도구를 선택했는가: 제조 화면의 가치는 정보량이 아니라 판단 시간 단축에 있기 때문입니다.
+2. 왜 센서를 같은 시간축으로 샘플링하는가: 서로 다른 시점 선택으로 인한 거짓 상관관계를 피하기 위해서입니다.
+3. 왜 TanStack Query와 Zustand를 나눴는가: 서버 캐시와 고빈도 스트림/UI 상태의 수명과 갱신 규칙이 다르기 때문입니다.
+4. 왜 3D를 첫 범위에서 제외했는가: 원인 분석과 현장 실행이라는 핵심 가치 검증보다 구현 비용이 크기 때문입니다.
+5. 실제 도입에서 무엇을 바꿀 것인가: 커넥터, 인증, 권한, 감사 로그, 서버 집계, 백프레셔, 온프레미스 운영 구성을 강화합니다.
