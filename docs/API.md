@@ -10,19 +10,33 @@
 
 공장과 라인, 네 개 공정 단계, 설비 상태, 활성 인시던트, 원인 사슬과 근거를 반환합니다.
 
-### `GET /api/equipment/COATER-02/history?intervalMs=100`
+### `GET /api/equipment/:equipmentId/history?intervalMs=100`
 
 최근 30분의 센서 이력을 반환합니다. 간격은 50ms에서 1,000ms 사이로 제한합니다.
 
 ### `POST /api/verifications`
 
-현장 검증 요청을 만들고 작업 지시 ID를 반환합니다.
+현장 검증 요청을 만들고 담당자, 발행 시각, 완료 기한이 포함된 작업 지시를 반환합니다.
 
 ```json
 {
   "incidentId": "INC-20260829-042",
   "requestedBy": "라인 엔지니어 김현수",
+  "assignee": "설비 보전팀 이민호",
   "checks": ["안전 조건 확인"]
+}
+```
+
+```json
+{
+  "id": "WO-12AB34CD",
+  "incidentId": "INC-20260829-042",
+  "requestedBy": "라인 엔지니어 김현수",
+  "assignee": "설비 보전팀 이민호",
+  "checks": ["안전 조건 확인"],
+  "status": "issued",
+  "issuedAt": 1788022800000,
+  "dueAt": 1788024600000
 }
 ```
 

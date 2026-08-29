@@ -39,26 +39,24 @@ export function AppHeader() {
         NEXUS <span>Forge</span>
       </NavLink>
       <span className="header-divider" aria-hidden="true" />
-      <button className="header-context" type="button">
+      <div className="header-context">
         <FactoryIcon size={18} weight="duotone" />
         배터리 1공장
-        <CaretDownIcon size={14} />
-      </button>
-      <button className="header-context" type="button">
+      </div>
+      <div className="header-context">
         코팅 2호 라인
-        <CaretDownIcon size={14} />
-      </button>
-      <div className="header-status">
+      </div>
+      <div className="header-status" role="status" aria-live="polite" aria-atomic="true">
         <StatusBadge tone={streamTone}>{streamLabel}</StatusBadge>
       </div>
       <nav className="header-nav" aria-label="주요 화면">
         <NavLink to="/diagnostics/COATER-02" className={({ isActive }) => isActive ? "active" : ""}>
           <PulseIcon size={19} weight="duotone" />
-          신호 분석
+          <span>신호 분석</span>
         </NavLink>
         <NavLink to="/overview" className={({ isActive }) => isActive ? "active" : ""}>
           <SquaresFourIcon size={18} weight="duotone" />
-          전체 공정
+          <span>전체 공정</span>
         </NavLink>
       </nav>
       <div className="header-spacer" />

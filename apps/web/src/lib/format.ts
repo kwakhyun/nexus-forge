@@ -28,3 +28,8 @@ export function formatDurationFrom(value: number, now = Date.now()): string {
   const remaining = seconds % 60;
   return `${minutes}분 ${remaining}초`;
 }
+
+export function formatRemainingMinutes(value: number, now = Date.now()): string {
+  const minutes = Math.max(0, Math.ceil((value - now) / 60_000));
+  return String(minutes);
+}

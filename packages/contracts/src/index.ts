@@ -42,6 +42,7 @@ export interface Incident {
   equipmentId: string;
   title: string;
   startedAt: number;
+  predictedImpactAt: number;
   confidence: number;
   causalChain: string[];
   evidence: IncidentEvidence[];
@@ -87,6 +88,7 @@ export type StreamMessage =
 export interface VerificationRequest {
   incidentId: string;
   requestedBy: string;
+  assignee: string;
   checks: string[];
 }
 
@@ -94,6 +96,7 @@ export interface VerificationRecord extends VerificationRequest {
   id: string;
   status: "issued";
   issuedAt: number;
+  dueAt: number;
 }
 
 export const ACTIVE_INCIDENT_ID = "INC-20260829-042";

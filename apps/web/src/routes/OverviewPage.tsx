@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRightIcon, PulseIcon, WarningIcon } from "@phosphor-icons/react";
@@ -6,15 +7,24 @@ import { api } from "../api/client";
 import { AppHeader } from "../components/AppHeader";
 import { GlobalRail } from "../components/GlobalRail";
 import { OverviewMap } from "../components/OverviewMap";
-import { formatDurationFrom, formatTime } from "../lib/format";
+import { formatDurationFrom, formatRemainingMinutes, formatTime } from "../lib/format";
+import { useOperationsStore } from "../store/operationsStore";
 
 export function OverviewPage() {
   const navigate = useNavigate();
+  const [now, setNow] = useState(() => Date.now());
+  const latestPoint = useOperationsStore((state) => state.sensorPoints.at(-1));
+  const liveLatencyMs = useOperationsStore((state) => state.streamLatencyMs);
   const summaryQuery = useQuery({
     queryKey: ["plant-summary"],
     queryFn: api.getPlantSummary,
     refetchInterval: 10_000,
   });
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   if (summaryQuery.isLoading) return <div className="route-loading">공정 현황을 불러오는 중입니다…</div>;
   if (!summaryQuery.data) {
@@ -34,12 +44,12 @@ export function OverviewPage() {
           <section className="overview-trends" aria-label="주요 지표 추세">
             <div className="trend-copy">
               <span className="eyebrow">이상 신호 요약</span>
-              <h2>이상이 {formatDurationFrom(incident.startedAt)} 전에 시작되었습니다</h2>
+              <h2>이상이 {formatDurationFrom(incident.startedAt, now)} 전에 시작되었습니다</h2>
               <p>웹 장력 상승과 비전 검사 결함률 증가가 같은 구간에서 관찰됩니다.</p>
             </div>
-            <KpiValue label="웹 장력" value="148" unit="N" tone="critical" />
-            <KpiValue label="불량 확산까지" value="18" unit="분" tone="critical" />
-            <KpiValue label="데이터 지연" value={(summary.streamLatencyMs / 1_000).toFixed(1)} unit="초" tone="accent" />
+            <KpiValue label="현재 좌측 웹 장력" value={(latestPoint?.webTensionLeft ?? 31.5).toFixed(1)} unit="N" tone="critical" />
+            <KpiValue label="예상 불량 확산까지" value={formatRemainingMinutes(incident.predictedImpactAt, now)} unit="분" tone="critical" />
+            <KpiValue label="데이터 지연" value={((liveLatencyMs ?? summary.streamLatencyMs) / 1_000).toFixed(1)} unit="초" tone="accent" />
           </section>
         </main>
         <aside className="overview-incident" aria-labelledby="overview-incident-title">
@@ -47,10 +57,10 @@ export function OverviewPage() {
             <WarningIcon size={22} weight="fill" />
             <div><span>진행 중인 이상</span><h2 id="overview-incident-title">코터 2호기 웹 장력 이상</h2></div>
           </div>
-          <p className="impact-time">불량 확산까지 약 <strong>18분</strong></p>
+          <p className="impact-time">예상 불량 확산까지 <strong>{formatRemainingMinutes(incident.predictedImpactAt, now)}분</strong></p>
           <dl>
             <div><dt>위치</dt><dd>코팅 2호 라인 › COATER-02</dd></div>
-            <div><dt>발생 시각</dt><dd>{formatTime(incident.startedAt)} · {formatDurationFrom(incident.startedAt)} 전</dd></div>
+            <div><dt>발생 시각</dt><dd>{formatTime(incident.startedAt)} ({formatDurationFrom(incident.startedAt, now)} 전)</dd></div>
             <div><dt>주요 원인</dt><dd>{incident.causalChain[0]}</dd></div>
           </dl>
           <div className="overview-recommendation">

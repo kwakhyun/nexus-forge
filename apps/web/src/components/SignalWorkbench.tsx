@@ -290,7 +290,7 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
     <section className="signal-workbench" aria-label="센서 신호 비교">
       <div className="signal-toolbar">
         <button type="button" onClick={() => setViewRange(null)}>최근 30분</button>
-        <button type="button">1초 간격</button>
+        <span className="signal-toolbar__meta">원본 100ms</span>
         <span className="toolbar-divider" />
         <button type="button" aria-label="축소" onClick={() => zoom(1.45)}><MagnifyingGlassMinusIcon size={17} /></button>
         <button type="button" aria-label="확대" onClick={() => zoom(0.65)}><MagnifyingGlassPlusIcon size={17} /></button>

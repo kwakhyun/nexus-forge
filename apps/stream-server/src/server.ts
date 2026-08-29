@@ -13,6 +13,9 @@ import { createPlantSummary, createSensorPoint, generateHistory } from "./simula
 const port = Number(process.env.PORT ?? 8787);
 const streamIntervalMs = 250;
 const verificationRecords: VerificationRecord[] = [];
+const simulationStartedAt = Date.now();
+const incidentStartedAt = simulationStartedAt - (3 * 60_000 + 43_000);
+const predictedImpactAt = simulationStartedAt + 18 * 60_000;
 
 function applyCors(response: ServerResponse): void {
   response.setHeader("Access-Control-Allow-Origin", "*");
@@ -51,16 +54,16 @@ const server = createServer(async (request, response) => {
   }
 
   if (method === "GET" && url.pathname === "/api/plant/summary") {
-    json(response, 200, createPlantSummary());
+    json(response, 200, createPlantSummary(Date.now(), incidentStartedAt, predictedImpactAt));
     return;
   }
 
-  if (method === "GET" && url.pathname === "/api/equipment/COATER-02/history") {
+  if (method === "GET" && /^\/api\/equipment\/[A-Z0-9-]+\/history$/.test(url.pathname)) {
     const intervalMs = Math.max(50, Math.min(1_000, Number(url.searchParams.get("intervalMs") ?? 100)));
     json(response, 200, {
       intervalMs,
       generatedAt: Date.now(),
-      points: generateHistory(Date.now(), 30 * 60_000, intervalMs),
+      points: generateHistory(Date.now(), 30 * 60_000, intervalMs, incidentStartedAt),
     });
     return;
   }
@@ -73,11 +76,13 @@ const server = createServer(async (request, response) => {
   if (method === "POST" && url.pathname === "/api/verifications") {
     try {
       const input = await readJson<VerificationRequest>(request);
+      const issuedAt = Date.now();
       const record: VerificationRecord = {
         ...input,
         id: `WO-${randomUUID().slice(0, 8).toUpperCase()}`,
         status: "issued",
-        issuedAt: Date.now(),
+        issuedAt,
+        dueAt: issuedAt + 30 * 60_000,
       };
       verificationRecords.unshift(record);
       json(response, 201, record);
@@ -105,7 +110,7 @@ streamServer.on("connection", (socket) => {
 let sequence = 0;
 const streamTimer = setInterval(() => {
   const now = Date.now();
-  const point = createSensorPoint(now, sequence + 18_000, now);
+  const point = createSensorPoint(now, sequence + 18_000, incidentStartedAt);
   const message: StreamPointMessage = { type: "sensor.point", point, sequence };
   const payload = JSON.stringify(message);
   sequence += 1;

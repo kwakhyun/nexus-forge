@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { AppHeader } from "../components/AppHeader";
@@ -10,7 +10,10 @@ import { SignalWorkbench } from "../components/SignalWorkbench";
 import { VerificationDialog } from "../components/VerificationDialog";
 import { useOperationsStore } from "../store/operationsStore";
 
+const narrowPanelQuery = "(max-width: 700px)";
+
 export function DiagnosticsPage() {
+  const [treeCollapsed, setTreeCollapsed] = useState(() => window.matchMedia(narrowPanelQuery).matches);
   const summaryQuery = useQuery({ queryKey: ["plant-summary"], queryFn: api.getPlantSummary });
   const historyQuery = useQuery({ queryKey: ["history", "COATER-02"], queryFn: () => api.getHistory("COATER-02") });
   const points = useOperationsStore((state) => state.sensorPoints);
@@ -20,6 +23,13 @@ export function DiagnosticsPage() {
   useEffect(() => {
     if (historyQuery.data) setHistoricalPoints(historyQuery.data.points);
   }, [historyQuery.data, setHistoricalPoints]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(narrowPanelQuery);
+    const followPanelWidth = (event: MediaQueryListEvent) => setTreeCollapsed(event.matches);
+    mediaQuery.addEventListener("change", followPanelWidth);
+    return () => mediaQuery.removeEventListener("change", followPanelWidth);
+  }, []);
 
   if (summaryQuery.isLoading) {
     return <div className="route-loading">신호 분석 화면을 불러오는 중입니다…</div>;
@@ -35,8 +45,13 @@ export function DiagnosticsPage() {
   return (
     <div className="app-frame app-frame--diagnostics">
       <AppHeader />
-      <div className="diagnostic-layout">
-        <EquipmentTree summary={summary} selectedId={incident.equipmentId} />
+      <div className={`diagnostic-layout ${treeCollapsed ? "diagnostic-layout--tree-collapsed" : ""}`}>
+        <EquipmentTree
+          summary={summary}
+          selectedId={incident.equipmentId}
+          collapsed={treeCollapsed}
+          onToggleCollapsed={() => setTreeCollapsed((value) => !value)}
+        />
         <main className="diagnostic-main">
           <ProcessStrip stages={summary.stages} />
           <SignalWorkbench points={points} incident={incident} loading={historyQuery.isLoading} />

@@ -7,6 +7,7 @@ import {
 
 const ANOMALY_AGE_MS = 3 * 60_000 + 43_000;
 const ANOMALY_SPREAD_MS = 74_000;
+const IMPACT_LEAD_TIME_MS = 18 * 60_000;
 
 function pseudoNoise(index: number, salt: number): number {
   const value = Math.sin(index * 12.9898 + salt * 78.233) * 43_758.5453;
@@ -17,8 +18,11 @@ function gaussian(distance: number, spread: number): number {
   return Math.exp(-0.5 * (distance / spread) ** 2);
 }
 
-export function createSensorPoint(timestamp: number, index: number, now = Date.now()): SensorPoint {
-  const eventTime = now - ANOMALY_AGE_MS;
+export function createSensorPoint(
+  timestamp: number,
+  index: number,
+  eventTime = Date.now() - ANOMALY_AGE_MS,
+): SensorPoint {
   const distance = timestamp - eventTime;
   const anomaly = gaussian(distance, ANOMALY_SPREAD_MS);
   const recovery = timestamp > eventTime ? Math.min(1, (timestamp - eventTime) / 210_000) : 0;
@@ -38,16 +42,20 @@ export function generateHistory(
   now = Date.now(),
   durationMs = 30 * 60_000,
   intervalMs = 100,
+  eventTime = now - ANOMALY_AGE_MS,
 ): SensorPoint[] {
   const count = Math.floor(durationMs / intervalMs);
   const start = now - durationMs;
   return Array.from({ length: count }, (_, index) =>
-    createSensorPoint(start + index * intervalMs, index, now),
+    createSensorPoint(start + index * intervalMs, index, eventTime),
   );
 }
 
-export function createPlantSummary(now = Date.now()): PlantSummary {
-  const startedAt = now - ANOMALY_AGE_MS;
+export function createPlantSummary(
+  now = Date.now(),
+  startedAt = now - ANOMALY_AGE_MS,
+  predictedImpactAt = now + IMPACT_LEAD_TIME_MS,
+): PlantSummary {
 
   return {
     plantId: "BATTERY-01",
@@ -58,7 +66,7 @@ export function createPlantSummary(now = Date.now()): PlantSummary {
     updatedAt: now,
     stages: [
       { id: "mixing", name: "믹싱", status: "normal", equipmentCount: 2 },
-      { id: "coating", name: "코팅", status: "critical", equipmentCount: 3 },
+      { id: "coating", name: "코팅", status: "critical", equipmentCount: 6 },
       { id: "pressing", name: "롤 프레싱", status: "normal", equipmentCount: 2 },
       { id: "slitting", name: "슬리팅", status: "normal", equipmentCount: 2 },
     ],
@@ -81,6 +89,7 @@ export function createPlantSummary(now = Date.now()): PlantSummary {
       equipmentId: SELECTED_EQUIPMENT_ID,
       title: "복합 이상 감지",
       startedAt,
+      predictedImpactAt,
       confidence: 0.92,
       causalChain: ["댄서 롤 위치 편차", "웹 장력 상승", "엣지 웨이브 결함"],
       safeToVerifyWhileRunning: true,

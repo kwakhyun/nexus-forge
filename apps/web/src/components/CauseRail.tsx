@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Incident } from "@nexus/contracts";
 import {
   ArrowDownIcon,
@@ -22,18 +23,28 @@ const causeIcons = [MapPinLineIcon, WaveformIcon, CameraIcon];
 
 export function CauseRail({ incident, onStartVerification }: CauseRailProps) {
   const role = useOperationsStore((state) => state.role);
+  const [allEvidenceVisible, setAllEvidenceVisible] = useState(false);
+  const confidencePercent = Math.round(incident.confidence * 100);
+  const visibleEvidence = allEvidenceVisible ? incident.evidence : incident.evidence.slice(0, 2);
 
   return (
     <aside className="cause-rail" aria-labelledby="incident-heading">
       <section className="incident-hero">
         <div className="incident-kicker"><WarningIcon size={18} weight="fill" /> {incident.title}</div>
         <h1 id="incident-heading">{incident.equipmentId}</h1>
-        <time>{formatTime(incident.startedAt)}</time>
+        <div className="incident-time"><span>발생 시각</span><time dateTime={new Date(incident.startedAt).toISOString()}>{formatTime(incident.startedAt)}</time></div>
         <div className="confidence-row">
           <span>원인 분석 신뢰도</span>
-          <strong>{Math.round(incident.confidence * 100)}%</strong>
+          <strong>{confidencePercent}%</strong>
         </div>
-        <div className="confidence-bar" aria-label={`원인 분석 신뢰도 ${Math.round(incident.confidence * 100)}퍼센트`}>
+        <div
+          className="confidence-bar"
+          role="progressbar"
+          aria-label="원인 분석 신뢰도"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={confidencePercent}
+        >
           <span style={{ width: `${incident.confidence * 100}%` }} />
         </div>
       </section>
@@ -57,15 +68,25 @@ export function CauseRail({ incident, onStartVerification }: CauseRailProps) {
       <section className="evidence-list" aria-labelledby="evidence-heading">
         <h2 id="evidence-heading">주요 근거</h2>
         <ul>
-          {incident.evidence.map((evidence) => (
+          {visibleEvidence.map((evidence) => (
             <li key={evidence.id}>
               <CheckIcon size={14} weight="bold" />
               <span>{evidence.label} <strong>{evidence.value}</strong></span>
-              <time>{formatTime(evidence.observedAt)}</time>
+              <time dateTime={new Date(evidence.observedAt).toISOString()}>{formatTime(evidence.observedAt)}</time>
             </li>
           ))}
         </ul>
-        <button type="button" className="all-evidence">전체 근거 보기 <span aria-hidden="true">→</span></button>
+        {incident.evidence.length > 2 ? (
+          <button
+            type="button"
+            className="all-evidence"
+            aria-expanded={allEvidenceVisible}
+            onClick={() => setAllEvidenceVisible((value) => !value)}
+          >
+            {allEvidenceVisible ? "근거 접기" : `전체 근거 ${incident.evidence.length}건 보기`}
+            <span aria-hidden="true">{allEvidenceVisible ? "↑" : "↓"}</span>
+          </button>
+        ) : null}
       </section>
 
       <section className="recommended-action" aria-labelledby="action-heading">

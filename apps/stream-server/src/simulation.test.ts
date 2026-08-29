@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createSensorPoint, generateHistory } from "./simulation";
+import { createPlantSummary, createSensorPoint, generateHistory } from "./simulation";
 
 describe("sensor simulation", () => {
   it("generates the expected number of monotonically ordered points", () => {
@@ -9,10 +9,21 @@ describe("sensor simulation", () => {
   });
 
   it("keeps physical measurements within plausible bounds", () => {
-    const point = createSensorPoint(Date.now(), 1_000, Date.now());
+    const now = Date.now();
+    const point = createSensorPoint(now, 1_000, now - 60_000);
     expect(point.ovenTemperature).toBeGreaterThan(140);
     expect(point.ovenTemperature).toBeLessThan(190);
     expect(point.lineSpeed).toBeGreaterThan(40);
     expect(point.defectRate).toBeGreaterThanOrEqual(0);
+  });
+
+  it("keeps stage counts and incident timing aligned with the equipment source", () => {
+    const summary = createPlantSummary(2_000_000, 1_000_000, 3_000_000);
+    const coating = summary.stages.find((stage) => stage.id === "coating");
+
+    expect(coating?.equipmentCount).toBe(summary.equipment.filter((item) => item.stage === "coating").length);
+    expect(summary.equipment.filter((item) => item.status === "normal")).toHaveLength(10);
+    expect(summary.activeIncident.startedAt).toBe(1_000_000);
+    expect(summary.activeIncident.predictedImpactAt).toBe(3_000_000);
   });
 });

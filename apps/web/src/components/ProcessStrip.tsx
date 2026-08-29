@@ -11,11 +11,10 @@ interface ProcessStripProps {
 
 export function ProcessStrip({ stages }: ProcessStripProps) {
   return (
-    <nav className="process-strip" aria-label="공정 단계">
+    <section className="process-strip" aria-label="공정 단계">
       {stages.map((stage, index) => (
         <div className="process-strip__segment" key={stage.id}>
-          <button
-            type="button"
+          <div
             className={`process-node process-node--${stage.status} ${stage.id === "coating" ? "selected" : ""}`}
             aria-current={stage.id === "coating" ? "step" : undefined}
           >
@@ -26,10 +25,10 @@ export function ProcessStrip({ stages }: ProcessStripProps) {
               <CheckCircleIcon size={18} weight="fill" />
             )}
             {stage.id === "coating" ? <small>COATER-02 · 복합 이상</small> : null}
-          </button>
+          </div>
           {index < stages.length - 1 ? <ArrowRightIcon className="process-arrow" size={26} /> : null}
         </div>
       ))}
-    </nav>
+    </section>
   );
 }
