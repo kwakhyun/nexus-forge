@@ -12,7 +12,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck && tsc -p tsconfig.vercel.json",
-    "lint": "turbo run lint && tsc -p tsconfig.vercel.json && node --check scripts/benchmark-performance.mjs",
+    "lint": "turbo run lint && tsc -p tsconfig.vercel.json && node --check scripts/benchmark-performance.mjs && node --check scripts/verify-production.mjs",
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e --filter=@nexus/web",
     "storybook": "npm --workspace @nexus/web run storybook",

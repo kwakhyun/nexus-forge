@@ -4,7 +4,7 @@
 |---|---|
 | React, TypeScript 제조 운영 앱 | 공정 개요와 이상 진단의 두 핵심 라우트, 공유 계약을 사용한 전체 TypeScript 구현 |
 | 재사용 가능한 컴포넌트와 아키텍처 | `packages/ui` 토큰과 프리미티브, 공정 스트립, 설비 목록, 원인 레일 분리 |
-| WebSocket, SSE 실시간 갱신 | 250ms WebSocket 스트림, 500ms 클라이언트 배치, 재연결 상태 머신 |
+| WebSocket, SSE 실시간 갱신 | 250ms WebSocket 스트림, 500ms 클라이언트 배치, 센서 신선도 감시, 하트비트 타임아웃, 지수 백오프 재연결 |
 | 대용량 시계열 시각화 | 18,000개 이력, 20,000개 링 버퍼, 동기화 다운샘플링, ECharts Canvas |
 | 성능 병목 진단과 개선 | 차트 트리 셰이킹, 진단 라우트 코드 분할, Sentry 조건부 로딩, 렌더링 주기 제한, 재현 가능한 Canvas와 번들 벤치마크 |
 | 작업자와 관리자 UX | 라인 엔지니어의 기본 담당자 기반 즉시 발행, 교대 관리자의 담당자 선택과 위임, 안전 검증 작업까지 이어지는 흐름 |
@@ -15,8 +15,8 @@
 | 디자인 시스템 | 색상, 간격, 서체, 상태 토큰과 Button, StatusBadge, KpiValue 패키지 |
 | 모노레포 | npm workspaces와 Turborepo, 앱 2개와 패키지 2개 구성 |
 | 테스트 | Vitest, Testing Library, Playwright 핵심 흐름, Storybook a11y 설정 |
-| CI/CD | GitHub Actions에서 lint, typecheck, unit, build, Storybook, Chromium E2E |
-| 운영 도구 | 선택적 Sentry 초기화, 헬스 체크, 연결 상태 노출, 소스맵 빌드 |
+| CI/CD | GitHub Actions의 정적 검증과 Chromium E2E 성공 후 Vercel 배포 훅 실행, 커밋 일치와 공개 UI, REST, WebSocket 스모크 확인 |
+| 운영 도구 | 선택적 Sentry 초기화, 배포 SHA 헬스 체크, 센서 신선도 상태, 이력 장애 안전 차단, 소스맵 빌드 |
 | AI 도구 활용 | 공개 자료 조사, 디자인 대안, 구현 보조와 QA에 AI를 사용하고 코드, 자동 테스트, 브라우저 검수로 결과를 재검증 |
 
 ## 면접에서 설명할 핵심 기술 판단

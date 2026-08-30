@@ -15,7 +15,12 @@ const narrowPanelQuery = "(max-width: 700px)";
 export function DiagnosticsPage() {
   const [treeCollapsed, setTreeCollapsed] = useState(() => window.matchMedia(narrowPanelQuery).matches);
   const summaryQuery = useQuery({ queryKey: ["plant-summary"], queryFn: api.getPlantSummary });
-  const historyQuery = useQuery({ queryKey: ["history", "COATER-02"], queryFn: () => api.getHistory("COATER-02") });
+  const historyQuery = useQuery({
+    queryKey: ["history", "COATER-02"],
+    queryFn: () => api.getHistory("COATER-02"),
+    retry: 1,
+    retryDelay: 500,
+  });
   const points = useOperationsStore((state) => state.sensorPoints);
   const setHistoricalPoints = useOperationsStore((state) => state.setHistoricalPoints);
   const setVerificationOpen = useOperationsStore((state) => state.setVerificationOpen);
@@ -41,6 +46,13 @@ export function DiagnosticsPage() {
 
   const summary = summaryQuery.data;
   const incident = summary.activeIncident;
+  const diagnosticsStatus = historyQuery.isFetching && historyQuery.data === undefined
+    ? "loading"
+    : historyQuery.isError
+      ? "error"
+      : historyQuery.isSuccess
+        ? "ready"
+        : "loading";
 
   return (
     <div className="app-frame app-frame--diagnostics">
@@ -54,10 +66,20 @@ export function DiagnosticsPage() {
         />
         <main className="diagnostic-main">
           <ProcessStrip stages={summary.stages} />
-          <SignalWorkbench points={points} incident={incident} loading={historyQuery.isLoading} />
+          <SignalWorkbench
+            points={points}
+            incident={incident}
+            loading={diagnosticsStatus === "loading"}
+            historyError={diagnosticsStatus === "error"}
+            onRetryHistory={() => void historyQuery.refetch()}
+          />
           <EventTimeline incident={incident} />
         </main>
-        <CauseRail incident={incident} onStartVerification={() => setVerificationOpen(true)} />
+        <CauseRail
+          incident={incident}
+          diagnosticsStatus={diagnosticsStatus}
+          onStartVerification={() => setVerificationOpen(true)}
+        />
       </div>
       <VerificationDialog incident={incident} />
     </div>

@@ -27,11 +27,16 @@ export function AppHeader() {
   const streamLabel = {
     connecting: "데이터 연결 중",
     live: "데이터 수신 정상",
+    stale: "센서 데이터 지연",
     reconnecting: "데이터 재연결 중",
     offline: "데이터 연결 끊김",
   }[connection];
 
-  const streamTone = connection === "live" ? "normal" : connection === "offline" ? "critical" : "warning";
+  const streamTone = connection === "live"
+    ? "normal"
+    : connection === "offline" || connection === "stale"
+      ? "critical"
+      : "warning";
 
   return (
     <header className="app-header">

@@ -21,6 +21,7 @@ import {
   CrosshairIcon,
   MagnifyingGlassMinusIcon,
   MagnifyingGlassPlusIcon,
+  WarningCircleIcon,
 } from "@phosphor-icons/react";
 import { downsampleSynchronized } from "../lib/downsample";
 import { formatTime } from "../lib/format";
@@ -42,6 +43,8 @@ interface SignalWorkbenchProps {
   points: SensorPoint[];
   incident: Incident;
   loading?: boolean;
+  historyError?: boolean;
+  onRetryHistory?: () => void;
 }
 
 const colors = {
@@ -53,7 +56,13 @@ const colors = {
   text: "#7f8c95",
 };
 
-export function SignalWorkbench({ points, incident, loading = false }: SignalWorkbenchProps) {
+export function SignalWorkbench({
+  points,
+  incident,
+  loading = false,
+  historyError = false,
+  onRetryHistory,
+}: SignalWorkbenchProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
   const [viewRange, setViewRange] = useState<{ start: number; end: number } | null>(null);
@@ -303,6 +312,16 @@ export function SignalWorkbench({ points, incident, loading = false }: SignalWor
         <span className="render-stat">{points.length.toLocaleString()}개 시점 · Canvas</span>
       </div>
       <div className="signal-chart-wrap">
+        {historyError ? (
+          <div className="chart-error" role="alert">
+            <WarningCircleIcon size={20} weight="fill" aria-hidden="true" />
+            <span>
+              <strong>최근 30분 센서 이력을 불러오지 못했습니다.</strong>
+              실시간 수신 데이터만으로 원인을 판단하지 마세요.
+            </span>
+            <button type="button" onClick={onRetryHistory}>이력 다시 불러오기</button>
+          </div>
+        ) : null}
         {loading ? (
           <div className="chart-loading"><CircleNotchIcon size={28} className="spin" /> 센서 이력을 불러오는 중입니다…</div>
         ) : null}

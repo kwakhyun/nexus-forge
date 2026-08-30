@@ -19,6 +19,7 @@ const simulationStartedAt = Date.now();
 const incidentStartedAt = simulationStartedAt - (3 * 60_000 + 43_000);
 const predictedImpactAt = simulationStartedAt + 18 * 60_000;
 const verificationRecords: VerificationRecord[] = [];
+const release = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local";
 
 type BodyAwareRequest = IncomingMessage & { body?: unknown };
 type ClientCountScope = "process" | "unavailable";
@@ -115,6 +116,7 @@ export function createOperationsHandler({
         status: "ok",
         clients: getClientCount(),
         clientCountScope,
+        release,
         now: Date.now(),
       });
       return;

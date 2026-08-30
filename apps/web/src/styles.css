@@ -375,6 +375,36 @@ button { color: inherit; }
   background: rgba(8, 16, 20, 0.82);
   font-size: 12px;
 }
+.chart-error {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  left: 12px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 9px 11px;
+  border: 1px solid rgba(255, 77, 87, 0.55);
+  border-radius: 5px;
+  color: var(--nf-red);
+  background: rgba(35, 13, 17, 0.96);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+.chart-error span { display: grid; gap: 3px; color: var(--nf-text-2); font-size: 11px; }
+.chart-error strong { color: var(--nf-text-1); font-size: 12px; }
+.chart-error button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 77, 87, 0.6);
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(255, 77, 87, 0.14);
+  cursor: pointer;
+  font-weight: 600;
+}
 .spin { animation: spin 900ms linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
@@ -580,6 +610,18 @@ button { color: inherit; }
   background: #26323a;
 }
 .confidence-bar span { display: block; height: 100%; border-radius: inherit; background: var(--nf-violet); }
+.analysis-guard {
+  margin: 10px 0 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 184, 77, 0.35);
+  border-radius: 4px;
+  color: var(--nf-text-2);
+  background: rgba(255, 184, 77, 0.06);
+  font-size: 10px;
+  line-height: 1.5;
+}
+.analysis-guard--error { border-color: rgba(255, 77, 87, 0.42); background: rgba(255, 77, 87, 0.07); }
+.cause-chain--unverified .cause-step { opacity: 0.48; filter: grayscale(0.55); }
 .cause-rail h2 { margin: 0 0 15px; color: var(--nf-text-2); font-size: 13px; }
 .cause-rail h2 small { margin-left: 5px; color: var(--nf-text-3); font-size: 10px; font-weight: 500; }
 .cause-step-wrap { display: grid; justify-items: center; }
@@ -644,6 +686,7 @@ button { color: inherit; }
 .action-summary .nf-status { flex: 0 0 auto; }
 .action-summary p { margin: 0; color: var(--nf-text-2); font-size: 10px; white-space: nowrap; }
 .action-card .nf-button { min-height: 58px; font-size: 16px; }
+.action-card .nf-button:disabled { cursor: not-allowed; opacity: 0.45; }
 .action-card > small {
   display: block;
   margin-top: 9px;

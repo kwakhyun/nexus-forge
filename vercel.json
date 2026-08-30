@@ -5,6 +5,9 @@
   "devCommand": "npm --workspace @nexus/web run dev -- --host 0.0.0.0 --port $PORT",
   "outputDirectory": "apps/web/dist/client",
   "fluid": true,
+  "git": {
+    "deploymentEnabled": false
+  },
   "functions": {
     "api/stream.ts": {
       "maxDuration": 300

@@ -4,13 +4,14 @@
 
 ### `GET /health`
 
-서버 상태와 서버 시간을 반환합니다. 로컬 통합 서버에서는 현재 프로세스의 WebSocket 클라이언트 수를 `clients`에 담고 `clientCountScope`를 `process`로 표시합니다. REST와 스트림이 별도 Function인 공개 Vercel 데모에서는 전역 접속자 수를 추정하지 않으며 `clients`는 `null`, 범위는 `unavailable`입니다.
+서버 상태와 서버 시간, 배포 커밋을 반환합니다. 로컬 통합 서버에서는 현재 프로세스의 WebSocket 클라이언트 수를 `clients`에 담고 `clientCountScope`를 `process`로 표시합니다. REST와 스트림이 별도 Function인 공개 Vercel 데모에서는 전역 접속자 수를 추정하지 않으며 `clients`는 `null`, 범위는 `unavailable`입니다. `release`는 공개 배포 검증에서 요청한 커밋과 실제 서비스 중인 커밋이 같은지 확인하는 기준입니다.
 
 ```json
 {
   "status": "ok",
   "clients": null,
   "clientCountScope": "unavailable",
+  "release": "9c81818dbb7acf500ccbfcf65fe3ea49e06ddd7b",
   "now": 1788041164730
 }
 ```
@@ -75,3 +76,5 @@
 - `heartbeat`: 연결 생존 확인용 서버 시간
 
 센서 시점은 `webTensionLeft`, `webTensionRight`, `ovenTemperature`, `lineSpeed`, `defectRate`를 같은 타임스탬프로 묶습니다. 공유 계약은 `packages/contracts/src/index.ts`에 있습니다.
+
+클라이언트는 유효한 센서 값이 5초 넘게 오지 않으면 하트비트가 계속 오더라도 `센서 데이터 지연`으로 표시합니다. 모든 유효 프레임이 35초 넘게 끊기면 소켓을 닫고 지수 백오프로 다시 연결합니다. 형식이 잘못된 프레임도 정상 데이터로 인정하지 않습니다.

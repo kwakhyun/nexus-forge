@@ -68,6 +68,8 @@ NEXUS Forge는 다음 세 가지 문제를 하나의 흐름으로 해결합니�
 - 변화량 기반 1,800개 대표 시점 선택
 - ECharts Canvas 기반 동기화 렌더링
 - 확대, 축소, 이동, 전체 구간 맞춤 지원
+- 5초 센서 신선도 감시와 35초 전체 프레임 타임아웃
+- 이력 조회 실패 시 신뢰도와 현장 검증을 차단하는 안전 상태
 
 ### 3. 원인 후보에서 현장 조치로 전환
 
@@ -142,7 +144,8 @@ npm run benchmark:performance
 
 ## 운영 품질을 위한 구성
 
-- WebSocket 지수 백오프 재연결과 연결 상태 표시
+- WebSocket 지수 백오프 재연결, 하트비트와 센서 신선도를 분리한 상태 표시
+- 센서 이력 실패 시 분석 신뢰도 숨김, 작업 발행 차단, 명시적 재시도
 - 설비 검색과 상태 필터, 이벤트 유형 필터, 작업자 주석
 - 모달 포커스 순환과 닫은 뒤 포커스 복귀
 - 200% 확대와 좁은 패널을 위한 단계별 반응형 재배치
@@ -151,7 +154,7 @@ npm run benchmark:performance
 - ECharts와 zrender 전용 비동기 청크 분리
 - `VITE_SENTRY_DSN`이 있을 때만 Sentry 동적 로딩
 - Storybook 컴포넌트 문서와 접근성 애드온
-- GitHub Actions 기반 lint, typecheck, unit, build, Storybook, Chromium E2E
+- GitHub Actions 기반 lint, typecheck, unit, build, Storybook, Chromium E2E와 검증 후 배포
 - REST와 WebSocket에서 함께 사용하는 TypeScript 계약 패키지
 
 ## 검증 결과
@@ -160,8 +163,8 @@ npm run benchmark:performance
 | --- | --- | --- |
 | ESLint | 웹 소스 warning 0 | `npm run lint` |
 | TypeScript | 전체 워크스페이스와 Vercel API 통과 | `npm run typecheck` |
-| 단위 및 컴포넌트 테스트 | 20개 통과 | `npm test` |
-| 핵심 사용자 흐름 | Chromium 1440×1024 통과 | `npm run test:e2e` |
+| 단위 및 컴포넌트 테스트 | 웹 21개, 스트림 서버 8개 통과 | `npm test` |
+| 핵심 사용자 흐름 | 정상 작업 발행과 이력 장애 복구 2개, Chromium 1440×1024 통과 | `npm run test:e2e` |
 | 배포용 빌드 | 웹, 서버, 공유 패키지 통과 | `npm run build` |
 | 컴포넌트 문서 | Storybook 정적 빌드 통과 | `npm run storybook:build` |
 | 의존성 감사 | 2026년 8월 30일 취약점 0건 | `npm audit` |
@@ -196,7 +199,8 @@ npm run dev
 ## 배포
 
 - [Vercel 공개 데모](https://nexus-forge-ten.vercel.app/overview)는 제품 흐름을 검토하기 위한 포트폴리오 배포입니다.
-- GitHub 기능 브랜치 푸시는 미리보기 배포를, `main` 브랜치 푸시는 공개 데모 배포를 자동으로 생성합니다.
+- Vercel의 Git 푸시 직접 배포는 비활성화했습니다. `main` 푸시 후 GitHub Actions의 정적 검증과 Chromium E2E가 모두 통과해야 암호화된 배포 훅으로 공개 데모 빌드를 시작합니다.
+- 배포 뒤 `/api/health`의 커밋 SHA가 GitHub Actions의 SHA와 일치할 때까지 기다린 다음, 공개 UI 셸, 공정 요약, 30분 이력, WebSocket 센서 수신을 다시 확인합니다.
 - 정적 웹 자산, REST API, WebSocket 스트림을 같은 출처로 제공합니다.
 - Vercel Functions와 로컬 Node 서버가 같은 런타임 모듈을 사용해 API 계약과 센서 시뮬레이션 동작을 공유합니다.
 

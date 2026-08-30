@@ -5,7 +5,7 @@ import { RingBuffer } from "../lib/ringBuffer";
 
 const sensorBuffer = new RingBuffer<SensorPoint>(20_000);
 
-type ConnectionState = "connecting" | "live" | "reconnecting" | "offline";
+export type ConnectionState = "connecting" | "live" | "stale" | "reconnecting" | "offline";
 
 interface OperationsState {
   selectedEquipmentId: string;
@@ -43,7 +43,6 @@ export const useOperationsStore = create<OperationsState>((set) => ({
       sensorPoints: sensorBuffer.toArray(),
       lastSequence: sequence,
       streamLatencyMs: latencyMs,
-      connection: "live",
     });
   },
   setConnection: (connection) => set({ connection }),

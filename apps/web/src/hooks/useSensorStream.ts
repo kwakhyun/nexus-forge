@@ -1,8 +1,56 @@
 import { useEffect } from "react";
 import type { SensorPoint, StreamMessage } from "@nexus/contracts";
+import { getStreamHealth } from "../lib/streamHealth";
 import { useOperationsStore } from "../store/operationsStore";
 
 const flushIntervalMs = 500;
+const healthCheckIntervalMs = 1_000;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+export function parseStreamMessage(payload: string): StreamMessage | null {
+  try {
+    const message: unknown = JSON.parse(payload);
+    if (!isRecord(message) || typeof message.type !== "string") return null;
+
+    if (message.type === "heartbeat") {
+      return isFiniteNumber(message.serverTime) ? message as unknown as StreamMessage : null;
+    }
+
+    if (message.type === "hello") {
+      return typeof message.streamId === "string"
+        && isFiniteNumber(message.intervalMs)
+        && isFiniteNumber(message.serverTime)
+        ? message as unknown as StreamMessage
+        : null;
+    }
+
+    if (message.type === "sensor.point") {
+      return isFiniteNumber(message.sequence)
+        && isRecord(message.point)
+        && [
+          message.point.timestamp,
+          message.point.webTensionLeft,
+          message.point.webTensionRight,
+          message.point.ovenTemperature,
+          message.point.lineSpeed,
+          message.point.defectRate,
+        ].every(isFiniteNumber)
+        ? message as unknown as StreamMessage
+        : null;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export function useSensorStream(enabled: boolean): void {
   const appendStreamPoints = useOperationsStore((state) => state.appendStreamPoints);
@@ -18,6 +66,16 @@ export function useSensorStream(enabled: boolean): void {
     let pendingPoints: SensorPoint[] = [];
     let latestSequence = 0;
     let latestLatency = 0;
+    let connectedAt = 0;
+    let lastFrameAt: number | null = null;
+    let lastSensorAt: number | null = null;
+    let reportedConnection = useOperationsStore.getState().connection;
+
+    const reportConnection = (connection: Parameters<typeof setConnection>[0]) => {
+      if (reportedConnection === connection) return;
+      reportedConnection = connection;
+      setConnection(connection);
+    };
 
     const flushTimer = window.setInterval(() => {
       if (pendingPoints.length === 0) return;
@@ -26,35 +84,60 @@ export function useSensorStream(enabled: boolean): void {
       appendStreamPoints(batch, latestSequence, latestLatency);
     }, flushIntervalMs);
 
+    const healthTimer = window.setInterval(() => {
+      if (!socket || socket.readyState !== WebSocket.OPEN) return;
+      const health = getStreamHealth({ now: Date.now(), connectedAt, lastFrameAt, lastSensorAt });
+      if (health === "reconnect") {
+        socket.close(4000, "stream timeout");
+        return;
+      }
+      reportConnection(health);
+    }, healthCheckIntervalMs);
+
     const connect = () => {
       if (disposed) return;
-      setConnection(reconnectAttempts > 0 ? "reconnecting" : "connecting");
+      reportConnection(reconnectAttempts > 0 ? "reconnecting" : "connecting");
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      socket = new WebSocket(`${protocol}//${window.location.host}/stream`);
+      const activeSocket = new WebSocket(`${protocol}//${window.location.host}/stream`);
+      socket = activeSocket;
 
-      socket.addEventListener("open", () => {
-        reconnectAttempts = 0;
-        setConnection("live");
+      activeSocket.addEventListener("open", () => {
+        if (activeSocket !== socket) return;
+        connectedAt = Date.now();
+        lastFrameAt = null;
+        lastSensorAt = null;
+        reportConnection("connecting");
       });
 
-      socket.addEventListener("message", (event) => {
-        const message = JSON.parse(String(event.data)) as StreamMessage;
+      activeSocket.addEventListener("message", (event) => {
+        if (activeSocket !== socket) return;
+        const message = parseStreamMessage(String(event.data));
+        if (!message) {
+          activeSocket.close(4002, "invalid stream frame");
+          return;
+        }
+
+        lastFrameAt = Date.now();
         if (message.type === "sensor.point") {
+          lastSensorAt = lastFrameAt;
+          reconnectAttempts = 0;
           pendingPoints.push(message.point);
           latestSequence = message.sequence;
           latestLatency = Math.max(0, Date.now() - message.point.timestamp);
+          reportConnection("live");
         }
       });
 
-      socket.addEventListener("close", () => {
-        if (disposed) return;
+      activeSocket.addEventListener("close", () => {
+        if (disposed || activeSocket !== socket) return;
+        socket = null;
         reconnectAttempts += 1;
-        setConnection(reconnectAttempts > 4 ? "offline" : "reconnecting");
+        reportConnection(reconnectAttempts > 4 ? "offline" : "reconnecting");
         const delay = Math.min(10_000, 750 * 2 ** reconnectAttempts);
         retryTimer = window.setTimeout(connect, delay);
       });
 
-      socket.addEventListener("error", () => socket?.close());
+      activeSocket.addEventListener("error", () => activeSocket.close());
     };
 
     connect();
@@ -62,6 +145,7 @@ export function useSensorStream(enabled: boolean): void {
     return () => {
       disposed = true;
       window.clearInterval(flushTimer);
+      window.clearInterval(healthTimer);
       if (retryTimer) window.clearTimeout(retryTimer);
       socket?.close();
     };

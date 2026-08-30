@@ -60,3 +60,28 @@ test("an operator verifies safety and a manager assigns the verification work or
   await expect(page.getByTestId("verification-success")).toContainText("발행됨");
   await expect(page.getByTestId("verification-success")).toContainText("완료 기한");
 });
+
+test("blocks diagnosis actions when sensor history fails and recovers after retry", async ({ page }) => {
+  let historyRequests = 0;
+  await page.route("**/api/equipment/COATER-02/history?intervalMs=100", async (route) => {
+    historyRequests += 1;
+    if (historyRequests <= 2) {
+      await route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"temporarily_unavailable"}' });
+      return;
+    }
+    await route.continue();
+  });
+
+  await page.goto("/diagnostics/COATER-02");
+
+  const historyAlert = page.getByRole("alert").filter({ hasText: "최근 30분 센서 이력을 불러오지 못했습니다" });
+  await expect(historyAlert).toBeVisible();
+  await expect(page.getByText("분석 보류")).toBeVisible();
+  await expect(page.getByRole("button", { name: "이력 복구 후 진행" })).toBeDisabled();
+
+  await historyAlert.getByRole("button", { name: "이력 다시 불러오기" }).click();
+
+  await expect(historyAlert).toHaveCount(0);
+  await expect(page.getByText("92%")).toBeVisible();
+  await expect(page.getByRole("button", { name: "현장 검증 시작" })).toBeEnabled();
+});

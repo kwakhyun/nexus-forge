@@ -32,3 +32,29 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: [quality, e2e]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Trigger the gated Vercel deployment
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "VERCEL_DEPLOY_HOOK_URL is not configured" >&2
+            exit 1
+          fi
+          curl --fail --silent --show-error --max-time 30 --request POST "$VERCEL_DEPLOY_HOOK_URL" >/dev/null
+      - name: Verify the exact release on the public site
+        env:
+          PRODUCTION_URL: https://nexus-forge-ten.vercel.app
+          EXPECTED_RELEASE: ${{ github.sha }}
+        run: node scripts/verify-production.mjs

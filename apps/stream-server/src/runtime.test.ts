@@ -74,6 +74,7 @@ describe("operations runtime input boundaries", () => {
       status: "ok",
       clients: null,
       clientCountScope: "unavailable",
+      release: expect.any(String),
     });
     expect(result.body.now).toEqual(expect.any(Number));
   });

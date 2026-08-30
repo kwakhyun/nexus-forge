@@ -4,6 +4,7 @@ import type { Incident, PlantSummary } from "@nexus/contracts";
 import { EquipmentTree } from "./EquipmentTree";
 import { EventTimeline } from "./EventTimeline";
 import { OverviewMap } from "./OverviewMap";
+import { CauseRail } from "./CauseRail";
 
 const incident: Incident = {
   id: "INC-TEST",
@@ -102,5 +103,24 @@ describe("operations interactions", () => {
     fireEvent.change(screen.getByLabelText("현장 관찰 내용"), { target: { value: "댄서 롤 진동 확인" } });
     fireEvent.click(screen.getByRole("button", { name: "타임라인에 추가" }));
     expect(screen.getByText("작업자 주석: 댄서 롤 진동 확인")).toBeInTheDocument();
+  });
+
+  it("withholds confidence and verification actions until history is verified", () => {
+    const onStartVerification = vi.fn();
+    const { rerender } = render(
+      <CauseRail incident={incident} diagnosticsStatus="error" onStartVerification={onStartVerification} />,
+    );
+
+    expect(screen.getByText("분석 보류")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar", { name: "원인 분석 신뢰도" })).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("원인 판단과 현장 검증을 진행할 수 없습니다");
+    expect(screen.getByRole("button", { name: "이력 복구 후 진행" })).toBeDisabled();
+
+    rerender(<CauseRail incident={incident} diagnosticsStatus="ready" onStartVerification={onStartVerification} />);
+
+    expect(screen.getByText("92%")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: "원인 분석 신뢰도" })).toHaveAttribute("aria-valuenow", "92");
+    fireEvent.click(screen.getByRole("button", { name: "현장 검증 시작" }));
+    expect(onStartVerification).toHaveBeenCalledOnce();
   });
 });
