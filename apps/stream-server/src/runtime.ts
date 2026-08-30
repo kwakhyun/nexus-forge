@@ -21,6 +21,12 @@ const predictedImpactAt = simulationStartedAt + 18 * 60_000;
 const verificationRecords: VerificationRecord[] = [];
 
 type BodyAwareRequest = IncomingMessage & { body?: unknown };
+type ClientCountScope = "process" | "unavailable";
+
+interface OperationsHandlerOptions {
+  getClientCount?: () => number | null;
+  clientCountScope?: ClientCountScope;
+}
 
 function applyCors(response: ServerResponse): void {
   response.setHeader("Access-Control-Allow-Origin", "*");
@@ -87,7 +93,10 @@ export function normalizeHistoryInterval(input: string | null): number {
   return Math.max(50, Math.min(1_000, Math.round(parsed)));
 }
 
-export function createOperationsHandler(getClientCount: () => number = () => 0) {
+export function createOperationsHandler({
+  getClientCount = () => null,
+  clientCountScope = "unavailable",
+}: OperationsHandlerOptions = {}) {
   return async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     const method = request.method ?? "GET";
     const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
@@ -102,7 +111,12 @@ export function createOperationsHandler(getClientCount: () => number = () => 0) 
     }
 
     if (method === "GET" && ["/health", "/api/health"].includes(pathname)) {
-      json(response, 200, { status: "ok", clients: getClientCount(), now: Date.now() });
+      json(response, 200, {
+        status: "ok",
+        clients: getClientCount(),
+        clientCountScope,
+        now: Date.now(),
+      });
       return;
     }
 

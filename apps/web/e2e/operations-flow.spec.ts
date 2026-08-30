@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("a manager filters the incident evidence and issues an assigned verification work order", async ({ page }) => {
+test("an operator verifies safety and a manager assigns the verification work order", async ({ page }) => {
   await page.goto("/overview");
 
   await expect(page.getByRole("heading", { name: "라인 현황" })).toBeVisible();
@@ -33,6 +33,13 @@ test("a manager filters the incident evidence and issues an assigned verificatio
   await expect(page.getByText("비전 검사 결함률 급증")).toBeVisible();
   await page.getByRole("button", { name: /전체 근거 3건 보기/ }).click();
   await expect(page.getByText("비전 검사 엣지 웨이브 결함률")).toBeVisible();
+
+  await page.getByRole("button", { name: "현장 검증 시작" }).click();
+  const operatorDialog = page.getByRole("dialog", { name: /COATER-02 현장 검증/ });
+  await expect(operatorDialog.getByText("기본 담당자", { exact: true })).toBeVisible();
+  await expect(operatorDialog.getByText("설비 보전팀 이민호")).toBeVisible();
+  await expect(operatorDialog.getByLabel("작업 담당자")).toHaveCount(0);
+  await operatorDialog.getByRole("button", { name: "닫기" }).click();
 
   await page.getByLabel("사용자 역할").selectOption("manager");
   await page.getByRole("button", { name: "현장 검증 요청" }).click();

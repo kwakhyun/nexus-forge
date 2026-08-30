@@ -155,6 +155,9 @@ const benchmarkPage = `<!doctype html>
       }
 
       function option(points) {
+        const incidentAt = points[Math.floor(points.length * 0.78)].timestamp;
+        const eventStart = incidentAt - 50000;
+        const eventEnd = incidentAt + 82000;
         const grids = [0, 1, 2, 3].map((_, index) => ({
           left: 64,
           right: 24,
@@ -168,12 +171,17 @@ const benchmarkPage = `<!doctype html>
           splitLine: { show: false },
         }));
         const yAxis = grids.map((_, index) => ({ type: "value", gridIndex: index, splitLine: { show: false } }));
+        const markArea = {
+          silent: true,
+          data: [[{ xAxis: eventStart }, { xAxis: eventEnd }]],
+        };
         const seriesConfig = [
-          [0, 0, "좌측 장력"],
-          [1, 0, "우측 장력"],
-          [2, 1, "오븐 온도"],
-          [3, 2, "라인 속도"],
-          [4, 3, "결함률"],
+          { signalIndex: 0, axisIndex: 0, name: "좌측 장력", markArea: true, markLine: true },
+          { signalIndex: 1, axisIndex: 0, name: "우측 장력" },
+          { constantValue: 160, axisIndex: 1, name: "설정 온도", silent: true },
+          { signalIndex: 2, axisIndex: 1, name: "측정 온도", markArea: true },
+          { signalIndex: 3, axisIndex: 2, name: "라인 속도", markArea: true },
+          { signalIndex: 4, axisIndex: 3, name: "비전 검사 결함률", markArea: true },
         ];
 
         return {
@@ -181,13 +189,35 @@ const benchmarkPage = `<!doctype html>
           grid: grids,
           xAxis,
           yAxis,
-          series: seriesConfig.map(([signalIndex, axisIndex, name]) => ({
-            name,
+          tooltip: { trigger: "axis" },
+          axisPointer: { link: [{ xAxisIndex: "all" }] },
+          legend: [
+            { data: ["좌측 장력", "우측 장력"] },
+            { data: ["설정 온도", "측정 온도"], top: "28%" },
+          ],
+          dataZoom: [{ type: "inside", xAxisIndex: [0, 1, 2, 3], filterMode: "none" }],
+          series: seriesConfig.map((config) => ({
+            name: config.name,
             type: "line",
             showSymbol: false,
-            xAxisIndex: axisIndex,
-            yAxisIndex: axisIndex,
-            data: points.map((point) => [point.timestamp, point.values[signalIndex]]),
+            silent: config.silent,
+            xAxisIndex: config.axisIndex,
+            yAxisIndex: config.axisIndex,
+            data: points.map((point) => [
+              point.timestamp,
+              config.constantValue ?? point.values[config.signalIndex],
+            ]),
+            markArea: config.markArea ? markArea : undefined,
+            markLine: config.markLine ? {
+              silent: true,
+              symbol: "none",
+              label: { show: false },
+              data: [
+                { xAxis: eventStart },
+                { xAxis: incidentAt },
+                { xAxis: eventEnd },
+              ],
+            } : undefined,
           })),
         };
       }
@@ -291,6 +321,12 @@ const result = {
     gzipReductionPercent: Number((bundleReduction * 100).toFixed(1)),
   },
   synchronizedChartRender: {
+    scope: {
+      panels: 4,
+      series: 6,
+      sensorSeries: 5,
+      includes: ["set-temperature-reference", "linked-axis-pointer", "data-zoom", "mark-area", "mark-line"],
+    },
     baseline: { points: rawPointCount, ...chartRendering.raw },
     optimized: { points: sampledPointCount, ...chartRendering.sampled },
     medianReductionPercent: Number((renderReduction * 100).toFixed(1)),

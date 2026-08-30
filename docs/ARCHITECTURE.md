@@ -55,4 +55,6 @@ Vercel의 Production target을 공개 포트폴리오 데모의 배포 환경으
 
 GitHub 저장소와 Vercel 프로젝트를 연결해 기능 브랜치에는 미리보기 배포를, `main` 브랜치에는 공개 데모 배포를 자동으로 생성합니다. 클라이언트는 Functions 재시작과 배포 교체에 대비해 WebSocket 연결을 지수 백오프로 다시 맺습니다. 현재 작업 지시 기록은 데모 범위의 런타임 메모리에 보관되며, 다중 인스턴스 환경의 영속 상태는 Redis 또는 관계형 데이터베이스로 이전하는 것이 다음 단계입니다.
 
+로컬 통합 서버의 `/health`는 같은 프로세스에 연결된 WebSocket 클라이언트 수를 반환합니다. Vercel에서는 REST와 스트림 Function의 인스턴스가 분리되고 전역 접속 상태 저장소가 없으므로 `clients: null`과 `clientCountScope: "unavailable"`을 반환해 `0명 접속`으로 오해하지 않도록 했습니다.
+
 ChatGPT Sites용 정적 산출물은 보조 배포 호환성을 위해 계속 생성합니다. 실제 온프레미스 환경에서는 리버스 프록시가 `/api`와 `/stream`을 같은 출처로 노출하는 구조가 적합합니다.

@@ -3,7 +3,10 @@ import { attachOperationsStream, createOperationsHandler } from "./runtime.js";
 
 const port = Number(process.env.PORT ?? 8787);
 let operationsStream: ReturnType<typeof attachOperationsStream> | undefined;
-const server = createServer(createOperationsHandler(() => operationsStream?.streamServer.clients.size ?? 0));
+const server = createServer(createOperationsHandler({
+  getClientCount: () => operationsStream?.streamServer.clients.size ?? 0,
+  clientCountScope: "process",
+}));
 operationsStream = attachOperationsStream(server);
 
 function shutdown(): void {

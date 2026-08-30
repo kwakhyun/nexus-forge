@@ -39,12 +39,13 @@ export function VerificationDialog({ incident }: VerificationDialogProps) {
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const [checked, setChecked] = useState<boolean[]>(() => checklist.map(() => false));
   const [assignee, setAssignee] = useState(defaultAssignee);
+  const isManager = role === "manager";
 
   const mutation = useMutation({
     mutationFn: () => api.createVerification({
       incidentId: incident.id,
-      requestedBy: role === "manager" ? "교대 관리자 박서진" : "라인 엔지니어 김현수",
-      assignee,
+      requestedBy: isManager ? "교대 관리자 박서진" : "라인 엔지니어 김현수",
+      assignee: isManager ? assignee : defaultAssignee,
       checks: checklist.filter((_, index) => checked[index]),
     }),
     onSuccess: (record) => setRecord(record),
@@ -138,14 +139,27 @@ export function VerificationDialog({ incident }: VerificationDialogProps) {
               <ClipboardTextIcon size={28} weight="duotone" />
               <div>
                 <h2 id="verification-title">{incident.equipmentId} 현장 검증</h2>
-                <p id="verification-description">라인 가동 중에도 점검할 수 있습니다. 작업 지시를 발행하기 전에 담당자와 안전 조건을 확인해 주세요.</p>
+                <p id="verification-description">
+                  {isManager
+                    ? "라인 가동 중에도 점검할 수 있습니다. 작업 담당자를 지정하고 안전 조건을 확인해 주세요."
+                    : "라인 가동 중에도 점검할 수 있습니다. 기본 담당자에게 작업 지시를 보내기 전에 안전 조건을 확인해 주세요."}
+                </p>
               </div>
             </div>
             <div className="assignment-field">
-              <label htmlFor="verification-assignee">작업 담당자</label>
-              <select id="verification-assignee" value={assignee} onChange={(event) => setAssignee(event.target.value)}>
-                {assignees.map((name) => <option value={name} key={name}>{name}</option>)}
-              </select>
+              {isManager ? (
+                <>
+                  <label htmlFor="verification-assignee">작업 담당자</label>
+                  <select id="verification-assignee" value={assignee} onChange={(event) => setAssignee(event.target.value)}>
+                    {assignees.map((name) => <option value={name} key={name}>{name}</option>)}
+                  </select>
+                </>
+              ) : (
+                <>
+                  <span className="assignment-field__label">기본 담당자</span>
+                  <strong className="assignment-field__value">{defaultAssignee}</strong>
+                </>
+              )}
             </div>
             <fieldset>
               <legend>안전 조건</legend>

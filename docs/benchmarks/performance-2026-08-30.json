@@ -1,0 +1,47 @@
+{
+  "measuredAt": "2026-08-29T22:31:02.068Z",
+  "environment": {
+    "os": "darwin 25.5.0",
+    "cpu": "Apple M2",
+    "node": "v22.21.0",
+    "chromium": "151.0.7922.34",
+    "viewport": "1200x700, DPR 1",
+    "repetitions": 9
+  },
+  "echartsImportBundle": {
+    "baseline": {
+      "rawBytes": 1132104,
+      "gzipBytes": 380176
+    },
+    "optimized": {
+      "rawBytes": 589906,
+      "gzipBytes": 199492
+    },
+    "gzipReductionPercent": 47.5
+  },
+  "synchronizedChartRender": {
+    "scope": {
+      "panels": 4,
+      "series": 6,
+      "sensorSeries": 5,
+      "includes": [
+        "set-temperature-reference",
+        "linked-axis-pointer",
+        "data-zoom",
+        "mark-area",
+        "mark-line"
+      ]
+    },
+    "baseline": {
+      "points": 18000,
+      "medianMs": 32.6,
+      "p95Ms": 35.6
+    },
+    "optimized": {
+      "points": 1800,
+      "medianMs": 6.7,
+      "p95Ms": 16.5
+    },
+    "medianReductionPercent": 79.4
+  }
+}
