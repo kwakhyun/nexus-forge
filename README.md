@@ -6,7 +6,7 @@
 
 **공개 데모:** 결정론적 합성 데이터를 사용합니다. 실제 설비 제어, AI 추론 결과, 고객사 운영 실적을 제공하지 않습니다.
 
-[공개 데모](https://nexus-forge-ten.vercel.app/overview) | [3분 검토 동선](#3분-검토-동선) | [기술 판단 사례](./docs/ENGINEERING_CASE_STUDIES.md) | [설비 재사용](./docs/EQUIPMENT_REUSE.md) | [성능 측정](#실측-성능-비교) | [CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
+[공개 데모](https://nexus-forge-ten.vercel.app/overview) | [핵심 화면](#핵심-화면) | [3분 검토 동선](#3분-검토-동선) | [기술 판단 사례](./docs/ENGINEERING_CASE_STUDIES.md) | [설비 재사용](./docs/EQUIPMENT_REUSE.md) | [성능 측정](#실측-성능-비교) | [CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
 
 [![CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
 
@@ -34,6 +34,49 @@
 재사용을 확인하려면 공정 개요나 진단 설비 목록에서 `DRYER-02`를 선택합니다. 같은 화면이 장력 없이 3개 패널과 165°C 설정값을 표시하며, 외부 계기 점검용 안전 확인으로 작업을 발행합니다. 두 설비를 왕복해도 데이터와 발행 결과는 분리됩니다.
 
 한 번 종결한 데모를 다시 체험하려면 설정에서 기록을 내보낸 후 확인 문구를 입력해 초기화할 수 있습니다. 초기화는 해당 사이트의 브라우저 기록을 지우며, 결과 미확인 발행 요청이 있으면 먼저 요청 결과를 확인해야 합니다.
+
+## 핵심 화면
+
+2026년 8월 31일 검수 중 저장한 실제 실행 화면입니다. 공정 개요와 건조기 진단은 당시 공개 배포본(`20ad702`), 나머지는 수정 후 로컬 실행본에서 캡처했습니다. 화면의 센서값과 생산 실적은 합성 데이터이며, 작업 기록은 데모에서 입력한 내용입니다. [캡처 시점과 환경](./docs/design/review-2026-08-31/manifest.json)을 함께 보관합니다.
+
+### 공정 개요 — 이상 설비에서 진단으로
+
+두 라인의 12대 설비를 공정 순서로 보여주고, 선택한 이상의 위치와 권장 조치를 진단 화면으로 연결합니다.
+
+![공정 개요: 12대 설비의 상태와 코팅 공정의 이상 설비, 우측 진단 이동 영역](./docs/design/review-2026-08-31/01-overview-desktop.jpg)
+
+### 신호 진단 — 같은 시간축에서 센서와 근거 비교
+
+`COATER-02`의 장력, 온도, 속도와 검사 결함률을 비교합니다. 요약 차트 아래에는 이상 발생 시점의 원본 참고값과 이벤트를 표시하고, 우측에는 합성 시나리오의 원인 후보와 근거를 제시합니다.
+
+![코터 진단: 동기화된 네 개 차트, 원본 참고값, 이벤트 이력과 원인 근거](./docs/design/review-2026-08-31/64-coater-reference-cards-recovered.jpg)
+
+<details>
+<summary>두 번째 설비 재사용 화면 — DRYER-02</summary>
+
+같은 진단 구조에서 장력 패널을 제외하고 온도, 속도와 후단 검사 신호를 표시합니다. 건조기의 설정값은 165°C이며, 코터와 별도의 진단 근거를 사용합니다.
+
+![건조기 진단: 세 개 신호 패널과 165°C 설정값, 설비별 원인 근거](./docs/design/review-2026-08-31/06-dryer-desktop.jpg)
+
+</details>
+
+### 작업 발행과 이상 종결 — 모바일 후속 처리
+
+첫 화면은 작업 번호, 담당자와 기한을 확인하는 발행 결과입니다. 두 번째 화면은 같은 작업의 점검 완료 후 별도로 이상을 종결한 기록입니다. 작업 발행, 점검 완료와 이상 종결을 구분하며 실제 담당자에게 전송하거나 설비를 제어하지 않습니다.
+
+<p>
+  <a href="./docs/design/review-2026-08-31/40-coater-issued-mobile.jpg"><img src="./docs/design/review-2026-08-31/40-coater-issued-mobile.jpg" width="300" alt="모바일 작업 발행 결과: 작업 번호, 담당자, 기한과 정비 관리 이동" /></a>
+  <a href="./docs/design/review-2026-08-31/43-coater-resolved-mobile.jpg"><img src="./docs/design/review-2026-08-31/43-coater-resolved-mobile.jpg" width="300" alt="모바일 이상 종결 기록: 종결 사유와 작업 발행, 점검 완료, 이상 종결 이력" /></a>
+</p>
+
+<details>
+<summary>생산 분석에서 후속 처리 집계 확인</summary>
+
+두 설비의 점검 완료와 이상 종결이 각각 2건으로 집계된 화면입니다. 브라우저에 저장한 처리 건수는 합성 생산 실적과 구분하며, 작업을 완료해도 합성 수율이나 센서값을 개선된 값으로 바꾸지 않습니다.
+
+![생산 분석의 처리 집계: 미종결 이상 0건, 점검 완료 2건, 이상 종결 2건](./docs/design/review-2026-08-31/51-production-both-assets-completed.jpg)
+
+</details>
 
 ## 기능 범위
 
