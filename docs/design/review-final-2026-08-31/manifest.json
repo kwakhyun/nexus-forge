@@ -2,7 +2,7 @@
   "auditDate": "2026-08-31",
   "method": "Repository Playwright regression suite; isolated local Chromium and test servers, not the in-app browser",
   "sourceBase": "20ad70286e08f3067572f5dd8f5a9a2640116a9c",
-  "sourceState": "Local implementation after sourceBase; final CI and public release recorded separately",
+  "sourceState": "Product implementation captured locally and later committed as implementationCommit; final code/test verification and release are identified separately",
   "historicalInAppReview": "../../BROWSER_REVIEW_2026-08-31.md",
   "completionReport": "../../FINAL_VERIFICATION_2026-08-31.md",
   "implementationSourceSha256": {
@@ -304,7 +304,7 @@
     }
   ],
   "releaseVerification": {
-    "status": "verifying-strict-regression-gate",
+    "status": "completed",
     "firstRun": {
       "runId": 33356281684,
       "url": "https://github.com/kwakhyun/nexus-forge/actions/runs/33356281684",
@@ -320,7 +320,61 @@
       "deploymentId": "dpl_7Jrccjpm4Lf25nH9KmUjXzKkka6y",
       "readyAt": "2026-08-31T04:17:49.903Z"
     },
-    "requiredFinalGate": "All 58 E2E pass without retries; failOnFlakyTests enabled in CI"
+    "finalRun": {
+      "runId": 33356962246,
+      "url": "https://github.com/kwakhyun/nexus-forge/actions/runs/33356962246",
+      "commit": "54747060225a8363fa6ed459a050c0ac1b0a47a7",
+      "completedAt": "2026-08-31T04:30:00Z",
+      "jobs": {
+        "quality": "success",
+        "e2e": "success",
+        "deploy": "success"
+      },
+      "webTests": 101,
+      "webTestFiles": 20,
+      "serverTests": 14,
+      "serverTestFiles": 3,
+      "e2e": {
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0,
+        "retriesUsed": 0,
+        "workers": 2,
+        "durationReported": "3.8m",
+        "failOnFlakyTests": true
+      }
+    },
+    "deployment": {
+      "id": "dpl_9SZ24MonhZ39X9KaLmYidSeJQ1kN",
+      "url": "https://nexus-forge-ksv7kr22n-khyun.vercel.app",
+      "publicOrigin": "https://nexus-forge-ten.vercel.app",
+      "state": "READY",
+      "target": "production",
+      "framework": "vite",
+      "sha": "54747060225a8363fa6ed459a050c0ac1b0a47a7",
+      "buildingAt": "2026-08-31T04:29:04.331Z",
+      "readyAt": "2026-08-31T04:29:34.206Z",
+      "buildDurationMs": 29875,
+      "checks": [
+        "exact release SHA",
+        "8 UI shells",
+        "both production lines",
+        "COATER-02 history and WebSocket",
+        "DRYER-02 history and WebSocket"
+      ]
+    },
+    "documentationOnlyCommits": "Subsequent documentation-only commits use the same CI and public SHA verification gate",
+    "postDeployErrorScan": {
+      "since": "2026-08-31T04:29:34.206Z",
+      "until": "2026-08-31T04:33:35.323Z",
+      "levels": [
+        "error",
+        "fatal"
+      ],
+      "matchingLogs": 0,
+      "scope": "Only this deployment and time range; not continuous monitoring or proof of complete logging"
+    }
   },
   "implementationCommit": "0aacc1498e13aab926b8d33627acd2f3d089e0b2",
   "verificationSourceState": "Latest verification files; the local five-test snapshot is identified by localRegression.testSourceCommit"

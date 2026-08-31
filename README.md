@@ -10,7 +10,7 @@
 
 [![CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
 
-검증 상태: 8월 31일 내장 브라우저로 일곱 화면과 두 설비의 핵심 업무 흐름을 대표 화면 크기에서 확인했습니다. 후속 Playwright 검사로 모바일 16조건과 일반 키보드 조작을 확인했고, 바로가기와 집계 등을 포함한 다섯 가지 결함을 수정했습니다. [최종 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md)에 실행별 근거를 정리했습니다. 마지막 수정의 전체 CI와 공개 배포 결과는 확인 후 갱신합니다.
+검증 완료: 8월 31일 일곱 화면과 두 설비의 핵심 업무 흐름을 대표 화면 크기에서 확인하고 다섯 가지 결함을 수정했습니다. 후속 Playwright에서 모바일 16조건과 일반 키보드 조작을 확인했으며, GitHub CI의 단위 검사와 E2E 58개를 통과한 뒤 Vercel 자동 배포와 커밋 일치까지 확인했습니다. [최종 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md)에 수정 전후 화면, 실행 결과와 한계를 공개합니다.
 
 ## 먼저 볼 네 가지 구현
 
@@ -136,11 +136,11 @@ npm run benchmark:performance
 | 단위/컴포넌트 | 마지막 제품 코드가 포함된 GitHub CI에서 웹 101개, 서버 14개 통과 |
 | 정적 검사 | 루트 lint와 TypeScript 검사 통과 |
 | 차트 회귀 | 다중 센서 극값, 공통 시점과 표시 예산, 센서별 추가 샘플링 비활성화 검사 통과 |
-| 업무 흐름과 레이아웃 | 추가 E2E 5개 통과. 첫 CI의 전체 58개 중 재시도 1개를 보강해 재검증 중. 실패와 재시도 기록은 최종 검증 문서에서 구분 |
+| 업무 흐름과 레이아웃 | GitHub CI에서 Chromium E2E 58개 통과. 실패/생략/재시도 0개. 최초 CI의 재시도 문제와 수정 근거도 보관 |
 | 빌드와 컴포넌트 문서 | 전체 빌드, Storybook 빌드와 Sites 호환성 검사 4개 통과 |
 | 직접 화면 확인 | 일곱 화면, 대표 데스크톱/모바일의 하단과 오류 복구, 두 설비의 발행 → 점검 완료 → 이상 종결 → 새로고침 복원 확인. 캡처 44장 보관 |
 | 후속 모바일/키보드 | 8개 경로 × 두 모바일 크기의 16조건 통과. 현재 메뉴 노출, 실제 Tab/Shift+Tab, Enter와 방향키 스크롤 확인. 새 캡처 6장 보관 |
-| 공개 버전 | 다섯 가지 수정이 포함된 `0aacc14`의 자동 배포와 공개 커밋 일치 확인. 회귀 검사 보강 이후 결과는 최종 검증 기록에 갱신 |
+| 공개 반영 | 검증 기준 `5474706`의 [CI와 자동 배포](https://github.com/kwakhyun/nexus-forge/actions/runs/33356962246) 완료. 현재 배포 SHA는 [공개 상태 API](https://nexus-forge-ten.vercel.app/api/health)에서 조회 |
 
 [최종 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md)에 후속 결과를, [제출 준비 기록](./docs/SUBMISSION_REVIEW_2026-08-31.md)에 이전 버전별 검사 결과를, [직접 검수 기록](./docs/BROWSER_REVIEW_2026-08-31.md)에 화면별 행동과 당시 제한을 모았습니다. 자동 검사나 대표 화면의 확인을 모든 크기의 시각적 완성도와 전체 접근성 준수로 확대하지 않습니다.
 
