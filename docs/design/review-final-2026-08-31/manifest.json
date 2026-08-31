@@ -16,11 +16,12 @@
   },
   "verificationSourceSha256": {
     "apps/web/e2e/release-review.spec.ts": "48aa6460ecc398fab67a7d101617e88d2264483fe86ac3d0fe0e6b9e586acd14",
-    "apps/web/e2e/equipment-reuse.spec.ts": "012d0fb0ede629ffedc1772405f911a6ab8a29777e4d01100f9a1f457aca0c8b",
+    "apps/web/e2e/equipment-reuse.spec.ts": "087b84c90b29b0b5f00fb072bf5f0857d9d92640cb769b54692f91fd10c7b931",
     "apps/web/e2e/responsive-layout.spec.ts": "8553bfbe7046ccea493cf3dcd92a9f38e594ca49a696e0c67f93237afa24bd90",
     "apps/web/e2e/ux-recovery.spec.ts": "c8c697bd3c8640afa03cbc0ec0572129f54eade492bfec92332168e666755cb8",
     "apps/web/e2e/workspace-review.spec.ts": "67ab6ed46c8e39288b2c932ce156ddd2a777da0b2bbcc9befd1e6dd64c7bff6d",
-    "scripts/verify-production.mjs": "1d2c3d30629513f17af8bbb607a4affd651976219265dfb843b923cf369c30d1"
+    "scripts/verify-production.mjs": "1d2c3d30629513f17af8bbb607a4affd651976219265dfb843b923cf369c30d1",
+    "apps/web/playwright.config.ts": "22311bc4a095207c966b3735c8b0557501e2c58552dd38c703f7e3da8cb39580"
   },
   "beforeGlobalRailSha256": "fa24613792c8c283775e9746d00b3b1f433c8d99b273c77ce1c2de3ec1d77dea",
   "localRegression": {
@@ -62,7 +63,8 @@
         "durationMs": 4353,
         "retry": 0
       }
-    ]
+    ],
+    "testSourceCommit": "0aacc1498e13aab926b8d33627acd2f3d089e0b2"
   },
   "mobileLayoutMatrix": [
     {
@@ -302,6 +304,24 @@
     }
   ],
   "releaseVerification": {
-    "status": "pending-ci-and-public-deployment"
-  }
+    "status": "verifying-strict-regression-gate",
+    "firstRun": {
+      "runId": 33356281684,
+      "url": "https://github.com/kwakhyun/nexus-forge/actions/runs/33356281684",
+      "commit": "0aacc1498e13aab926b8d33627acd2f3d089e0b2",
+      "quality": "success",
+      "webTests": 101,
+      "serverTests": 14,
+      "e2e": {
+        "passedWithoutRetry": 57,
+        "flaky": 1
+      },
+      "deploy": "success",
+      "deploymentId": "dpl_7Jrccjpm4Lf25nH9KmUjXzKkka6y",
+      "readyAt": "2026-08-31T04:17:49.903Z"
+    },
+    "requiredFinalGate": "All 58 E2E pass without retries; failOnFlakyTests enabled in CI"
+  },
+  "implementationCommit": "0aacc1498e13aab926b8d33627acd2f3d089e0b2",
+  "verificationSourceState": "Latest verification files; the local five-test snapshot is identified by localRegression.testSourceCommit"
 }

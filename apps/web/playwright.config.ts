@@ -10,6 +10,8 @@ export default defineConfig({
   fullyParallel: true,
   workers: 2,
   forbidOnly: Boolean(process.env.CI),
+  // Retain retries for diagnostics, but never deploy a run that needed one to pass.
+  failOnFlakyTests: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
   use: {

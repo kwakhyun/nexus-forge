@@ -4,6 +4,7 @@ test.describe.configure({ timeout: 60_000 });
 
 async function expectEquipmentReady(page: Page, equipmentId: "COATER-02" | "DRYER-02") {
   // Lazy module loading and history delivery are separate from the initial route shell.
+  await expect(page).toHaveURL(new RegExp(`/diagnostics/${equipmentId}(?:[?#].*)?$`));
   await expect(page.getByRole("heading", { name: equipmentId, exact: true })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByLabel("이상 발생 시점 센서값", { exact: true })).toContainText(
     equipmentId === "DRYER-02" ? "설정값 165.0 °C" : "설정값 160.0 °C",
@@ -89,6 +90,7 @@ test("a pending dryer request cannot be overwritten by a coater request", async 
     else await route.fulfill({ response });
   });
   await page.goto("/diagnostics/DRYER-02");
+  await expectEquipmentReady(page, "DRYER-02");
   await page.getByRole("button", { name: "현장 검증 시작", exact: true }).click();
   const dialog = page.getByRole("dialog");
   for (const checkbox of await dialog.getByRole("checkbox").all()) await checkbox.check();
@@ -96,12 +98,14 @@ test("a pending dryer request cannot be overwritten by a coater request", async 
   await expect(dialog.getByRole("button", { name: "같은 요청으로 다시 확인", exact: true })).toBeEnabled();
   await dialog.getByRole("button", { name: "닫기", exact: true }).click();
   await page.getByRole("button", { name: "COATER-02 신호 진단 열기", exact: true }).click();
+  await expectEquipmentReady(page, "COATER-02");
   await page.getByRole("button", { name: "현장 검증 시작", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("다른 설비의 작업 요청 결과를 먼저 확인해야 합니다");
   for (const checkbox of await dialog.getByRole("checkbox").all()) await checkbox.check();
   await expect(dialog.getByRole("button", { name: "검증 작업 지시 발행", exact: true })).toBeDisabled();
   expect(requests).toHaveLength(1);
   await dialog.getByRole("link", { name: "해당 설비의 요청 확인", exact: true }).click();
+  await expectEquipmentReady(page, "DRYER-02");
   await page.getByRole("button", { name: "현장 검증 시작", exact: true }).click();
   await dialog.getByRole("button", { name: "같은 요청으로 다시 확인", exact: true }).click();
   await expect(page.getByTestId("verification-success")).toBeVisible();
