@@ -6,6 +6,7 @@ coverage/
 storybook-static/
 playwright-report/
 test-results/
+artifacts/ui-audit/
 *.log
 .DS_Store
 .env

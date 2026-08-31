@@ -5,6 +5,7 @@ import { EquipmentTree } from "./EquipmentTree";
 import { EventTimeline } from "./EventTimeline";
 import { OverviewMap } from "./OverviewMap";
 import { CauseRail } from "./CauseRail";
+import { useOperationsStore } from "../store/operationsStore";
 
 const incident: Incident = {
   id: "INC-TEST",
@@ -49,9 +50,52 @@ const summary: PlantSummary = {
   activeIncident: incident,
 };
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); useOperationsStore.setState({ annotations: [], verificationRecord: null }); });
 
 describe("operations interactions", () => {
+  it("restores keyboard focus when the equipment panel opens and closes", () => {
+    const onToggleCollapsed = vi.fn();
+    const view = render(<EquipmentTree summary={summary} selectedId="COATER-02" collapsed onToggleCollapsed={onToggleCollapsed} />);
+    fireEvent.click(screen.getByRole("button", { name: "설비 목록 펼치기" }));
+    view.rerender(<EquipmentTree summary={summary} selectedId="COATER-02" collapsed={false} onToggleCollapsed={onToggleCollapsed} />);
+    expect(screen.getByLabelText("설비 검색")).toHaveFocus();
+    fireEvent.click(screen.getByRole("button", { name: "설비 목록 접기" }));
+    view.rerender(<EquipmentTree summary={summary} selectedId="COATER-02" collapsed onToggleCollapsed={onToggleCollapsed} />);
+    expect(screen.getByRole("button", { name: "설비 목록 펼치기" })).toHaveFocus();
+  });
+
+  it("reveals a search result even when the plant and matching line were collapsed", () => {
+    render(<EquipmentTree summary={summary} selectedId="COATER-02" collapsed={false} onToggleCollapsed={() => undefined} />);
+    fireEvent.click(screen.getByRole("button", { name: "코팅 2호 라인" }));
+    fireEvent.click(screen.getByRole("button", { name: "배터리 1공장" }));
+    fireEvent.change(screen.getByLabelText("설비 검색"), { target: { value: "COATER-02" } });
+    expect(screen.getByText("COATER-02")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("검색 결과 1대");
+    fireEvent.change(screen.getByLabelText("설비 검색"), { target: { value: "NOT-FOUND" } });
+    expect(screen.getByText("조건에 맞는 설비가 없습니다.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "조건 초기화" }));
+    expect(screen.getByLabelText("설비 검색")).toHaveValue("");
+  });
+
+  it("retains annotations when the timeline remounts and restores focus after adding", () => {
+    const view = render(<EventTimeline incident={incident} />);
+    fireEvent.click(screen.getByRole("button", { name: "주석 추가" }));
+    expect(screen.getByLabelText("현장 관찰 내용")).toHaveAttribute("maxlength", "240");
+    fireEvent.change(screen.getByLabelText("현장 관찰 내용"), { target: { value: "점검 인계 기록" } });
+    fireEvent.click(screen.getByRole("button", { name: "타임라인에 추가" }));
+    expect(screen.getByRole("button", { name: "주석 추가" })).toHaveFocus();
+    view.unmount();
+    render(<EventTimeline incident={incident} />);
+    expect(screen.getByText("작업자 주석: 점검 인계 기록")).toBeInTheDocument();
+  });
+
+  it("does not authorize unsafe or stale verification", () => {
+    const view = render(<CauseRail incident={{ ...incident, safeToVerifyWhileRunning: false }} diagnosticsStatus="ready" onStartVerification={() => undefined} />);
+    expect(screen.getByRole("button", { name: "현장 검증 보류" })).toBeDisabled();
+    view.rerender(<CauseRail incident={incident} diagnosticsStatus="stale" onStartVerification={() => undefined} />);
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "현장 검증 보류" })).toBeDisabled();
+  });
   it("derives overview equipment and status totals from the plant summary", () => {
     const onSelectEquipment = vi.fn();
     render(<OverviewMap summary={summary} onSelectEquipment={onSelectEquipment} />);

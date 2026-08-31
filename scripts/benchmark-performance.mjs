@@ -1,13 +1,17 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { cpus, platform, release } from "node:os";
+import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { chromium } from "@playwright/test";
 import { build } from "vite";
 
 const rawPointCount = 18_000;
 const sampledPointCount = 1_800;
-const repetitions = 9;
+const repetitions = 60;
+const warmups = 3;
+const samplerUrl = new URL("../apps/web/src/lib/downsample.ts", import.meta.url);
 
 const baselineBundleSource = `
   import * as echarts from "echarts";
@@ -51,8 +55,9 @@ function percentile(values, ratio) {
 
 function summarize(values) {
   return {
-    medianMs: Number(percentile(values, 0.5).toFixed(1)),
-    p95Ms: Number(percentile(values, 0.95).toFixed(1)),
+    medianMs: Number(percentile(values, 0.5).toFixed(3)),
+    p95Ms: Number(percentile(values, 0.95).toFixed(3)),
+    samplesMs: values.map((value) => Number(value.toFixed(3))),
   };
 }
 
@@ -104,8 +109,9 @@ const benchmarkPage = `<!doctype html>
     <div id="chart"></div>
     <script type="module">
       import * as echarts from "/echarts.js";
+      import { downsampleSynchronized } from "/downsample.js";
 
-      const ranges = [40, 40, 15, 20, 2];
+      const sensorKeys = ["webTensionLeft", "webTensionRight", "ovenTemperature", "lineSpeed", "defectRate"];
 
       function generatePoints(count) {
         const start = Date.UTC(2026, 7, 30, 0, 30, 0);
@@ -113,49 +119,16 @@ const benchmarkPage = `<!doctype html>
           const event = Math.exp(-Math.pow((index - count * 0.78) / (count * 0.035), 2));
           return {
             timestamp: start + index * 100,
-            values: [
-              58 + Math.sin(index / 23) * 1.4 + event * 31,
-              57 + Math.cos(index / 29) * 1.2 + event * 27,
-              160 + Math.sin(index / 41) * 0.3 + event * 12,
-              83 + Math.cos(index / 53) * 0.4 - event * 15,
-              0.12 + Math.abs(Math.sin(index / 17)) * 0.08 + event * 1.55,
-            ],
+            webTensionLeft: 58 + Math.sin(index / 23) * 1.4 + event * 31,
+            webTensionRight: 57 + Math.cos(index / 29) * 1.2 + event * 27,
+            ovenTemperature: 160 + Math.sin(index / 41) * 0.3 + event * 12,
+            lineSpeed: 83 + Math.cos(index / 53) * 0.4 - event * 15,
+            defectRate: 0.12 + Math.abs(Math.sin(index / 17)) * 0.08 + event * 1.55,
           };
         });
       }
 
-      function downsample(points, target) {
-        if (points.length <= target) return points;
-        const output = [points[0]];
-        const bucketSize = (points.length - 2) / (target - 2);
-
-        for (let bucket = 0; bucket < target - 2; bucket += 1) {
-          const start = Math.floor(bucket * bucketSize) + 1;
-          const end = Math.min(points.length - 1, Math.floor((bucket + 1) * bucketSize) + 1);
-          let selected = points[start];
-          let bestScore = -1;
-
-          for (let index = start; index < end; index += 1) {
-            const current = points[index];
-            const previous = points[index - 1];
-            const score = current.values.reduce(
-              (total, value, signalIndex) => total + Math.abs(value - previous.values[signalIndex]) / ranges[signalIndex],
-              current.values[4] * 0.08,
-            );
-            if (score > bestScore) {
-              selected = current;
-              bestScore = score;
-            }
-          }
-          output.push(selected);
-        }
-
-        output.push(points.at(-1));
-        return output;
-      }
-
-      function option(points) {
-        const incidentAt = points[Math.floor(points.length * 0.78)].timestamp;
+      function option(points, incidentAt) {
         const eventStart = incidentAt - 50000;
         const eventEnd = incidentAt + 82000;
         const grids = [0, 1, 2, 3].map((_, index) => ({
@@ -200,12 +173,13 @@ const benchmarkPage = `<!doctype html>
             name: config.name,
             type: "line",
             showSymbol: false,
+            sampling: "none",
             silent: config.silent,
             xAxisIndex: config.axisIndex,
             yAxisIndex: config.axisIndex,
             data: points.map((point) => [
               point.timestamp,
-              config.constantValue ?? point.values[config.signalIndex],
+              config.constantValue ?? point[sensorKeys[config.signalIndex]],
             ]),
             markArea: config.markArea ? markArea : undefined,
             markLine: config.markLine ? {
@@ -233,28 +207,46 @@ const benchmarkPage = `<!doctype html>
         return duration;
       }
 
-      globalThis.runNexusBenchmark = async ({ rawCount, sampledCount, repetitions }) => {
+      globalThis.runNexusBenchmark = async ({ rawCount, sampledCount, repetitions, warmups }) => {
         const raw = generatePoints(rawCount);
-        const sampled = downsample(raw, sampledCount);
-        const rawOption = option(raw);
-        const sampledOption = option(sampled);
+        const incidentAt = raw[Math.floor(raw.length * 0.78)].timestamp;
+        const sampled = downsampleSynchronized(raw, sampledCount);
         const chart = echarts.init(document.querySelector("#chart"), undefined, {
           renderer: "canvas",
           devicePixelRatio: 1,
         });
 
-        await render(chart, rawOption);
-        await render(chart, sampledOption);
+        for (let index = 0; index < warmups; index += 1) {
+          await render(chart, option(raw, incidentAt));
+          await render(chart, option(downsampleSynchronized(raw, sampledCount), incidentAt));
+        }
 
         const rawDurations = [];
         const sampledDurations = [];
+        const rawPreparation = [];
+        const sampledPreparation = [];
+        const samplingDurations = [];
         for (let index = 0; index < repetitions; index += 1) {
-          rawDurations.push(await render(chart, rawOption));
-          sampledDurations.push(await render(chart, sampledOption));
+          const rawStartedAt = performance.now();
+          const rawOption = option(raw, incidentAt);
+          rawPreparation.push(performance.now() - rawStartedAt);
+          const sampledStartedAt = performance.now();
+          const currentSampled = downsampleSynchronized(raw, sampledCount);
+          samplingDurations.push(performance.now() - sampledStartedAt);
+          const sampledOption = option(currentSampled, incidentAt);
+          sampledPreparation.push(performance.now() - sampledStartedAt);
+          // Alternate draw order so one scenario does not always run first.
+          if (index % 2 === 0) {
+            rawDurations.push(await render(chart, rawOption));
+            sampledDurations.push(await render(chart, sampledOption));
+          } else {
+            sampledDurations.push(await render(chart, sampledOption));
+            rawDurations.push(await render(chart, rawOption));
+          }
         }
 
         chart.dispose();
-        return { rawDurations, sampledDurations };
+        return { rawDurations, sampledDurations, rawPreparation, sampledPreparation, samplingDurations, selectedPointCount: sampled.length };
       };
     </script>
   </body>
@@ -262,10 +254,28 @@ const benchmarkPage = `<!doctype html>
 
 async function measureChartRendering() {
   const echartsBundle = await readFile(new URL("../node_modules/echarts/dist/echarts.esm.min.js", import.meta.url));
+  // Build the actual application sampler; do not keep a second, drifting implementation.
+  const samplerBuild = await build({
+    configFile: false,
+    logLevel: "silent",
+    build: {
+      write: false,
+      minify: "esbuild",
+      lib: { entry: fileURLToPath(samplerUrl), formats: ["es"] },
+    },
+  });
+  const samplerCode = (Array.isArray(samplerBuild) ? samplerBuild : [samplerBuild])
+    .flatMap((item) => item.output).filter((item) => item.type === "chunk")
+    .map((item) => item.code).join("\n");
   const server = createServer((request, response) => {
     if (request.url === "/echarts.js") {
       response.writeHead(200, { "content-type": "text/javascript; charset=utf-8" });
       response.end(echartsBundle);
+      return;
+    }
+    if (request.url === "/downsample.js") {
+      response.writeHead(200, { "content-type": "text/javascript; charset=utf-8" });
+      response.end(samplerCode);
       return;
     }
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
@@ -283,12 +293,18 @@ async function measureChartRendering() {
     const browserVersion = browser.version();
     const result = await page.evaluate(
       (config) => globalThis.runNexusBenchmark(config),
-      { rawCount: rawPointCount, sampledCount: sampledPointCount, repetitions },
+      { rawCount: rawPointCount, sampledCount: sampledPointCount, repetitions, warmups },
     );
     return {
       browserVersion,
       raw: summarize(result.rawDurations),
       sampled: summarize(result.sampledDurations),
+      sampling: summarize(result.samplingDurations),
+      rawPreparation: summarize(result.rawPreparation),
+      sampledPreparation: summarize(result.sampledPreparation),
+      rawPreparationAndDraw: summarize(result.rawDurations.map((duration, index) => duration + result.rawPreparation[index])),
+      sampledPreparationAndDraw: summarize(result.sampledDurations.map((duration, index) => duration + result.sampledPreparation[index])),
+      selectedPointCount: result.selectedPointCount,
     };
   } finally {
     await browser.close();
@@ -296,11 +312,12 @@ async function measureChartRendering() {
   }
 }
 
-const [baselineBundle, optimizedBundle, chartRendering] = await Promise.all([
+const [baselineBundle, optimizedBundle] = await Promise.all([
   measureBundle(baselineBundleSource),
   measureBundle(optimizedBundleSource),
-  measureChartRendering(),
 ]);
+// Finish compilation before measuring so bundling does not compete with the chart.
+const chartRendering = await measureChartRendering();
 
 const bundleReduction = 1 - optimizedBundle.gzipBytes / baselineBundle.gzipBytes;
 const renderReduction = 1 - chartRendering.sampled.medianMs / chartRendering.raw.medianMs;
@@ -314,6 +331,7 @@ const result = {
     chromium: chartRendering.browserVersion,
     viewport: "1200x700, DPR 1",
     repetitions,
+    warmupsPerScenario: warmups,
   },
   echartsImportBundle: {
     baseline: baselineBundle,
@@ -326,10 +344,24 @@ const result = {
       series: 6,
       sensorSeries: 5,
       includes: ["set-temperature-reference", "linked-axis-pointer", "data-zoom", "mark-area", "mark-line"],
+      sampler: "shared-bucket-edges-and-per-sensor-extrema",
+      samplerSourceSha256: createHash("sha256").update(await readFile(samplerUrl)).digest("hex"),
+      perSeriesSampling: "none",
+      excludes: ["network", "React", "stream-batching", "browser-compositor", "long-running-load"],
     },
     baseline: { points: rawPointCount, ...chartRendering.raw },
-    optimized: { points: sampledPointCount, ...chartRendering.sampled },
+    optimized: { pointBudget: sampledPointCount, points: chartRendering.selectedPointCount, ...chartRendering.sampled },
     medianReductionPercent: Number((renderReduction * 100).toFixed(1)),
+  },
+  chartPreparation: {
+    samplingOnly: chartRendering.sampling,
+    baselineOption: chartRendering.rawPreparation,
+    optimizedSamplingAndOption: chartRendering.sampledPreparation,
+  },
+  chartPreparationAndDraw: {
+    baseline: chartRendering.rawPreparationAndDraw,
+    optimized: chartRendering.sampledPreparationAndDraw,
+    scope: "Synchronous data preparation plus setOption/flush, not full application or paint latency",
   },
 };
 

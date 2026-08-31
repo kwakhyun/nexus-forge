@@ -6,7 +6,9 @@ import "@nexus/ui/tokens.css";
 import "./styles.css";
 import { App } from "./App";
 import { initMonitoring } from "./observability/sentry";
+import { setupPerformanceProbe } from "./observability/performanceProbe";
 
+setupPerformanceProbe();
 void initMonitoring();
 
 const queryClient = new QueryClient({

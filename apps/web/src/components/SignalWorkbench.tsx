@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as echarts from "echarts/core";
-import type { EChartsCoreOption } from "echarts/core";
 import { LineChart } from "echarts/charts";
 import {
   AxisPointerComponent,
@@ -24,7 +23,12 @@ import {
   WarningCircleIcon,
 } from "@phosphor-icons/react";
 import { downsampleSynchronized } from "../lib/downsample";
-import { formatTime } from "../lib/format";
+import { useTimeFormat } from "../hooks/useTimeFormat";
+import { useWorkspaceStore } from "../store/workspaceStore";
+import { clampSignalWindow, nearestIncidentPoint } from "../lib/signalWindow";
+import { createSignalChartOption } from "../lib/signalChart";
+import { DIAGNOSTIC_PROFILES, type DiagnosticProfile } from "../domain/diagnosticProfiles";
+import { chartUpdateStarted, chartUpdateFinished, interactionRequested, type ChartTicket } from "../observability/performanceProbe";
 
 echarts.use([
   LineChart,
@@ -45,16 +49,8 @@ interface SignalWorkbenchProps {
   loading?: boolean;
   historyError?: boolean;
   onRetryHistory?: () => void;
+  profile?: DiagnosticProfile;
 }
-
-const colors = {
-  blue: "#3d72ff",
-  violet: "#9f6bff",
-  cyan: "#37c9d0",
-  red: "#ff4d57",
-  grid: "rgba(148, 163, 184, 0.14)",
-  text: "#7f8c95",
-};
 
 export function SignalWorkbench({
   points,
@@ -62,22 +58,47 @@ export function SignalWorkbench({
   loading = false,
   historyError = false,
   onRetryHistory,
+  profile = DIAGNOSTIC_PROFILES["COATER-02"],
 }: SignalWorkbenchProps) {
+  const { formatTime, zoneLabel } = useTimeFormat();
+  const chartMinutes = useWorkspaceStore((state) => state.document.settings.chartMinutes);
   const chartRef = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
+  const chartTicket = useRef<ChartTicket | null>(null);
+  const legendSelection = useRef<Record<string, boolean>>({});
   const [viewRange, setViewRange] = useState<{ start: number; end: number } | null>(null);
+  const [compact, setCompact] = useState(false);
   const sampled = useMemo(() => downsampleSynchronized(points, 1_800), [points]);
-  const selectedPoint = useMemo(() => sampled.reduce<SensorPoint | undefined>((closest, point) => {
-    if (!closest) return point;
-    return Math.abs(point.timestamp - incident.startedAt) < Math.abs(closest.timestamp - incident.startedAt) ? point : closest;
-  }, undefined), [incident.startedAt, sampled]);
+  const selectedPoint = useMemo(() => nearestIncidentPoint(points, incident.startedAt), [incident.startedAt, points]);
 
   useEffect(() => {
     if (!chartRef.current) return;
-    chart.current = echarts.init(chartRef.current, undefined, { renderer: "canvas" });
-    const observer = new ResizeObserver(() => chart.current?.resize());
+    const instance = echarts.init(chartRef.current, undefined, { renderer: "canvas" });
+    let disposed = false;
+    chart.current = instance;
+    instance.on("finished", () => {
+      const ticket = chartTicket.current;
+      chartTicket.current = null;
+      chartUpdateFinished(ticket, () => disposed);
+    });
+    instance.on("legendselectchanged", (event) => {
+      // Keep a user's visible-series choice when the live stream redraws the chart.
+      legendSelection.current = (event as { selected: Record<string, boolean> }).selected;
+    });
+    instance.on("datazoom", () => {
+      const [range] = instance.getOption().dataZoom as Array<{ startValue?: number; endValue?: number }>;
+      if (range && typeof range.startValue === "number" && typeof range.endValue === "number") {
+        setViewRange({ start: range.startValue, end: range.endValue });
+      }
+    });
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setCompact(entry.contentRect.width < 640);
+      instance.resize();
+    });
     observer.observe(chartRef.current);
     return () => {
+      disposed = true;
+      chartTicket.current = null;
       observer.disconnect();
       chart.current?.dispose();
       chart.current = null;
@@ -86,205 +107,47 @@ export function SignalWorkbench({
 
   useEffect(() => {
     if (!chart.current || sampled.length === 0) return;
-    const eventStart = incident.startedAt - 50_000;
-    const eventEnd = incident.startedAt + 82_000;
-    const axisCommon = {
-      type: "time" as const,
-      min: "dataMin" as const,
-      max: "dataMax" as const,
-      axisLine: { lineStyle: { color: colors.grid } },
-      axisTick: { show: false },
-      splitLine: { show: false },
-      axisLabel: { color: colors.text, fontSize: 11, formatter: (value: number) => formatTime(value).slice(0, 5) },
-    };
-    const yAxisCommon = {
-      type: "value" as const,
-      axisLine: { show: false },
-      axisTick: { show: false },
-      axisLabel: { color: colors.text, fontSize: 10 },
-      splitLine: { lineStyle: { color: colors.grid, type: "dashed" as const } },
-    };
-    const markArea = {
-      silent: true,
-      itemStyle: { color: "rgba(255, 77, 87, 0.10)" },
-      data: [[{ xAxis: eventStart }, { xAxis: eventEnd }] as [{ xAxis: number }, { xAxis: number }]],
-    };
-
-    const option: EChartsCoreOption = {
-      animation: false,
-      backgroundColor: "transparent",
-      tooltip: {
-        trigger: "axis",
-        axisPointer: { type: "cross", lineStyle: { color: colors.blue, type: "dashed" } },
-        backgroundColor: "#111c22",
-        borderColor: "#35454f",
-        textStyle: { color: "#f5f7f8", fontSize: 12 },
-        valueFormatter: (value: unknown) => typeof value === "number" ? value.toFixed(2) : String(value),
-      },
-      axisPointer: { link: [{ xAxisIndex: "all" }] },
-      legend: [
-        {
-          data: ["좌측 장력", "우측 장력"],
-          left: 176,
-          top: 31,
-          itemWidth: 14,
-          itemHeight: 2,
-          textStyle: { color: "#9ba8b0", fontSize: 10 },
-        },
-        {
-          data: ["설정 온도", "측정 온도"],
-          left: 176,
-          top: "28%",
-          itemWidth: 14,
-          itemHeight: 2,
-          textStyle: { color: "#9ba8b0", fontSize: 10 },
-        },
-      ],
-      grid: [
-        { left: 165, right: 20, top: 34, height: "19%" },
-        { left: 165, right: 20, top: "29%", height: "16%" },
-        { left: 165, right: 20, top: "51%", height: "16%" },
-        { left: 165, right: 20, top: "73%", height: "17%" },
-      ],
-      title: [
-        { text: "웹 장력(좌/우)", subtext: "N", left: 0, top: 29 },
-        { text: "오븐 Z3 온도", subtext: "°C", left: 0, top: "28%" },
-        { text: "라인 속도", subtext: "m/min", left: 0, top: "50%" },
-        { text: "비전 검사 결함률", subtext: "%", left: 0, top: "72%" },
-      ].map((item) => ({
-        ...item,
-        textStyle: { color: "#bcc6cc", fontSize: 13, fontWeight: 600 },
-        subtextStyle: { color: colors.text, fontSize: 11, lineHeight: 19 },
-      })),
-      xAxis: [0, 1, 2, 3].map((gridIndex) => ({
-        ...axisCommon,
-        gridIndex,
-        axisLabel: gridIndex === 3 ? axisCommon.axisLabel : { show: false },
-      })),
-      yAxis: [
-        { ...yAxisCommon, gridIndex: 0, min: 0, max: 90 },
-        { ...yAxisCommon, gridIndex: 1, min: 145, max: 180 },
-        { ...yAxisCommon, gridIndex: 2, min: 50, max: 100 },
-        { ...yAxisCommon, gridIndex: 3, min: 0, max: 2.2 },
-      ],
-      dataZoom: [{
-        type: "inside",
-        xAxisIndex: [0, 1, 2, 3],
-        filterMode: "none",
-        ...(viewRange ? { startValue: viewRange.start, endValue: viewRange.end } : { start: 0, end: 100 }),
-      }],
-      series: [
-        {
-          name: "좌측 장력",
-          type: "line",
-          xAxisIndex: 0,
-          yAxisIndex: 0,
-          showSymbol: false,
-          sampling: "lttb",
-          lineStyle: { color: colors.blue, width: 1.4 },
-          itemStyle: { color: colors.blue },
-          data: sampled.map((point) => [point.timestamp, point.webTensionLeft]),
-          markArea,
-          markLine: {
-            silent: true,
-            symbol: "none",
-            label: { show: false },
-            data: [
-              { xAxis: eventStart, lineStyle: { color: colors.red, type: "dashed" } },
-              { xAxis: incident.startedAt, lineStyle: { color: colors.blue, type: "dashed" } },
-              { xAxis: eventEnd, lineStyle: { color: colors.red, type: "dashed" } },
-            ],
-          },
-        },
-        {
-          name: "우측 장력",
-          type: "line",
-          xAxisIndex: 0,
-          yAxisIndex: 0,
-          showSymbol: false,
-          sampling: "lttb",
-          lineStyle: { color: colors.violet, width: 1.4 },
-          itemStyle: { color: colors.violet },
-          data: sampled.map((point) => [point.timestamp, point.webTensionRight]),
-        },
-        {
-          name: "설정 온도",
-          type: "line",
-          xAxisIndex: 1,
-          yAxisIndex: 1,
-          showSymbol: false,
-          silent: true,
-          lineStyle: { color: colors.cyan, width: 1.2, type: "dashed" },
-          itemStyle: { color: colors.cyan },
-          data: sampled.map((point) => [point.timestamp, 160]),
-        },
-        {
-          name: "측정 온도",
-          type: "line",
-          xAxisIndex: 1,
-          yAxisIndex: 1,
-          showSymbol: false,
-          sampling: "lttb",
-          lineStyle: { color: colors.blue, width: 1.4 },
-          itemStyle: { color: colors.blue },
-          data: sampled.map((point) => [point.timestamp, point.ovenTemperature]),
-          markArea,
-        },
-        {
-          name: "라인 속도",
-          type: "line",
-          xAxisIndex: 2,
-          yAxisIndex: 2,
-          showSymbol: false,
-          sampling: "lttb",
-          lineStyle: { color: colors.blue, width: 1.4 },
-          itemStyle: { color: colors.blue },
-          data: sampled.map((point) => [point.timestamp, point.lineSpeed]),
-          markArea,
-        },
-        {
-          name: "비전 검사 결함률",
-          type: "line",
-          xAxisIndex: 3,
-          yAxisIndex: 3,
-          showSymbol: false,
-          sampling: "lttb",
-          lineStyle: { color: colors.violet, width: 1.5 },
-          areaStyle: { color: "rgba(159, 107, 255, 0.10)" },
-          itemStyle: { color: colors.violet },
-          data: sampled.map((point) => [point.timestamp, point.defectRate]),
-          markArea,
-        },
-      ],
-    };
-
+    chartTicket.current = chartUpdateStarted(profile.equipmentId, points.at(-1)!.timestamp, points.length, sampled.length);
+    const visibleRange = viewRange ? clampSignalWindow(viewRange, { start: sampled[0]!.timestamp, end: sampled.at(-1)!.timestamp }) : chartMinutes < 30 ? { start: Math.max(sampled[0]!.timestamp, sampled.at(-1)!.timestamp - chartMinutes * 60_000), end: sampled.at(-1)!.timestamp } : null;
+    const option = createSignalChartOption({ points: sampled, incident, profile, compact, formatTime,
+      selected: legendSelection.current, visibleRange });
     chart.current.setOption(option, { notMerge: true, lazyUpdate: true });
-  }, [incident.startedAt, sampled, viewRange]);
+  }, [chartMinutes, compact, formatTime, incident, points, profile, sampled, viewRange]);
+
+  const updateRange = (range: { start: number; end: number } | null, action: string) => {
+    if (range?.start === viewRange?.start && range?.end === viewRange?.end) return;
+    interactionRequested(profile.equipmentId, action);
+    setViewRange(range);
+  };
 
   const getBounds = () => {
     const start = sampled[0]?.timestamp;
     const end = sampled.at(-1)?.timestamp;
     return start === undefined || end === undefined ? null : { start, end };
   };
+  const getLiveRange = () => {
+    const bounds = getBounds();
+    return bounds ? { start: Math.max(bounds.start, bounds.end - chartMinutes * 60_000), end: bounds.end } : null;
+  };
 
   const zoom = (factor: number) => {
     const bounds = getBounds();
     if (!bounds) return;
-    const current = viewRange ?? bounds;
+    const current = clampSignalWindow(viewRange ?? getLiveRange() ?? bounds, bounds);
     const center = (current.start + current.end) / 2;
     const duration = Math.min(bounds.end - bounds.start, Math.max(60_000, (current.end - current.start) * factor));
     const start = Math.max(bounds.start, Math.min(bounds.end - duration, center - duration / 2));
-    setViewRange({ start, end: start + duration });
+    updateRange({ start, end: start + duration }, "zoom");
   };
 
   const pan = (direction: -1 | 1) => {
     const bounds = getBounds();
     if (!bounds) return;
-    const current = viewRange ?? bounds;
+    const current = clampSignalWindow(viewRange ?? getLiveRange() ?? bounds, bounds);
     const duration = current.end - current.start;
     const offset = duration * 0.25 * direction;
     const start = Math.max(bounds.start, Math.min(bounds.end - duration, current.start + offset));
-    setViewRange({ start, end: start + duration });
+    updateRange({ start, end: start + duration }, "pan");
   };
 
   const focusIncident = () => {
@@ -292,24 +155,33 @@ export function SignalWorkbench({
     if (!bounds) return;
     const duration = Math.min(10 * 60_000, bounds.end - bounds.start);
     const start = Math.max(bounds.start, Math.min(bounds.end - duration, incident.startedAt - duration / 2));
-    setViewRange({ start, end: start + duration });
+    updateRange({ start, end: start + duration }, "focus_incident");
   };
+  const bounds = getBounds();
+  const currentRange = viewRange && bounds ? clampSignalWindow(viewRange, bounds) : getLiveRange();
+  const rangeAdjusted = viewRange && currentRange && (viewRange.start !== currentRange.start || viewRange.end !== currentRange.end);
+  const noData = !bounds || loading || historyError;
 
   return (
     <section className="signal-workbench" aria-label="센서 신호 비교">
       <div className="signal-toolbar">
-        <button type="button" onClick={() => setViewRange(null)}>최근 30분</button>
-        <span className="signal-toolbar__meta">원본 100ms</span>
+        <button type="button" onClick={() => updateRange(null, "follow_live")} aria-pressed={viewRange === null}>실시간 따라가기</button>
+        <span className="signal-toolbar__meta">이력 100ms / 실시간 250ms</span>
         <span className="toolbar-divider" />
-        <button type="button" aria-label="축소" onClick={() => zoom(1.45)}><MagnifyingGlassMinusIcon size={17} /></button>
-        <button type="button" aria-label="확대" onClick={() => zoom(0.65)}><MagnifyingGlassPlusIcon size={17} /></button>
-        <button type="button" aria-label="이전 구간" onClick={() => pan(-1)}><ArrowLeftIcon size={17} /></button>
-        <button type="button" aria-label="다음 구간" onClick={() => pan(1)}><ArrowRightIcon size={17} /></button>
-        <time>{formatTime(incident.startedAt)}</time>
+        <button type="button" aria-label="축소" title="축소" disabled={noData || !viewRange} onClick={() => zoom(1.45)}><MagnifyingGlassMinusIcon size={17} /></button>
+        <button type="button" aria-label="확대" title="확대" disabled={noData || Boolean(currentRange && currentRange.end - currentRange.start <= 60_000)} onClick={() => zoom(0.65)}><MagnifyingGlassPlusIcon size={17} /></button>
+        <button type="button" aria-label="이전 구간" title="이전 구간" disabled={noData || !currentRange || !bounds || currentRange.start <= bounds.start} onClick={() => pan(-1)}><ArrowLeftIcon size={17} /></button>
+        <button type="button" aria-label="다음 구간" title="다음 구간" disabled={noData || !currentRange || !bounds || currentRange.end >= bounds.end} onClick={() => pan(1)}><ArrowRightIcon size={17} /></button>
         <span className="toolbar-spacer" />
-        <button type="button" aria-label="이상 구간으로 이동" onClick={focusIncident}><CrosshairIcon size={17} /></button>
-        <button type="button" onClick={() => setViewRange(null)}>전체 구간</button>
-        <span className="render-stat">{points.length.toLocaleString()}개 시점 · Canvas</span>
+        <button type="button" aria-label="이상 구간으로 이동" disabled={noData || !selectedPoint} onClick={focusIncident}><CrosshairIcon size={17} /> 이상 구간</button>
+        <button type="button" disabled={noData} onClick={() => updateRange(bounds, "full_range")}>전체 구간</button>
+        <span className="render-stat">원본 {points.length.toLocaleString()}개 시점 / 표시 {sampled.length.toLocaleString()}개 · Canvas</span>
+      </div>
+      <div className="signal-window" aria-label="차트 표시 구간">
+        <span>{viewRange ? rangeAdjusted ? "보관 중인 이력 범위로 이동" : "구간 고정" : `최근 ${chartMinutes}분, 실시간 갱신`}</span>
+        <span>{currentRange ? `${formatTime(currentRange.start)}–${formatTime(currentRange.end)}` : "데이터 대기 중"}</span>
+        <span>이상 발생 {formatTime(incident.startedAt)} ({zoneLabel})</span>
+        <span>구간별 최솟값과 최댓값을 표시합니다. 작은 반복 피크나 지속 시간은 이 요약만으로 판단할 수 없습니다.</span>
       </div>
       <div className="signal-chart-wrap">
         {historyError ? (
@@ -325,24 +197,18 @@ export function SignalWorkbench({
         {loading ? (
           <div className="chart-loading"><CircleNotchIcon size={28} className="spin" /> 센서 이력을 불러오는 중입니다…</div>
         ) : null}
-        <div className="signal-chart" ref={chartRef} role="img" aria-label="웹 장력, 오븐 온도, 라인 속도, 비전 검사 결함률을 같은 시간축으로 비교한 그래프" />
-        {selectedPoint ? (
-          <dl className="current-values" aria-label="선택 시점 센서값">
-            <div className="current-values__pair">
-              <dt>선택값</dt>
-              <dd>좌측 {selectedPoint.webTensionLeft.toFixed(1)} N</dd>
-              <dd>우측 {selectedPoint.webTensionRight.toFixed(1)} N</dd>
-            </div>
-            <div className="current-values__pair current-values__temperature">
-              <dt>선택값</dt>
-              <dd>{selectedPoint.ovenTemperature.toFixed(1)} °C</dd>
-              <dd>설정값 160.0 °C</dd>
-            </div>
-            <div><dt>선택값</dt><dd>{selectedPoint.lineSpeed.toFixed(1)} m/min</dd></div>
-            <div><dt>선택값</dt><dd>{selectedPoint.defectRate.toFixed(2)}%</dd></div>
+        <div className="signal-chart" ref={chartRef} role="img" aria-label={profile.chartLabel} data-equipment-id={profile.equipmentId} />
+      </div>
+        {selectedPoint && !historyError && !loading ? (
+          <dl className="current-values" data-panels={profile.panels.length} aria-label="이상 발생 시점 센서값">
+            <div className="current-values__caption"><dt>이상 발생 시점 참고값</dt><dd>{formatTime(selectedPoint.timestamp)} 기준</dd></div>
+            {profile.panels.map((panel) => <div key={panel.id} className={`current-values__pair ${panel.reference ? "current-values__temperature" : ""}`}>
+              <dt>{panel.title}</dt>
+              {panel.series.map((series) => <dd key={series.key}>{series.shortLabel ? `${series.shortLabel} ` : ""}{selectedPoint[series.key].toFixed(series.precision)} {panel.unit}</dd>)}
+              {panel.reference ? <dd>설정값 {panel.reference.value.toFixed(1)} {panel.unit}</dd> : null}
+            </div>)}
           </dl>
         ) : null}
-      </div>
     </section>
   );
 }

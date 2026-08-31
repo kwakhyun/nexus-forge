@@ -1,6 +1,10 @@
 import {
   ACTIVE_INCIDENT_ID,
   SELECTED_EQUIPMENT_ID,
+  DRYER_EQUIPMENT_ID,
+  DRYER_INCIDENT_ID,
+  type DiagnosticEquipmentId,
+  type Incident,
   type PlantSummary,
   type SensorPoint,
 } from "@nexus/contracts";
@@ -22,11 +26,26 @@ export function createSensorPoint(
   timestamp: number,
   index: number,
   eventTime = Date.now() - ANOMALY_AGE_MS,
+  equipmentId: DiagnosticEquipmentId = SELECTED_EQUIPMENT_ID,
 ): SensorPoint {
   const distance = timestamp - eventTime;
   const anomaly = gaussian(distance, ANOMALY_SPREAD_MS);
   const recovery = timestamp > eventTime ? Math.min(1, (timestamp - eventTime) / 210_000) : 0;
   const baselineWave = Math.sin(index / 92) * 1.6;
+
+  if (equipmentId === DRYER_EQUIPMENT_ID) {
+    // A separate drying scenario in the shared coating-line sensor vocabulary.
+    // Tension remains line context; the dryer profile displays temperature, speed and inspection rate.
+    const dryingAnomaly = gaussian(distance, 96_000);
+    return {
+      timestamp,
+      webTensionLeft: 32 + pseudoNoise(index, 11) * 0.7,
+      webTensionRight: 30 + pseudoNoise(index, 12) * 0.7,
+      ovenTemperature: 165 + Math.sin(index / 75) * 0.6 + pseudoNoise(index, 13) * 0.25 + dryingAnomaly * 9.5,
+      lineSpeed: 78 + pseudoNoise(index, 14) * 0.3 - dryingAnomaly * 6,
+      defectRate: Math.max(0.05, 0.12 + pseudoNoise(index, 15) * 0.03 + dryingAnomaly * 0.65),
+    };
+  }
 
   return {
     timestamp,
@@ -43,12 +62,32 @@ export function generateHistory(
   durationMs = 30 * 60_000,
   intervalMs = 100,
   eventTime = now - ANOMALY_AGE_MS,
+  equipmentId: DiagnosticEquipmentId = SELECTED_EQUIPMENT_ID,
 ): SensorPoint[] {
   const count = Math.floor(durationMs / intervalMs);
   const start = now - durationMs;
   return Array.from({ length: count }, (_, index) =>
-    createSensorPoint(start + index * intervalMs, index, eventTime),
+    createSensorPoint(start + index * intervalMs, index, eventTime, equipmentId),
   );
+}
+
+export function createDryerIncident(startedAt: number, predictedImpactAt: number): Incident {
+  return {
+    id: DRYER_INCIDENT_ID,
+    equipmentId: DRYER_EQUIPMENT_ID,
+    title: "건조 온도 편차 감지",
+    startedAt,
+    predictedImpactAt,
+    confidence: 0.86,
+    causalChain: ["건조로 온도 편차", "건조 조건 변동", "후단 검사 결함률 증가"],
+    safeToVerifyWhileRunning: true,
+    status: "open",
+    evidence: [
+      { id: "DRY-EV-01", label: "건조로 Z3 설정 온도 대비 편차", value: "+9.5 °C", observedAt: startedAt },
+      { id: "DRY-EV-02", label: "라인 속도 감소", value: "−6.0 m/min", observedAt: startedAt + 15_000 },
+      { id: "DRY-EV-03", label: "후단 비전 검사 결함률", value: "0.77%", observedAt: startedAt + 40_000 },
+    ],
+  };
 }
 
 export function createPlantSummary(
@@ -56,8 +95,7 @@ export function createPlantSummary(
   startedAt = now - ANOMALY_AGE_MS,
   predictedImpactAt = now + IMPACT_LEAD_TIME_MS,
 ): PlantSummary {
-
-  return {
+  const summary: PlantSummary = {
     plantId: "BATTERY-01",
     plantName: "배터리 1공장",
     lineId: "COATING-LINE-02",
@@ -101,4 +139,6 @@ export function createPlantSummary(
       ],
     },
   };
+  summary.diagnosticIncidents = [summary.activeIncident, createDryerIncident(startedAt - 120_000, predictedImpactAt + 300_000)];
+  return summary;
 }

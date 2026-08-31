@@ -31,6 +31,16 @@ export class RingBuffer<T> {
     for (const item of items) this.push(item);
   }
 
+  discardWhile(predicate: (value: T) => boolean): void {
+    while (this.length > 0) {
+      const index = (this.head - this.length + this.capacity) % this.capacity;
+      const value = this.values[index];
+      if (value !== undefined && !predicate(value)) break;
+      this.values[index] = undefined;
+      this.length -= 1;
+    }
+  }
+
   toArray(): T[] {
     const output: T[] = [];
     const start = (this.head - this.length + this.capacity) % this.capacity;

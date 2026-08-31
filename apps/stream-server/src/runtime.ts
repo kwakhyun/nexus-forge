@@ -7,8 +7,11 @@ import type {
   StreamPointMessage,
   VerificationRecord,
   VerificationRequest,
+  DiagnosticEquipmentId,
 } from "@nexus/contracts";
+import { SELECTED_EQUIPMENT_ID, DRYER_EQUIPMENT_ID, diagnosticIncidents, isDiagnosticEquipmentId, verificationChecklist } from "@nexus/contracts";
 import { createPlantSummary, createSensorPoint, generateHistory } from "./simulation.js";
+import { createProductionHistory } from "./production.js";
 
 const streamIntervalMs = 250;
 const defaultHistoryIntervalMs = 100;
@@ -18,6 +21,7 @@ const maxBufferedStreamBytes = 256 * 1024;
 const simulationStartedAt = Date.now();
 const incidentStartedAt = simulationStartedAt - (3 * 60_000 + 43_000);
 const predictedImpactAt = simulationStartedAt + 18 * 60_000;
+const eventTimeFor = (equipmentId: DiagnosticEquipmentId) => incidentStartedAt - (equipmentId === DRYER_EQUIPMENT_ID ? 120_000 : 0);
 const verificationRecords: VerificationRecord[] = [];
 const release = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local";
 
@@ -73,6 +77,7 @@ export function normalizeVerificationRequest(input: unknown): VerificationReques
     !isBoundedText(candidate.incidentId, 80) ||
     !isBoundedText(candidate.requestedBy) ||
     !isBoundedText(candidate.assignee) ||
+    (candidate.requestId !== undefined && !isBoundedText(candidate.requestId, 80)) ||
     !Array.isArray(candidate.checks) ||
     candidate.checks.length === 0 ||
     candidate.checks.length > 10 ||
@@ -80,6 +85,7 @@ export function normalizeVerificationRequest(input: unknown): VerificationReques
   ) return null;
 
   return {
+    ...(candidate.requestId ? { requestId: candidate.requestId.trim() } : {}),
     incidentId: candidate.incidentId.trim(),
     requestedBy: candidate.requestedBy.trim(),
     assignee: candidate.assignee.trim(),
@@ -127,12 +133,23 @@ export function createOperationsHandler({
       return;
     }
 
+    if (method === "GET" && pathname === "/api/production") {
+      json(response, 200, createProductionHistory());
+      return;
+    }
+
     if (method === "GET" && /^\/api\/equipment\/[A-Z0-9-]+\/history$/.test(pathname)) {
+      const equipmentId = pathname.split("/")[3];
+      if (!isDiagnosticEquipmentId(equipmentId)) {
+        json(response, 404, { error: "equipment_history_unavailable" });
+        return;
+      }
       const intervalMs = normalizeHistoryInterval(url.searchParams.get("intervalMs"));
       json(response, 200, {
+        equipmentId,
         intervalMs,
         generatedAt: Date.now(),
-        points: generateHistory(Date.now(), 30 * 60_000, intervalMs, incidentStartedAt),
+        points: generateHistory(Date.now(), 30 * 60_000, intervalMs, eventTimeFor(equipmentId), equipmentId),
       });
       return;
     }
@@ -147,6 +164,29 @@ export function createOperationsHandler({
         const input = await readJson<unknown>(request);
         const verificationRequest = normalizeVerificationRequest(input);
         if (!verificationRequest) throw new Error("invalid_request");
+        const incident = diagnosticIncidents(createPlantSummary(Date.now(), incidentStartedAt, predictedImpactAt))
+          .find((item) => item.id === verificationRequest.incidentId);
+        if (!incident) {
+          json(response, 404, { error: "incident_not_found" });
+          return;
+        }
+        const checklist = verificationChecklist(incident.equipmentId);
+        if (verificationRequest.checks.length !== checklist.length ||
+          !checklist.every((check) => verificationRequest.checks.includes(check))) {
+          json(response, 400, { error: "safety_checks_required" });
+          return;
+        }
+        const previous = verificationRequest.requestId
+          ? verificationRecords.find((record) => record.requestId === verificationRequest.requestId)
+          : undefined;
+        if (previous) {
+          const sameRequest = previous.incidentId === verificationRequest.incidentId &&
+            previous.assignee === verificationRequest.assignee &&
+            previous.requestedBy === verificationRequest.requestedBy &&
+            JSON.stringify(previous.checks) === JSON.stringify(verificationRequest.checks);
+          json(response, sameRequest ? 200 : 409, sameRequest ? previous : { error: "request_id_conflict" });
+          return;
+        }
 
         const issuedAt = Date.now();
         const record: VerificationRecord = {
@@ -173,6 +213,7 @@ export function createOperationsHandler({
 
 export function attachOperationsStream(server: Server) {
   const streamServer = new WebSocketServer({ server, perMessageDeflate: false });
+  const subscriptions = new WeakMap<WebSocket, DiagnosticEquipmentId>();
   let sequence = 0;
   let streamTimer: NodeJS.Timeout | undefined;
   let heartbeatTimer: NodeJS.Timeout | undefined;
@@ -189,10 +230,7 @@ export function attachOperationsStream(server: Server) {
 
     streamTimer = setInterval(() => {
       const now = Date.now();
-      const point = createSensorPoint(now, sequence + 18_000, incidentStartedAt);
-      const message: StreamPointMessage = { type: "sensor.point", point, sequence };
-      const payload = JSON.stringify(message);
-      sequence += 1;
+      const payloads = new Map<DiagnosticEquipmentId, string>();
 
       for (const client of streamServer.clients) {
         if (client.readyState !== WebSocket.OPEN) continue;
@@ -200,8 +238,18 @@ export function attachOperationsStream(server: Server) {
           client.terminate();
           continue;
         }
+        const equipmentId = subscriptions.get(client);
+        if (!equipmentId) continue;
+        let payload = payloads.get(equipmentId);
+        if (!payload) {
+          const point = createSensorPoint(now, sequence + 18_000, eventTimeFor(equipmentId), equipmentId);
+          const message: StreamPointMessage = { type: "sensor.point", equipmentId, point, sequence };
+          payload = JSON.stringify(message);
+          payloads.set(equipmentId, payload);
+        }
         client.send(payload);
       }
+      sequence += 1;
     }, streamIntervalMs);
 
     heartbeatTimer = setInterval(() => {
@@ -213,12 +261,19 @@ export function attachOperationsStream(server: Server) {
     }, 15_000);
   };
 
-  streamServer.on("connection", (socket) => {
+  streamServer.on("connection", (socket, request) => {
+    const equipmentId = new URL(request.url ?? "/stream", "http://localhost").searchParams.get("equipmentId") ?? SELECTED_EQUIPMENT_ID;
+    if (!isDiagnosticEquipmentId(equipmentId)) {
+      socket.close(1008, "unsupported equipment");
+      return;
+    }
+    subscriptions.set(socket, equipmentId);
     const hello: StreamHelloMessage = {
       type: "hello",
       streamId: randomUUID(),
       intervalMs: streamIntervalMs,
       serverTime: Date.now(),
+      equipmentId,
     };
     socket.send(JSON.stringify(hello));
     startTimers();

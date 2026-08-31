@@ -10,7 +10,7 @@
   --nf-line-soft: rgba(148, 163, 184, 0.16);
   --nf-text-1: #f5f7f8;
   --nf-text-2: #bcc6cc;
-  --nf-text-3: #7f8c95;
+  --nf-text-3: #95a3ad;
   --nf-blue: #3d72ff;
   --nf-cyan: #37b6ff;
   --nf-violet: #9f6bff;
@@ -29,35 +29,39 @@
 }
 
 .nf-button {
+  min-width: 0;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 0 18px;
+  padding: 8px 18px;
   border: 1px solid transparent;
   border-radius: var(--nf-radius-md);
   color: var(--nf-text-1);
-  font: 600 14px/1 var(--nf-font-sans);
+  font: 600 14px/1.4 var(--nf-font-sans);
+  overflow-wrap: anywhere;
   cursor: pointer;
   transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
 }
 
 .nf-button:focus-visible {
-  outline: none;
-  box-shadow: var(--nf-shadow-focus);
+  outline: 2px solid #9bbaff;
+  outline-offset: 3px;
+  box-shadow: none;
 }
 
 .nf-button:active { transform: translateY(1px); }
 .nf-button:disabled { cursor: not-allowed; opacity: 0.5; }
-.nf-button--primary { background: var(--nf-blue); border-color: #5683ff; }
-.nf-button--primary:hover { background: #4b7cff; }
+.nf-button--primary { background: #2859d2; border-color: #6e94ff; }
+.nf-button--primary:hover:not(:disabled) { background: #3263dd; }
 .nf-button--secondary { background: transparent; border-color: #40515c; }
 .nf-button--secondary:hover { background: var(--nf-bg-3); }
 .nf-button--ghost { background: transparent; color: var(--nf-text-2); }
 .nf-button--ghost:hover { background: rgba(255,255,255,0.05); color: var(--nf-text-1); }
 .nf-button--full { width: 100%; }
-.nf-button__icon { display: inline-flex; }
+.nf-button__icon { display: inline-flex; flex: 0 0 auto; }
+.nf-button > span:not(.nf-button__icon) { min-width: 0; }
 
 .nf-status {
   display: inline-flex;

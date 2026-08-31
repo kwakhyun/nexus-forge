@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import type { SensorPoint, StreamMessage } from "@nexus/contracts";
+import { SELECTED_EQUIPMENT_ID, isDiagnosticEquipmentId } from "@nexus/contracts";
 import { getStreamHealth } from "../lib/streamHealth";
 import { useOperationsStore } from "../store/operationsStore";
+import { streamReceived, batchCommitted } from "../observability/performanceProbe";
 
 const flushIntervalMs = 500;
 const healthCheckIntervalMs = 1_000;
@@ -18,6 +20,7 @@ export function parseStreamMessage(payload: string): StreamMessage | null {
   try {
     const message: unknown = JSON.parse(payload);
     if (!isRecord(message) || typeof message.type !== "string") return null;
+    if (message.equipmentId !== undefined && !isDiagnosticEquipmentId(message.equipmentId)) return null;
 
     if (message.type === "heartbeat") {
       return isFiniteNumber(message.serverTime) ? message as unknown as StreamMessage : null;
@@ -52,12 +55,13 @@ export function parseStreamMessage(payload: string): StreamMessage | null {
   }
 }
 
-export function useSensorStream(enabled: boolean): void {
+export function useSensorStream(enabled: boolean, equipmentId = SELECTED_EQUIPMENT_ID): void {
   const appendStreamPoints = useOperationsStore((state) => state.appendStreamPoints);
   const setConnection = useOperationsStore((state) => state.setConnection);
 
   useEffect(() => {
     if (!enabled) return;
+    useOperationsStore.getState().selectEquipment(equipmentId);
 
     let socket: WebSocket | null = null;
     let retryTimer: number | undefined;
@@ -74,14 +78,15 @@ export function useSensorStream(enabled: boolean): void {
     const reportConnection = (connection: Parameters<typeof setConnection>[0]) => {
       if (reportedConnection === connection) return;
       reportedConnection = connection;
-      setConnection(connection);
+      setConnection(connection, equipmentId);
     };
 
     const flushTimer = window.setInterval(() => {
       if (pendingPoints.length === 0) return;
       const batch = pendingPoints;
       pendingPoints = [];
-      appendStreamPoints(batch, latestSequence, latestLatency);
+      batchCommitted(equipmentId, batch);
+      appendStreamPoints(batch, latestSequence, latestLatency, equipmentId);
     }, flushIntervalMs);
 
     const healthTimer = window.setInterval(() => {
@@ -98,11 +103,12 @@ export function useSensorStream(enabled: boolean): void {
       if (disposed) return;
       reportConnection(reconnectAttempts > 0 ? "reconnecting" : "connecting");
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const activeSocket = new WebSocket(`${protocol}//${window.location.host}/stream`);
+      const query = equipmentId === SELECTED_EQUIPMENT_ID ? "" : `?equipmentId=${encodeURIComponent(equipmentId)}`;
+      const activeSocket = new WebSocket(`${protocol}//${window.location.host}/stream${query}`);
       socket = activeSocket;
 
       activeSocket.addEventListener("open", () => {
-        if (activeSocket !== socket) return;
+        if (disposed || activeSocket !== socket) return;
         connectedAt = Date.now();
         lastFrameAt = null;
         lastSensorAt = null;
@@ -110,15 +116,21 @@ export function useSensorStream(enabled: boolean): void {
       });
 
       activeSocket.addEventListener("message", (event) => {
-        if (activeSocket !== socket) return;
+        if (disposed || activeSocket !== socket) return;
+        const receivedAt = performance.now();
         const message = parseStreamMessage(String(event.data));
         if (!message) {
           activeSocket.close(4002, "invalid stream frame");
           return;
         }
+        if (message.type !== "heartbeat" && (message.equipmentId ?? SELECTED_EQUIPMENT_ID) !== equipmentId) {
+          activeSocket.close(4002, "equipment subscription mismatch");
+          return;
+        }
 
         lastFrameAt = Date.now();
         if (message.type === "sensor.point") {
+          streamReceived(equipmentId, message.point.timestamp, receivedAt);
           lastSensorAt = lastFrameAt;
           reconnectAttempts = 0;
           pendingPoints.push(message.point);
@@ -149,5 +161,5 @@ export function useSensorStream(enabled: boolean): void {
       if (retryTimer) window.clearTimeout(retryTimer);
       socket?.close();
     };
-  }, [appendStreamPoints, enabled, setConnection]);
+  }, [appendStreamPoints, enabled, equipmentId, setConnection]);
 }

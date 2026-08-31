@@ -7,25 +7,28 @@ test("an operator verifies safety and a manager assigns the verification work or
   await expect(page.getByText("코터 2호기 웹 장력 이상")).toBeVisible();
   await expect(page.getByText("정상 10")).toBeVisible();
   await expect(page.getByText("경고 1")).toBeVisible();
-  await expect(page.getByLabel("DRYER-02 경고")).toBeVisible();
+  const dryer = page.getByRole("button", { name: "DRYER-02 이상 신호 진단 열기", exact: true });
+  await expect(dryer).toBeVisible();
+  await expect(dryer).toContainText("경고");
   await page.getByRole("button", { name: "신호 진단 열기", exact: true }).click();
 
   await expect(page).toHaveURL(/\/diagnostics\/COATER-02/);
   await expect(page.getByRole("img", { name: /같은 시간축으로 비교한 그래프/ })).toBeVisible();
-  await expect(page.getByText(/개 시점 · Canvas/)).toBeVisible();
-  await expect(page.getByLabel("선택 시점 센서값")).toBeVisible();
+  await expect(page.locator(".render-stat")).toContainText(/원본 [\d,]+개 시점 \/ 표시 [\d,]+개 · Canvas/);
+  await expect(page.getByText(/작은 반복 피크나 지속 시간은 이 요약만으로 판단할 수 없습니다/)).toBeVisible();
+  await expect(page.getByLabel("이상 발생 시점 센서값")).toBeVisible();
   await expect(page.getByText("원인 분석 신뢰도")).toBeVisible();
   await expect(page.getByText("데이터 수신 정상")).toBeVisible({ timeout: 10_000 });
 
   const equipmentTree = page.getByRole("complementary", { name: "설비 목록" });
   await equipmentTree.getByLabel("설비 검색").fill("DRYER-02");
-  await expect(equipmentTree.getByText("DRYER-02")).toBeVisible();
-  await expect(equipmentTree.getByText("COATER-02")).toHaveCount(0);
+  await expect(equipmentTree.getByRole("button", { name: "DRYER-02 신호 진단 열기", exact: true })).toBeVisible();
+  await expect(equipmentTree.getByText("COATER-02", { exact: true })).toHaveCount(0);
   await equipmentTree.getByLabel("설비 검색").fill("");
   await equipmentTree.getByRole("button", { name: "설비 상태 필터" }).click();
   await equipmentTree.getByLabel("설비 상태", { exact: true }).selectOption("warning");
-  await expect(equipmentTree.getByText("DRYER-02")).toBeVisible();
-  await expect(equipmentTree.getByText("COATER-02")).toHaveCount(0);
+  await expect(equipmentTree.getByRole("button", { name: "DRYER-02 신호 진단 열기", exact: true })).toBeVisible();
+  await expect(equipmentTree.getByText("COATER-02", { exact: true })).toHaveCount(0);
   await equipmentTree.getByLabel("설비 상태", { exact: true }).selectOption("all");
 
   await page.getByLabel("경고").uncheck();
@@ -62,10 +65,11 @@ test("an operator verifies safety and a manager assigns the verification work or
 });
 
 test("blocks diagnosis actions when sensor history fails and recovers after retry", async ({ page }) => {
-  let historyRequests = 0;
+  let historyUnavailable = true;
   await page.route("**/api/equipment/COATER-02/history?intervalMs=100", async (route) => {
-    historyRequests += 1;
-    if (historyRequests <= 2) {
+    // Strict Mode can cancel and repeat the initial request. Keep the outage
+    // under test control instead of recovering after an assumed request count.
+    if (historyUnavailable) {
       await route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"temporarily_unavailable"}' });
       return;
     }
@@ -73,12 +77,14 @@ test("blocks diagnosis actions when sensor history fails and recovers after retr
   });
 
   await page.goto("/diagnostics/COATER-02");
+  await expect(page.getByRole("region", { name: "센서 신호 비교", exact: true })).toBeVisible({ timeout: 15_000 });
 
   const historyAlert = page.getByRole("alert").filter({ hasText: "최근 30분 센서 이력을 불러오지 못했습니다" });
   await expect(historyAlert).toBeVisible();
   await expect(page.getByText("분석 보류")).toBeVisible();
   await expect(page.getByRole("button", { name: "이력 복구 후 진행" })).toBeDisabled();
 
+  historyUnavailable = false;
   await historyAlert.getByRole("button", { name: "이력 다시 불러오기" }).click();
 
   await expect(historyAlert).toHaveCount(0);
