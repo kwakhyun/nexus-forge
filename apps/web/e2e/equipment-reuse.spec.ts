@@ -1,4 +1,15 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+test.describe.configure({ timeout: 60_000 });
+
+async function expectEquipmentReady(page: Page, equipmentId: "COATER-02" | "DRYER-02") {
+  // Lazy module loading and history delivery are separate from the initial route shell.
+  await expect(page.getByRole("heading", { name: equipmentId, exact: true })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByLabel("이상 발생 시점 센서값", { exact: true })).toContainText(
+    equipmentId === "DRYER-02" ? "설정값 165.0 °C" : "설정값 160.0 °C",
+    { timeout: 15_000 },
+  );
+}
 
 test("switches actual history and WebSocket subscription while reusing the diagnostic screen", async ({ page }) => {
   const frames: Array<{ equipmentId?: string }> = [];
@@ -8,6 +19,7 @@ test("switches actual history and WebSocket subscription while reusing the diagn
   }));
   await page.goto("/overview");
   await page.getByRole("button", { name: "DRYER-02 이상 신호 진단 열기" }).click();
+  await expectEquipmentReady(page, "DRYER-02");
   await expect(page.getByRole("heading", { name: "DRYER-02", exact: true })).toBeVisible();
   await expect(page).toHaveTitle("DRYER-02 신호 분석 | NEXUS Forge 공개 데모");
   await expect(page.getByLabel("이상 발생 시점 센서값")).toContainText("설정값 165.0 °C");
@@ -17,20 +29,24 @@ test("switches actual history and WebSocket subscription while reusing the diagn
 
   const tree = page.getByRole("complementary", { name: "설비 목록", exact: true });
   await tree.getByRole("button", { name: "COATER-02 신호 진단 열기", exact: true }).click();
+  await expectEquipmentReady(page, "COATER-02");
   await expect(page.getByRole("heading", { name: "COATER-02", exact: true })).toBeVisible();
   await expect(page).toHaveTitle("COATER-02 신호 분석 | NEXUS Forge 공개 데모");
   await expect(page.getByLabel("이상 발생 시점 센서값")).toContainText("설정값 160.0 °C");
   await expect(page.getByLabel("이상 발생 시점 센서값")).toContainText(" 웹 장력 ");
   await expect.poll(() => frames.at(-1)?.equipmentId).toBe("COATER-02");
   await tree.getByRole("button", { name: "DRYER-02 신호 진단 열기", exact: true }).click();
+  await expectEquipmentReady(page, "DRYER-02");
   await expect(page.getByLabel("이상 발생 시점 센서값")).toContainText("설정값 165.0 °C");
   await expect.poll(() => frames.at(-1)?.equipmentId).toBe("DRYER-02");
   await page.reload();
+  await expectEquipmentReady(page, "DRYER-02");
   await expect(page.getByLabel("이상 발생 시점 센서값")).toContainText("설정값 165.0 °C");
 });
 
 test("issues a dryer-specific work order and restores the matching result after switching equipment", async ({ page }) => {
   await page.goto("/diagnostics/DRYER-02");
+  await expectEquipmentReady(page, "DRYER-02");
   const start = page.getByRole("button", { name: "현장 검증 시작", exact: true });
   await expect(start).toBeEnabled();
   await start.click();
@@ -45,6 +61,7 @@ test("issues a dryer-specific work order and restores the matching result after 
   await expect(page.getByTestId("verification-success")).toContainText(record.id);
   await dialog.getByRole("button", { name: "진단 화면으로 돌아가기", exact: true }).click();
   await page.getByRole("complementary", { name: "설비 목록", exact: true }).getByRole("button", { name: "COATER-02 신호 진단 열기", exact: true }).click();
+  await expectEquipmentReady(page, "COATER-02");
   await expect(page.getByRole("button", { name: "현장 검증 시작", exact: true })).toBeEnabled();
   await expect(page.getByRole("button", { name: "발행한 작업 지시 보기", exact: true })).toHaveCount(0);
   await page.getByRole("complementary", { name: "설비 목록", exact: true }).getByRole("button", { name: "DRYER-02 신호 진단 열기", exact: true }).click();

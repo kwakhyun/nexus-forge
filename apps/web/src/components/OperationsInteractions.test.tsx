@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Incident, PlantSummary } from "@nexus/contracts";
 import { EquipmentTree } from "./EquipmentTree";
@@ -95,6 +95,27 @@ describe("operations interactions", () => {
     view.rerender(<CauseRail incident={incident} diagnosticsStatus="stale" onStartVerification={() => undefined} />);
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "현장 검증 보류" })).toBeDisabled();
+  });
+
+  it("reopens all evidence on anchor navigation without remounting the rail", async () => {
+    const evidence = [1, 2, 3].map((index) => ({
+      id: `evidence-${index}`,
+      label: `관측 근거 ${index}`,
+      value: `${index} N`,
+      observedAt: incident.startedAt,
+    }));
+    const props = { incident: { ...incident, evidence }, diagnosticsStatus: "ready" as const, onStartVerification: () => undefined };
+    const view = render(<CauseRail {...props} />);
+    screen.getByRole("heading", { name: "주요 근거" }).scrollIntoView = vi.fn();
+    expect(within(screen.getByRole("region", { name: "주요 근거" })).getAllByRole("listitem")).toHaveLength(2);
+
+    view.rerender(<CauseRail {...props} revealEvidence />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "근거 접기" })).toBeInTheDocument());
+    expect(within(screen.getByRole("region", { name: "주요 근거" })).getAllByRole("listitem")).toHaveLength(3);
+    fireEvent.click(screen.getByRole("button", { name: "근거 접기" }));
+    view.rerender(<CauseRail {...props} revealEvidence={false} />);
+    view.rerender(<CauseRail {...props} revealEvidence />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "근거 접기" })).toBeInTheDocument());
   });
   it("derives overview equipment and status totals from the plant summary", () => {
     const onSelectEquipment = vi.fn();

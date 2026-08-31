@@ -1,0 +1,911 @@
+{
+  "auditDate": "2026-08-31",
+  "browser": "Codex in-app browser",
+  "sourceBase": "20ad70286e08f3067572f5dd8f5a9a2640116a9c",
+  "sourceState": "Historical 11:15–12:03 KST capture state: local fixes after sourceBase, not yet committed or deployed at capture time",
+  "followUpReport": "../../FINAL_VERIFICATION_2026-08-31.md",
+  "afterFixesSourceSha256": {
+    "apps/web/src/hooks/useDiagnosticAnchor.ts": "e1d30cf26c9fb356b943d08ce8705ce076c6e5ed1faf381a3c5f86a32155007f",
+    "apps/web/src/hooks/useRecordSelection.ts": "e16f4eedca82ba125527b32c08776862845b8e5d163b4f28b3c50147f665d44e",
+    "apps/web/src/routes/DiagnosticsPage.tsx": "43633469eb8091752c4c029432d1c94afd7d1f61dc68f2cc7e0019beb6ba8a96",
+    "apps/web/src/components/CauseRail.tsx": "b4e4ac87d64e8e2204a9b293b39b9179dbfb8b8a2d3971f2e920ef3d82ecdbce",
+    "apps/web/src/domain/production.ts": "a3d676713eb065d223534481835cd28a2b404f49302e8ace6654964c9469433f",
+    "apps/web/src/routes/ProductionPage.tsx": "a323b530fd19842fb33f2419494af3b19ad7e7fa3eb228052af8667eb7cb2107"
+  },
+  "scope": "Representative screen and core workflow checks; not every viewport or browser",
+  "browserStoppedReason": "Additional viewport sweep stopped by browser URL security policy at approximately 12:03 KST; no browser workaround attempted",
+  "captureCount": 44,
+  "captures": [
+    {
+      "name": "01-overview-desktop",
+      "file": "01-overview-desktop.jpg",
+      "capturedAt": "2026-08-31T02:16:00.786Z",
+      "environment": {
+        "origin": "https://nexus-forge-ten.vercel.app",
+        "viewport": { "width": 1440, "height": 1000 }
+      },
+      "notes": "공개 20ad702, 데스크톱 공정 개요와 12대 설비 및 KPI 확인."
+    },
+    {
+      "name": "06-dryer-desktop",
+      "file": "06-dryer-desktop.jpg",
+      "capturedAt": "2026-08-31T02:18:52.565Z",
+      "environment": {
+        "origin": "https://nexus-forge-ten.vercel.app",
+        "viewport": { "width": 1440, "height": 1000 }
+      },
+      "notes": "공개 20ad702, DRYER-02의 온도·속도·검사 3개 패널 확인."
+    },
+    {
+      "name": "07-dryer-bottom-safety",
+      "file": "07-dryer-bottom-safety.jpg",
+      "capturedAt": "2026-08-31T02:19:13.015Z",
+      "environment": {
+        "origin": "https://nexus-forge-ten.vercel.app",
+        "viewport": { "width": 1440, "height": 1000 }
+      },
+      "notes": "수정 전: 현장 검증 링크 뒤 우측 조치 영역 이동 실패."
+    },
+    {
+      "name": "08-diagnostic-api-unavailable",
+      "file": "08-diagnostic-api-unavailable.jpg",
+      "capturedAt": "2026-08-31T02:26:13.831Z",
+      "environment": {
+        "origin": "http://127.0.0.1:5173",
+        "viewport": { "width": 1280, "height": 720 }
+      },
+      "notes": "로컬 서버 미실행 상태의 진단 초기 오류와 재시도 경로."
+    },
+    {
+      "name": "09-history-error-action-guard",
+      "file": "09-history-error-action-guard.jpg",
+      "capturedAt": "2026-08-31T02:27:26.792Z",
+      "environment": {
+        "focusId": "action-heading",
+        "pageWidth": 1280,
+        "title": "DRYER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/DRYER-02#recommended-action",
+        "viewport": [
+          1280,
+          720
+        ]
+      },
+      "notes": "센서 이력 실패 동안 분석 보류와 작업 발행 차단."
+    },
+    {
+      "name": "10-dryer-action-anchor-fixed",
+      "file": "10-dryer-action-anchor-fixed.jpg",
+      "capturedAt": "2026-08-31T02:28:13.456Z",
+      "environment": {
+        "focusId": "action-heading",
+        "pageWidth": 1440,
+        "title": "DRYER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/DRYER-02#recommended-action",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "수정 후: 조치 제목 포커스와 버튼·안내 하단 노출."
+    },
+    {
+      "name": "11-production-desktop",
+      "file": "11-production-desktop.jpg",
+      "capturedAt": "2026-08-31T02:29:24.625Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "수정 전: 이전 기간 대비 -0.00%p 표시."
+    },
+    {
+      "name": "12-production-table-and-workflow",
+      "file": "12-production-table-and-workflow.jpg",
+      "capturedAt": "2026-08-31T02:29:56.683Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "수정 전: 코팅 2호 라인에서 DRYER 이상 누락, 미종결 1건."
+    },
+    {
+      "name": "13-production-line-count-fixed",
+      "file": "13-production-line-count-fixed.jpg",
+      "capturedAt": "2026-08-31T02:32:27.188Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "수정 후: 같은 라인의 COATER와 DRYER 이상 합계 2건."
+    },
+    {
+      "name": "20-production-mobile-right-columns",
+      "file": "20-production-mobile-right-columns.jpg",
+      "capturedAt": "2026-08-31T02:36:35.799Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "390px 생산 표를 실제 가로 스크롤해 마지막 열 도달."
+    },
+    {
+      "name": "23-production-mobile-final-bottom",
+      "file": "23-production-mobile-final-bottom.jpg",
+      "capturedAt": "2026-08-31T02:43:40.105Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "390px 생산 운영 집계와 최하단 제한 설명까지 확인."
+    },
+    {
+      "name": "24-incidents-desktop",
+      "file": "24-incidents-desktop.jpg",
+      "capturedAt": "2026-08-31T02:43:53.910Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "이상 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/incidents?incident=INC-20260829-042",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "이상 관리 데스크톱 목록·필터·상세."
+    },
+    {
+      "name": "25-incidents-mobile-detail",
+      "file": "25-incidents-mobile-detail.jpg",
+      "capturedAt": "2026-08-31T02:44:18.216Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "이상 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/incidents?incident=INC-20260831-DRYER-02",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "수정 전: 모바일 목록 선택 후 상세 제목만 화면 하단에 노출."
+    },
+    {
+      "name": "26-incidents-mobile-closure-guard",
+      "file": "26-incidents-mobile-closure-guard.jpg",
+      "capturedAt": "2026-08-31T02:44:18.619Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "이상 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/incidents?incident=INC-20260831-DRYER-02",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "점검 미완료 상태의 종결 사유·확인·버튼 차단."
+    },
+    {
+      "name": "27-maintenance-desktop",
+      "file": "27-maintenance-desktop.jpg",
+      "capturedAt": "2026-08-31T02:44:41.673Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "정비 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/maintenance?work=DEMO-WO-1",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "정비 관리 데스크톱 목록과 예시 완료 작업 구분."
+    },
+    {
+      "name": "28-notifications-desktop",
+      "file": "28-notifications-desktop.jpg",
+      "capturedAt": "2026-08-31T02:45:10.486Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "알림 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/notifications",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "알림 데스크톱 목록과 읽음·관련 기록 조작."
+    },
+    {
+      "name": "31-mobile-record-selection-fixed",
+      "file": "31-mobile-record-selection-fixed.jpg",
+      "capturedAt": "2026-08-31T02:45:59.365Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "이상 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/incidents?incident=INC-20260831-DRYER-02",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "수정 후: 모바일 기록 선택 시 상세 제목과 후속 조작을 헤더 아래에 표시."
+    },
+    {
+      "name": "32-settings-desktop",
+      "file": "32-settings-desktop.jpg",
+      "capturedAt": "2026-08-31T02:46:02.640Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "설정 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/settings",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "설정 데스크톱, 알림 선호·보관 범위·내보내기."
+    },
+    {
+      "name": "34-settings-small-mobile-reset-guard",
+      "file": "34-settings-small-mobile-reset-guard.jpg",
+      "capturedAt": "2026-08-31T02:46:50.602Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 320,
+        "title": "설정 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/settings",
+        "viewport": [
+          320,
+          568
+        ]
+      },
+      "notes": "320px에서 잘못된 확인 문구는 초기화를 허용하지 않음. 삭제하지 않음."
+    },
+    {
+      "name": "35-overview-mobile",
+      "file": "35-overview-mobile.jpg",
+      "capturedAt": "2026-08-31T02:46:54.199Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "공정 개요 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/overview",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "390px 공정 개요 상단과 설비 카드."
+    },
+    {
+      "name": "36-coater-mobile-action",
+      "file": "36-coater-mobile-action.jpg",
+      "capturedAt": "2026-08-31T02:47:14.201Z",
+      "environment": {
+        "focusId": "action-heading",
+        "pageWidth": 390,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#recommended-action",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "390px COATER 조치 제목으로 이동, 버튼과 안내 노출."
+    },
+    {
+      "name": "37-coater-mobile-verification-dialog",
+      "file": "37-coater-mobile-verification-dialog.jpg",
+      "capturedAt": "2026-08-31T02:47:37.405Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#recommended-action",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "390px 안전 확인 전 작업 발행 버튼 비활성화."
+    },
+    {
+      "name": "39-short-dialog-footer-visible",
+      "file": "39-short-dialog-footer-visible.jpg",
+      "capturedAt": "2026-08-31T02:48:02.948Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 320,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#recommended-action",
+        "viewport": [
+          320,
+          568
+        ]
+      },
+      "notes": "320×568 대화상자 내부 스크롤로 취소·발행 영역 도달, Tab 경계 순환과 Escape 복귀."
+    },
+    {
+      "name": "40-coater-issued-mobile",
+      "file": "40-coater-issued-mobile.jpg",
+      "capturedAt": "2026-08-31T02:48:16.908Z",
+      "environment": {
+        "focusId": "verification-title",
+        "pageWidth": 390,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#recommended-action",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "COATER 관리자 발행 완료, 작업 ID·담당자·기한과 다음 이동."
+    },
+    {
+      "name": "42-maintenance-draft-restored",
+      "file": "42-maintenance-draft-restored.jpg",
+      "capturedAt": "2026-08-31T02:48:49.381Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "정비 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/maintenance?work=WO-6C64AC8F",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "다른 업무 화면 왕복 후 작성 중 점검 결과 유지."
+    },
+    {
+      "name": "43-coater-resolved-mobile",
+      "file": "43-coater-resolved-mobile.jpg",
+      "capturedAt": "2026-08-31T02:48:53.525Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "이상 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/incidents?incident=INC-20260829-042",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "COATER 점검 후 별도 종결과 처리 이력."
+    },
+    {
+      "name": "46-dryer-mobile-safety-checklist",
+      "file": "46-dryer-mobile-safety-checklist.jpg",
+      "capturedAt": "2026-08-31T02:50:58.696Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "DRYER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/DRYER-02#recommended-action",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "DRYER 고온부 내부 접근을 제외한 외부 계기 점검 체크리스트."
+    },
+    {
+      "name": "49-dryer-completed-after-reload",
+      "file": "49-dryer-completed-after-reload.jpg",
+      "capturedAt": "2026-08-31T02:51:53.464Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1280,
+        "title": "정비 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/maintenance?work=WO-12E1EA7F",
+        "viewport": [
+          1280,
+          720
+        ]
+      },
+      "notes": "새로고침 뒤 DRYER 점검 완료·결과·연결 이상 복원."
+    },
+    {
+      "name": "50-dryer-resolution-after-reload",
+      "file": "50-dryer-resolution-after-reload.jpg",
+      "capturedAt": "2026-08-31T02:51:56.991Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1280,
+        "title": "이상 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/incidents?incident=INC-20260831-DRYER-02",
+        "viewport": [
+          1280,
+          720
+        ]
+      },
+      "notes": "새로고침 뒤 DRYER 종결 사유와 연결된 완료 작업 복원."
+    },
+    {
+      "name": "51-production-both-assets-completed",
+      "file": "51-production-both-assets-completed.jpg",
+      "capturedAt": "2026-08-31T02:52:00.440Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1280,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          1280,
+          720
+        ]
+      },
+      "notes": "코팅 2호 라인: 미종결 0, 점검 완료 2, 이상 종결 2."
+    },
+    {
+      "name": "52-production-small-mobile-corrected-metrics",
+      "file": "52-production-small-mobile-corrected-metrics.jpg",
+      "capturedAt": "2026-08-31T02:52:34.893Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 320,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          320,
+          568
+        ]
+      },
+      "notes": "320px에서 반올림보다 작은 변화량을 음수 0 없이 표시."
+    },
+    {
+      "name": "54-notifications-empty-bottom",
+      "file": "54-notifications-empty-bottom.jpg",
+      "capturedAt": "2026-08-31T02:53:03.514Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 320,
+        "title": "알림 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/notifications",
+        "viewport": [
+          320,
+          568
+        ]
+      },
+      "notes": "320px 읽지 않은 알림 0건, 필터 초기화 경로 유지."
+    },
+    {
+      "name": "56-mobile-evidence-reopen",
+      "file": "56-mobile-evidence-reopen.jpg",
+      "capturedAt": "2026-08-31T02:53:16.554Z",
+      "environment": {
+        "focusId": "evidence-heading",
+        "pageWidth": 390,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#evidence",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "근거 접기 후 이벤트와 근거 링크 왕복 시 전체 근거 재노출."
+    },
+    {
+      "name": "57-event-empty-mobile",
+      "file": "57-event-empty-mobile.jpg",
+      "capturedAt": "2026-08-31T02:54:33.623Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#event-title",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "이벤트 유형 모두 해제한 빈 상태와 모든 유형 복구 버튼."
+    },
+    {
+      "name": "58-diagnostic-action-short-desktop",
+      "file": "58-diagnostic-action-short-desktop.jpg",
+      "capturedAt": "2026-08-31T02:54:37.062Z",
+      "environment": {
+        "focusId": "action-heading",
+        "pageWidth": 1280,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#recommended-action",
+        "viewport": [
+          1280,
+          720
+        ]
+      },
+      "notes": "1280×720 진단 조치 영역과 하단 안내에 도달."
+    },
+    {
+      "name": "59-completed-work-not-duplicated",
+      "file": "59-completed-work-not-duplicated.jpg",
+      "capturedAt": "2026-08-31T02:54:37.463Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1280,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#recommended-action",
+        "viewport": [
+          1280,
+          720
+        ]
+      },
+      "notes": "완료한 작업을 다시 열어 같은 ID와 완료 상태 조회; 새 발행 없음."
+    },
+    {
+      "name": "61-overview-api-failure",
+      "file": "61-overview-api-failure.jpg",
+      "capturedAt": "2026-08-31T02:56:10.899Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1280,
+        "title": "공정 현황을 불러오지 못했습니다. | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/overview",
+        "viewport": [
+          1280,
+          720
+        ]
+      },
+      "notes": "서버 중단 뒤 공정 초기 조회 실패, 연결 끊김과 재시도."
+    },
+    {
+      "name": "62-production-api-failure",
+      "file": "62-production-api-failure.jpg",
+      "capturedAt": "2026-08-31T02:56:33.845Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "서버 중단 뒤 생산 조회 실패와 CSV 비활성화."
+    },
+    {
+      "name": "63-production-recovered",
+      "file": "63-production-recovered.jpg",
+      "capturedAt": "2026-08-31T02:57:20.154Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "생산 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/production",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "서버 복구 후 생산 재시도 성공, 오류 제거와 CSV 재활성화."
+    },
+    {
+      "name": "64-coater-reference-cards-recovered",
+      "file": "64-coater-reference-cards-recovered.jpg",
+      "capturedAt": "2026-08-31T02:57:29.592Z",
+      "environment": {
+        "focusId": "event-title",
+        "pageWidth": 1440,
+        "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-02#event-title",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "서버 복구 후 COATER 차트·원본 참고값과 긴 이벤트의 세로 경계."
+    },
+    {
+      "name": "65-unsupported-equipment-ready",
+      "file": "65-unsupported-equipment-ready.jpg",
+      "capturedAt": "2026-08-31T02:58:39.803Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "이 설비의 진단 화면은 제공하지 않습니다. | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/COATER-01",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "미지원 COATER-01에는 다른 설비 진단을 표시하지 않고 복귀 안내."
+    },
+    {
+      "name": "66-missing-record-recovery",
+      "file": "66-missing-record-recovery.jpg",
+      "capturedAt": "2026-08-31T02:59:33.296Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 1440,
+        "title": "이상 관리 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/incidents?incident=QA-NOT-FOUND",
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "notes": "없는 이상 ID에는 명시적 빈 상태와 목록에서 다시 선택 제공."
+    },
+    {
+      "name": "67-overview-mobile-final-action",
+      "file": "67-overview-mobile-final-action.jpg",
+      "capturedAt": "2026-08-31T02:59:58.981Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "공정 개요 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/overview",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "390px 공정 개요 최하단 조치와 종결 설명."
+    },
+    {
+      "name": "68-dryer-mobile-chart-top",
+      "file": "68-dryer-mobile-chart-top.jpg",
+      "capturedAt": "2026-08-31T03:00:02.512Z",
+      "environment": {
+        "focusId": "",
+        "pageWidth": 390,
+        "title": "DRYER-02 신호 분석 | NEXUS Forge 공개 데모",
+        "url": "http://127.0.0.1:5173/diagnostics/DRYER-02",
+        "viewport": [
+          390,
+          844
+        ]
+      },
+      "notes": "390px DRYER 진단 상단, 도구 모음 줄바꿈과 온도 차트."
+    }
+  ],
+  "additionalLayoutChecks": [
+    {
+      "url": "/overview",
+      "viewport": [
+        320,
+        568
+      ],
+      "pageWidth": 320,
+      "title": "공정 개요 | NEXUS Forge 공개 데모",
+      "heading": "라인 현황",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/diagnostics/COATER-02",
+      "viewport": [
+        320,
+        568
+      ],
+      "pageWidth": 320,
+      "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+      "heading": "COATER-02",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/diagnostics/DRYER-02",
+      "viewport": [
+        320,
+        568
+      ],
+      "pageWidth": 320,
+      "title": "DRYER-02 신호 분석 | NEXUS Forge 공개 데모",
+      "heading": "DRYER-02",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/production",
+      "viewport": [
+        320,
+        568
+      ],
+      "pageWidth": 320,
+      "title": "생산 분석 | NEXUS Forge 공개 데모",
+      "heading": "생산 분석",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/incidents",
+      "viewport": [
+        320,
+        568
+      ],
+      "pageWidth": 320,
+      "title": "이상 관리 | NEXUS Forge 공개 데모",
+      "heading": "이상 관리",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/maintenance",
+      "viewport": [
+        320,
+        568
+      ],
+      "pageWidth": 320,
+      "title": "정비 관리 | NEXUS Forge 공개 데모",
+      "heading": "정비 관리",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/notifications",
+      "viewport": [
+        320,
+        568
+      ],
+      "pageWidth": 320,
+      "title": "알림 | NEXUS Forge 공개 데모",
+      "heading": "알림",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/settings",
+      "viewport": [
+        320,
+        568
+      ],
+      "pageWidth": 320,
+      "title": "설정 | NEXUS Forge 공개 데모",
+      "heading": "설정",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/overview",
+      "viewport": [
+        390,
+        844
+      ],
+      "pageWidth": 390,
+      "title": "공정 개요 | NEXUS Forge 공개 데모",
+      "heading": "라인 현황",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/diagnostics/COATER-02",
+      "viewport": [
+        390,
+        844
+      ],
+      "pageWidth": 390,
+      "title": "COATER-02 신호 분석 | NEXUS Forge 공개 데모",
+      "heading": "COATER-02",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/diagnostics/DRYER-02",
+      "viewport": [
+        390,
+        844
+      ],
+      "pageWidth": 390,
+      "title": "DRYER-02 신호 분석 | NEXUS Forge 공개 데모",
+      "heading": "DRYER-02",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/production",
+      "viewport": [
+        390,
+        844
+      ],
+      "pageWidth": 390,
+      "title": "생산 분석 | NEXUS Forge 공개 데모",
+      "heading": "생산 분석",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/incidents",
+      "viewport": [
+        390,
+        844
+      ],
+      "pageWidth": 390,
+      "title": "이상 관리 | NEXUS Forge 공개 데모",
+      "heading": "이상 관리",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/maintenance",
+      "viewport": [
+        390,
+        844
+      ],
+      "pageWidth": 390,
+      "title": "정비 관리 | NEXUS Forge 공개 데모",
+      "heading": "정비 관리",
+      "visibleClipping": [],
+      "contentReady": true
+    },
+    {
+      "url": "/notifications",
+      "viewport": [
+        390,
+        844
+      ],
+      "contentReady": false,
+      "result": "Initial observation was still loading; verification rerun stopped by URL policy before this condition."
+    },
+    {
+      "url": "/settings",
+      "viewport": [
+        390,
+        844
+      ],
+      "contentReady": false,
+      "result": "Initial observation was still loading; verification rerun stopped by URL policy before this condition."
+    }
+  ],
+  "workflow": {
+    "coater": {
+      "workId": "WO-6C64AC8F",
+      "status": "completed",
+      "incident": "resolved"
+    },
+    "dryer": {
+      "workId": "WO-12E1EA7F",
+      "status": "completed",
+      "incident": "resolved"
+    },
+    "productionLine02": {
+      "open": 0,
+      "completed": 2,
+      "resolved": 2
+    },
+    "productionLine01": {
+      "open": 0,
+      "completed": 0,
+      "resolved": 0
+    }
+  },
+  "layoutCheckInterpretation": "14/16 initial DOM-width observations completed across two passes in this audit. The first pass had 13 ready screens, and the second confirmed COATER-02 at 320px. Loading-only observations are not passes; this is not a full visual or scroll-depth assertion."
+}

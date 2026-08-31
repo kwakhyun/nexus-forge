@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
-import { aggregateProduction, groupProduction } from "../domain/production";
+import { aggregateProduction, formatProductionDelta, groupProduction, matchesProductionLine } from "../domain/production";
 import { WorkspaceLayout, EmptyState } from "../components/WorkspaceLayout";
 import { useWorkspaceStore } from "../store/workspaceStore";
 import { useTimeFormat } from "../hooks/useTimeFormat";
@@ -80,14 +80,8 @@ export function ProductionPage() {
     );
   };
   const workCutoff = now - hours * hourMs;
-  const equipment =
-    line === "all"
-      ? null
-      : line === "COATING-LINE-01"
-        ? "COATER-01"
-        : "COATER-02";
   const relevantCases = cases.filter(
-    (item) => !item.sample && (!equipment || item.equipmentId === equipment),
+    (item) => !item.sample && matchesProductionLine(item.equipmentId, line),
   );
   return (
     <WorkspaceLayout
@@ -204,7 +198,7 @@ export function ProductionPage() {
               </strong>
               <small>
                 {analysis.comparable && analysis.previous.acceptedMeters
-                  ? `이전 기간 대비 ${((analysis.totals.acceptedMeters / analysis.previous.acceptedMeters - 1) * 100).toFixed(1)}%`
+                  ? formatProductionDelta((analysis.totals.acceptedMeters / analysis.previous.acceptedMeters - 1) * 100, 1, "%")
                   : "이전 기간 비교 보류"}
               </small>
             </div>
@@ -226,7 +220,7 @@ export function ProductionPage() {
                 {analysis.comparable &&
                 analysis.totals.defectRate !== null &&
                 analysis.previous.defectRate !== null
-                  ? `이전 기간 대비 ${(analysis.totals.defectRate - analysis.previous.defectRate).toFixed(2)}%p`
+                  ? formatProductionDelta(analysis.totals.defectRate - analysis.previous.defectRate, 2, "%p")
                   : "이전 기간 비교 보류"}
               </small>
             </div>
@@ -344,7 +338,7 @@ export function ProductionPage() {
                       works.filter(
                         (item) =>
                           !item.sample &&
-                          (!equipment || item.equipmentId === equipment) &&
+                          matchesProductionLine(item.equipmentId, line) &&
                           item.completedAt !== null &&
                           item.completedAt >= workCutoff,
                       ).length

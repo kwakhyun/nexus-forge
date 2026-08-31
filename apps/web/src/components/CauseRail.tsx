@@ -56,6 +56,7 @@ export function CauseRail({ incident, diagnosticsStatus, revealEvidence = false,
   useEffect(() => {
     if (!revealEvidence) return;
     const frame = requestAnimationFrame(() => {
+      setAllEvidenceVisible(true);
       evidenceHeading.current?.focus({ preventScroll: true });
       evidenceHeading.current?.scrollIntoView({ block: "start" });
     });
@@ -108,7 +109,7 @@ export function CauseRail({ incident, diagnosticsStatus, revealEvidence = false,
         })}
       </section>
 
-      <section className="evidence-list" id="evidence" aria-labelledby="evidence-heading">
+      <section className="evidence-list" id="evidence" aria-labelledby="evidence-heading" tabIndex={-1}>
         <h2 id="evidence-heading" ref={evidenceHeading} tabIndex={-1}>주요 근거</h2>
         <ul>
           {visibleEvidence.map((evidence) => (
@@ -132,8 +133,8 @@ export function CauseRail({ incident, diagnosticsStatus, revealEvidence = false,
         ) : null}
       </section>
 
-      <section className="recommended-action" id="recommended-action" aria-labelledby="action-heading">
-        <h2 id="action-heading">권장 조치</h2>
+      <section className="recommended-action" id="recommended-action" aria-labelledby="action-heading" tabIndex={-1}>
+        <h2 id="action-heading" tabIndex={-1}>권장 조치</h2>
         <div className="action-card">
           <div className="action-summary">
             <StatusBadge tone={record ? "normal" : diagnosticsStatus === "error" ? "critical" : "warning"}>

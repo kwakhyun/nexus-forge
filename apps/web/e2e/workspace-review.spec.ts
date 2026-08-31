@@ -519,6 +519,7 @@ for (const route of [
       { width: 1024, height: 600 },
       { width: 700, height: 667 },
       { width: 390, height: 667 },
+      { width: 390, height: 844 },
       { width: 320, height: 568 },
     ]) {
       await page.setViewportSize(viewport);

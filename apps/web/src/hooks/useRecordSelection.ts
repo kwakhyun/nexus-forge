@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 export function focusRecordHeading(container: HTMLElement | null) {
   const heading = container?.querySelector<HTMLElement>("h2");
   heading?.focus({ preventScroll: true });
-  heading?.scrollIntoView({ block: "nearest" });
+  heading?.scrollIntoView({ block: "start" });
 }
 
 /** Keep explicit selection independent of filters, including after a status mutation. */

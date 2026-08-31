@@ -1,0 +1,307 @@
+{
+  "auditDate": "2026-08-31",
+  "method": "Repository Playwright regression suite; isolated local Chromium and test servers, not the in-app browser",
+  "sourceBase": "20ad70286e08f3067572f5dd8f5a9a2640116a9c",
+  "sourceState": "Local implementation after sourceBase; final CI and public release recorded separately",
+  "historicalInAppReview": "../../BROWSER_REVIEW_2026-08-31.md",
+  "completionReport": "../../FINAL_VERIFICATION_2026-08-31.md",
+  "implementationSourceSha256": {
+    "apps/web/src/hooks/useDiagnosticAnchor.ts": "e1d30cf26c9fb356b943d08ce8705ce076c6e5ed1faf381a3c5f86a32155007f",
+    "apps/web/src/hooks/useRecordSelection.ts": "e16f4eedca82ba125527b32c08776862845b8e5d163b4f28b3c50147f665d44e",
+    "apps/web/src/routes/DiagnosticsPage.tsx": "43633469eb8091752c4c029432d1c94afd7d1f61dc68f2cc7e0019beb6ba8a96",
+    "apps/web/src/components/CauseRail.tsx": "b4e4ac87d64e8e2204a9b293b39b9179dbfb8b8a2d3971f2e920ef3d82ecdbce",
+    "apps/web/src/domain/production.ts": "a3d676713eb065d223534481835cd28a2b404f49302e8ace6654964c9469433f",
+    "apps/web/src/routes/ProductionPage.tsx": "a323b530fd19842fb33f2419494af3b19ad7e7fa3eb228052af8667eb7cb2107",
+    "apps/web/src/components/GlobalRail.tsx": "419d320a1803467fb5cb02316bda54b2a145848da3ff09976244050853c1ec6f"
+  },
+  "verificationSourceSha256": {
+    "apps/web/e2e/release-review.spec.ts": "48aa6460ecc398fab67a7d101617e88d2264483fe86ac3d0fe0e6b9e586acd14",
+    "apps/web/e2e/equipment-reuse.spec.ts": "012d0fb0ede629ffedc1772405f911a6ab8a29777e4d01100f9a1f457aca0c8b",
+    "apps/web/e2e/responsive-layout.spec.ts": "8553bfbe7046ccea493cf3dcd92a9f38e594ca49a696e0c67f93237afa24bd90",
+    "apps/web/e2e/ux-recovery.spec.ts": "c8c697bd3c8640afa03cbc0ec0572129f54eade492bfec92332168e666755cb8",
+    "apps/web/e2e/workspace-review.spec.ts": "67ab6ed46c8e39288b2c932ce156ddd2a777da0b2bbcc9befd1e6dd64c7bff6d",
+    "scripts/verify-production.mjs": "1d2c3d30629513f17af8bbb607a4affd651976219265dfb843b923cf369c30d1"
+  },
+  "beforeGlobalRailSha256": "fa24613792c8c283775e9746d00b3b1f433c8d99b273c77ce1c2de3ec1d77dea",
+  "localRegression": {
+    "startTime": "2026-08-31T03:59:52.675Z",
+    "durationMs": 85888.744,
+    "workers": 1,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "cases": [
+      {
+        "title": "all eight route instances finish loading without clipping at both final mobile viewports",
+        "result": "passed",
+        "durationMs": 50895,
+        "retry": 0
+      },
+      {
+        "title": "COATER-02 hash navigation reveals actions and reopens evidence without resetting the rail",
+        "result": "passed",
+        "durationMs": 10670,
+        "retry": 0
+      },
+      {
+        "title": "DRYER-02 hash navigation reveals actions and reopens evidence without resetting the rail",
+        "result": "passed",
+        "durationMs": 10848,
+        "retry": 0
+      },
+      {
+        "title": "native Tab, reverse Tab, skip navigation and arrow scrolling work in the mobile workspace",
+        "result": "passed",
+        "durationMs": 4106,
+        "retry": 0
+      },
+      {
+        "title": "production line filters include both coater and dryer cases without mixing lines",
+        "result": "passed",
+        "durationMs": 4353,
+        "retry": 0
+      }
+    ]
+  },
+  "mobileLayoutMatrix": [
+    {
+      "route": "/overview",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/diagnostics/COATER-02",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/diagnostics/DRYER-02",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/production",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/incidents",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/maintenance",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/notifications",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/settings",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/overview",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/diagnostics/COATER-02",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/diagnostics/DRYER-02",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/production",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/incidents",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/maintenance",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/notifications",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    },
+    {
+      "route": "/settings",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ready": true,
+      "pageOverflow": 0,
+      "clipped": []
+    }
+  ],
+  "captureCount": 6,
+  "captures": [
+    {
+      "file": "01-notifications-before.png",
+      "phase": "before",
+      "route": "/notifications",
+      "origin": "http://127.0.0.1:4174",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "notes": "선택된 알림 메뉴가 오른쪽 경계에서 잘림",
+      "sha256": "f06a65fbae1b04b87079b4eae08bf64237867a93751c6bd8aa553e1dbfec8be2"
+    },
+    {
+      "file": "02-settings-before.png",
+      "phase": "before",
+      "route": "/settings",
+      "origin": "http://127.0.0.1:4174",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "notes": "선택된 설정 메뉴가 가로 목록 밖에 남음",
+      "sha256": "fc32f2eb9df89c5991b4ec5cadc677fe6813addaf1d769f5ed8b3d5c3e474683"
+    },
+    {
+      "file": "03-notifications-top.png",
+      "phase": "after",
+      "route": "/notifications",
+      "origin": "http://127.0.0.1:4174",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "notes": "현재 알림 메뉴 전체가 보임",
+      "sha256": "e92a03935190d92bcd987c8e0fcf359e8bb98da3f5bf523057bb06049ef20420"
+    },
+    {
+      "file": "04-notifications-bottom.png",
+      "phase": "after",
+      "route": "/notifications",
+      "origin": "http://127.0.0.1:4174",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "notes": "마지막 알림과 관련 기록 버튼이 모두 보임",
+      "sha256": "083ebded763ae5b0e73c51d0a62997cf9f9590a0d0efb3932d100cd54db92907"
+    },
+    {
+      "file": "05-settings-top.png",
+      "phase": "after",
+      "route": "/settings",
+      "origin": "http://127.0.0.1:4174",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "notes": "현재 설정 메뉴 전체가 보임",
+      "sha256": "041f20e68fdc1fb5ab93e8587ae354461531b7fff81a3a3112c949e9936db2c4"
+    },
+    {
+      "file": "06-settings-bottom.png",
+      "phase": "after",
+      "route": "/settings",
+      "origin": "http://127.0.0.1:4174",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "notes": "잘못된 초기화 문구에서 삭제 차단, 최하단 버튼 노출",
+      "sha256": "fe72d0bb165b14904abc48292bb376526700b89c67d3b963386dcdffb3056f25"
+    }
+  ],
+  "releaseVerification": {
+    "status": "pending-ci-and-public-deployment"
+  }
+}

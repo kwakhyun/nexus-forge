@@ -10,7 +10,7 @@
 
 [![CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
 
-검증 상태: 최신 변경의 로컬 자동 검증을 완료했습니다. 최종 직접 화면 검수와 최신 캡처는 미완료입니다. 공개 배포의 커밋 일치는 해당 커밋의 CI `deploy` 작업과 [현재 공개 릴리스](https://nexus-forge-ten.vercel.app/api/health)에서 확인할 수 있습니다. [제출 준비 기록](./docs/SUBMISSION_REVIEW_2026-08-31.md)에서 로컬 검사와 남은 검수 항목을 구분합니다.
+검증 상태: 8월 31일 내장 브라우저로 일곱 화면과 두 설비의 핵심 업무 흐름을 대표 화면 크기에서 확인했습니다. 후속 Playwright 검사로 모바일 16조건과 일반 키보드 조작을 확인했고, 바로가기와 집계 등을 포함한 다섯 가지 결함을 수정했습니다. [최종 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md)에 실행별 근거를 정리했습니다. 마지막 수정의 전체 CI와 공개 배포 결과는 확인 후 갱신합니다.
 
 ## 먼저 볼 네 가지 구현
 
@@ -106,7 +106,7 @@ npm run benchmark:performance
 
 ### 실제 앱의 진단과 작업 발행 흐름
 
-같은 날 실제 프로덕션 빌드와 REST/WebSocket 런타임으로 두 설비를 각각 3회, 30초씩 측정했습니다. Apple M2, Chromium headless, 1440×1024, DPR 1의 로컬 HTTP/WS 조건입니다. 공개 Vercel 사이트의 측정값이나 전체 앱의 전후 개선율은 아닙니다.
+같은 날 실제 프로덕션 빌드와 REST/WebSocket 런타임으로 두 설비를 각각 3회, 30초씩 측정했습니다. Apple M2, Chromium headless, 1440×1024, DPR 1의 로컬 HTTP/WS 조건입니다. `20ad702`에 포함된 측정 시점 소스의 결과이며, 이후 바로가기와 생산 집계 수정의 재측정값이 아닙니다. 공개 Vercel 사이트의 측정값이나 전체 앱의 전후 개선율도 아닙니다.
 
 | 측정 구간 | 통계 / 설비별 표본 수 | COATER-02 | DRYER-02 |
 | --- | --- | ---: | ---: |
@@ -133,15 +133,16 @@ npm run benchmark:performance
 
 | 검증 | 결과와 범위 |
 | --- | --- |
-| 단위/컴포넌트 | 2026년 8월 31일 웹 87개, 서버 14개 통과 |
+| 단위/컴포넌트 | 웹 98개, 서버 14개 통과 후 모바일 메뉴 신규 단위 3개 별도 통과. 마지막 전체 실행은 CI에서 확인 |
 | 정적 검사 | 루트 lint와 TypeScript 검사 통과 |
 | 차트 회귀 | 다중 센서 극값, 공통 시점과 표시 예산, 센서별 추가 샘플링 비활성화 검사 통과 |
-| 업무 흐름과 레이아웃 | Chromium E2E 53개 통과, 재시도 없음. 두 설비 전환, 미확인 요청 보호, 핵심 상태 전이, 장애 복구, 다중 탭, 반응형과 axe 검사 포함 |
+| 업무 흐름과 레이아웃 | 추가 E2E 5개 통과. 두 설비의 바로가기, 키보드 탐색과 라인별 집계 포함. 전체 58개는 CI에서 최종 확인 |
 | 빌드와 컴포넌트 문서 | 전체 빌드, Storybook 빌드와 Sites 호환성 검사 4개 통과 |
-| 최종 직접 화면 검수 | 최신 전 화면 검수와 캡처 미완료 |
-| 공개 버전 | CI `deploy` 작업에서 배포 커밋 일치와 공개 UI 셸, REST, WebSocket을 별도 검사 |
+| 직접 화면 확인 | 일곱 화면, 대표 데스크톱/모바일의 하단과 오류 복구, 두 설비의 발행 → 점검 완료 → 이상 종결 → 새로고침 복원 확인. 캡처 44장 보관 |
+| 후속 모바일/키보드 | 8개 경로 × 두 모바일 크기의 16조건 통과. 현재 메뉴 노출, 실제 Tab/Shift+Tab, Enter와 방향키 스크롤 확인. 새 캡처 6장 보관 |
+| 공개 버전 | `20ad702`의 기존 검증과 이후 수정의 공개 반영을 구분. 새 CI와 배포 결과는 최종 검증 기록에 갱신 |
 
-[제출 준비 기록](./docs/SUBMISSION_REVIEW_2026-08-31.md)에 실행 명령, 결과와 남은 검수 항목을 모았습니다. 자동 레이아웃과 axe 검사 통과를 모든 화면의 시각적 완성도나 전체 접근성 준수로 확대하지 않습니다.
+[최종 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md)에 후속 결과를, [제출 준비 기록](./docs/SUBMISSION_REVIEW_2026-08-31.md)에 이전 버전별 검사 결과를, [직접 검수 기록](./docs/BROWSER_REVIEW_2026-08-31.md)에 화면별 행동과 당시 제한을 모았습니다. 자동 검사나 대표 화면의 확인을 모든 크기의 시각적 완성도와 전체 접근성 준수로 확대하지 않습니다.
 
 ## 로컬 실행
 
@@ -169,7 +170,7 @@ npm run test:e2e
 
 ## 공개 배포
 
-Vercel의 Git 직접 배포 대신 `main`의 GitHub Actions 검증 성공 후 배포 훅을 호출하도록 구성했습니다. 배포 뒤 `/api/health`의 SHA와 해당 커밋을 대조하고 공개 UI 셸, REST 이력과 WebSocket 수신을 확인합니다. 로컬 실행 성공과 공개 배포 성공은 별도 결과로 기록합니다.
+Vercel의 Git 직접 배포 대신 `main`의 GitHub Actions 검증 성공 후 배포 훅을 호출하도록 구성했습니다. 배포 뒤 `/api/health`의 SHA와 해당 커밋을 대조하고 8개 UI 경로의 셸, 두 생산 라인, 두 설비 각각의 REST 이력과 WebSocket 수신을 확인합니다. 로컬 실행 성공과 공개 배포 성공은 별도 결과로 기록합니다.
 
 REST와 스트림의 공통 런타임을 로컬 Node 서버와 Vercel Functions에서 공유합니다. ChatGPT Sites 산출물은 보조 호환성 범위로 유지합니다.
 
@@ -190,11 +191,12 @@ REST와 스트림의 공통 런타임을 로컬 Node 서버와 Vercel Functions�
 
 - [기술 판단 사례](./docs/ENGINEERING_CASE_STUDIES.md), [두 설비 재사용](./docs/EQUIPMENT_REUSE.md), [결정 기록](./docs/DECISIONS.md), [채용 요건 대응표](./docs/REQUIREMENTS_MAPPING.md)
 - [제품 명세](./docs/PRODUCT_SPEC.md), [아키텍처](./docs/ARCHITECTURE.md), [성능 측정](./docs/PERFORMANCE.md)
-- [제출 준비와 최신 검증](./docs/SUBMISSION_REVIEW_2026-08-31.md)
+- [최종 검증과 공개 반영](./docs/FINAL_VERIFICATION_2026-08-31.md), [제출 준비와 이전 검증](./docs/SUBMISSION_REVIEW_2026-08-31.md)
+- [8월 31일 전 화면 직접 검수](./docs/BROWSER_REVIEW_2026-08-31.md), [캡처와 출처 목록](./docs/design/review-2026-08-31/manifest.json)
 - 이전 검토: [진단 UI](./docs/UI_UX_REVIEW_2026-08-31.md), [다섯 메뉴 구현](./docs/OPERATIONS_MODULES_2026-08-31.md), [운영 화면 재검토](./docs/OPERATIONS_UI_UX_REVIEW_2026-08-31.md), [문구](./docs/COPY_AUDIT.md)
 - 초기 화면: [공정 개요](./docs/design/implementation-overview-final.png), [진단](./docs/design/implementation-diagnostic-final.png), [작업 발행](./docs/design/implementation-verification-success.png), [당시 디자인 검수](./docs/design-qa.md)
 
-초기 화면 이미지는 과거 구현 기록이며 현재 제출 후보의 최종 캡처가 아닙니다. 최신 캡처를 확인하기 전에는 대표 화면으로 교체하지 않습니다.
+초기 이미지는 과거 구현 기록으로 유지합니다. 최신 검수 캡처는 별도 폴더에 보관하고 공개 버전과 수정 후 로컬 화면, 수정 전 결함을 구분했습니다. [공정 개요](./docs/design/review-2026-08-31/01-overview-desktop.jpg), [진단과 참고값](./docs/design/review-2026-08-31/64-coater-reference-cards-recovered.jpg), [발행 결과](./docs/design/review-2026-08-31/40-coater-issued-mobile.jpg), [두 설비의 완료 집계](./docs/design/review-2026-08-31/51-production-both-assets-completed.jpg)를 확인할 수 있습니다.
 
 ## 설계 배경과 다음 검증
 

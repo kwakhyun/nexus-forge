@@ -193,6 +193,7 @@ for (const screen of ["overview", "diagnostics", "dryer-diagnostics", "dialog"])
       await expect(page.getByRole("heading", { name: "라인 현황" })).toBeVisible();
     } else if (screen === "dryer-diagnostics") {
       await page.goto("/diagnostics/DRYER-02");
+      await expect(page.getByLabel("이상 발생 시점 센서값", { exact: true })).toBeVisible({ timeout: 15_000 });
       await expect(page.getByRole("button", { name: "현장 검증 시작", exact: true })).toBeEnabled();
     } else {
       await openDiagnostics(page);

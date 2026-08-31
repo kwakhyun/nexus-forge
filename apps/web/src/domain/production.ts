@@ -1,5 +1,22 @@
 import type { ProductionRun } from "@nexus/contracts";
 
+/** The synthetic equipment tree groups every asset by its -01/-02 line suffix. */
+export function matchesProductionLine(equipmentId: string, lineId: string): boolean {
+  if (lineId === "all") return true;
+  if (lineId !== "COATING-LINE-01" && lineId !== "COATING-LINE-02") return false;
+  return equipmentId.endsWith(`-${lineId.slice(-2)}`);
+}
+
+export function formatProductionDelta(value: number, digits: 1 | 2, unit: "%" | "%p"): string {
+  if (!Number.isFinite(value)) return "이전 기간 비교 보류";
+  if (value === 0) return "이전 기간과 동일";
+  const rounded = value.toFixed(digits);
+  if (Number(rounded) === 0) {
+    return `이전 기간 대비 ${(10 ** -digits).toFixed(digits)}${unit} 미만 ${value < 0 ? "감소" : "증가"}`;
+  }
+  return `이전 기간 대비 ${rounded}${unit}`;
+}
+
 export function aggregateProduction(runs: ProductionRun[]) {
   const totals = runs.reduce(
     (sum, item) => ({

@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { useLayoutEffect, useRef } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   BellIcon,
   ChartLineUpIcon,
@@ -19,13 +20,34 @@ const items = [
 ] as const;
 
 export function GlobalRail() {
+  const { pathname } = useLocation();
+  const rail = useRef<HTMLElement>(null);
   const unread = useWorkspaceStore(
     (state) =>
       state.document.notifications.filter((item) => item.readAt === null)
         .length,
   );
+
+  useLayoutEffect(() => {
+    const navigation = rail.current;
+    if (!navigation) return;
+    const revealCurrentPage = () => {
+      const active = navigation.querySelector<HTMLElement>('[aria-current="page"]');
+      if (!active || navigation.scrollWidth <= navigation.clientWidth) return;
+      const container = navigation.getBoundingClientRect();
+      const item = active.getBoundingClientRect();
+      // Scroll only the horizontal rail, preserving page position and keyboard focus.
+      if (item.left < container.left + 8) navigation.scrollLeft += item.left - container.left - 8;
+      else if (item.right > container.right - 8) navigation.scrollLeft += item.right - container.right + 8;
+    };
+    revealCurrentPage();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(revealCurrentPage);
+    observer?.observe(navigation);
+    return () => observer?.disconnect();
+  }, [pathname]);
+
   return (
-    <nav className="global-rail" aria-label="제품 탐색">
+    <nav ref={rail} className="global-rail" aria-label="제품 탐색">
       {items.map((item) => {
         const Icon = item.icon;
         return (

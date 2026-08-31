@@ -17,6 +17,7 @@ import { SummaryNotice } from "../components/SummaryNotice";
 import { nearestIncidentPoint } from "../lib/signalWindow";
 import { DIAGNOSTIC_PROFILES } from "../domain/diagnosticProfiles";
 import { diagnosticNavigationRequested } from "../observability/performanceProbe";
+import { useDiagnosticAnchor } from "../hooks/useDiagnosticAnchor";
 
 const narrowPanelQuery = "(max-width: 700px)";
 const emptyPoints: SensorPoint[] = [];
@@ -41,6 +42,7 @@ export function DiagnosticsPage() {
   const setHistoricalPoints = useOperationsStore((state) => state.setHistoricalPoints);
   const setVerificationOpen = useOperationsStore((state) => state.setVerificationOpen);
   const connection = useOperationsStore((state) => state.connection);
+  useDiagnosticAnchor(hash, supported && Boolean(summaryQuery.data), equipmentId);
 
   useEffect(() => {
     if (historyQuery.data && equipmentId === selectedEquipmentId) setHistoricalPoints(historyQuery.data.points, equipmentId);
@@ -112,7 +114,7 @@ export function DiagnosticsPage() {
           <EventTimeline incident={incident} />
         </main>
         <CauseRail
-          key={`${incident.id}-${hash}`}
+          key={incident.id}
           incident={incident}
           diagnosticsStatus={diagnosticsStatus}
           revealEvidence={hash === "#evidence"}

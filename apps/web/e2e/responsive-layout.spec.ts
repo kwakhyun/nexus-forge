@@ -113,6 +113,8 @@ for (const route of ["/overview", "/diagnostics/COATER-02", "/diagnostics/DRYER-
     await expect(page.getByRole("navigation", { name: "주요 화면" })).toBeVisible();
     if (route.includes("diagnostics")) {
       await expect(page.getByRole("region", { name: "센서 신호 비교", exact: true })).toBeVisible({ timeout: 15_000 });
+      // A mounted chart shell is not evidence that the 18,000-point history has arrived.
+      await expect(page.getByLabel("이상 발생 시점 센서값", { exact: true })).toBeVisible({ timeout: 15_000 });
       await expect(page.getByRole("button", { name: "현장 검증 시작" })).toBeEnabled();
       await page.getByLabel("사용자 역할").selectOption("manager");
     }
