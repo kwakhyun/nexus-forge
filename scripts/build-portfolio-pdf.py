@@ -694,7 +694,7 @@ def submission_story() -> list:
         ], 171 * mm),
         p("[차트 원본](./docs/benchmarks/performance-stress-2026-09-01.json) | [60분 앱 원본](./docs/benchmarks/application-stress-2026-09-01.json) | [성능 측정 방법](./docs/PERFORMANCE.md)", "linkbar"),
         h("설계 배경과 다음 검증", 3),
-        p("[지신 공식 사이트](https://jishin.io/)와 공개 R&D 정보, 채용 공고를 참고해 독립적인 제조 운영 데모를 설계했습니다. Apex OS 비공개 화면이나 고객사 내부 정보를 사용하지 않았습니다. 실제 커넥터, Ontology 탐색, 인증과 2D/3D 공장 시각화는 미구현 확장 범위입니다."),
+        p("[공개 산업 R&D 정보](https://itech.keit.re.kr/ntcinfo/infoSrch/retrieveKeyWrdSrchList.do)와 제조 운영 소프트웨어 관련 공개 자료를 참고해 독립적인 제조 운영 데모를 설계했습니다. 특정 상용 제품의 비공개 화면을 복제하지 않았으며, 기업이나 고객사의 내부 정보도 사용하지 않았습니다. 실제 커넥터, Ontology 탐색, 인증과 2D/3D 공장 시각화는 미구현 확장 범위입니다."),
         p("[공개 데모](https://nexus-forge-ten.vercel.app/overview) | [GitHub 저장소](https://github.com/kwakhyun/nexus-forge) | [최종 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md) | [두 설비 재사용](./docs/EQUIPMENT_REUSE.md)", "linkbar"),
         Paragraph(
             f'<b>곽현</b>, Frontend Engineer<br/>'

@@ -252,7 +252,7 @@ REST와 스트림의 공통 런타임을 로컬 Node 서버와 Vercel Functions�
 
 ## 설계 배경과 다음 검증
 
-[지신 공식 사이트](https://jishin.io/)와 [공개 R&D 정보](https://itech.keit.re.kr/ntcinfo/infoSrch/retrieveKeyWrdSrchList.do), 공개 채용 공고를 참고해 독립적인 제조 운영 데모를 설계했습니다. Apex OS의 비공개 화면을 복제하거나 지신 및 고객사의 내부 정보를 사용하지 않았습니다.
+[공개 산업 R&D 정보](https://itech.keit.re.kr/ntcinfo/infoSrch/retrieveKeyWrdSrchList.do)와 제조 운영 소프트웨어 관련 공개 자료를 참고해 독립적인 제조 운영 데모를 설계했습니다. 특정 상용 제품의 비공개 화면을 복제하지 않았으며, 기업이나 고객사의 내부 정보도 사용하지 않았습니다.
 
 두 번째 설비 재사용, 10만 개 시점 이력과 60분 전체 흐름 계측을 보강했습니다. 다음 검증은 현장 네트워크와 물리 저사양 단말, 다중 사용자, 8시간 교대 규모의 부하입니다. 실제 커넥터, Ontology 탐색, 인증과 2D/3D 공장 시각화는 미구현 확장 범위입니다.
 
