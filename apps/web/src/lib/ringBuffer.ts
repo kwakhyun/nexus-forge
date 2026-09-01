@@ -18,7 +18,8 @@ export class RingBuffer<T> {
 
   replace(items: T[]): void {
     this.clear();
-    this.pushMany(items.slice(-this.capacity));
+    const start = Math.max(0, items.length - this.capacity);
+    for (let index = start; index < items.length; index += 1) this.push(items[index]!);
   }
 
   push(value: T): void {

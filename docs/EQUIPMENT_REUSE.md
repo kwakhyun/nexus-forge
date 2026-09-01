@@ -18,7 +18,7 @@
 온도 설정값과 점검 시간은 데모 구성값이다. 실제 현장의 운전 기준이나 표준 작업 시간을 제안하는 값이 아니다.
 
 - [진단 프로필](../apps/web/src/domain/diagnosticProfiles.ts): 표시할 센서, 단위, 축 범위, 설정값, 이벤트와 안전 안내를 선언한다.
-- [공통 차트 옵션](../apps/web/src/lib/signalChart.ts): 패널 수에 따라 축과 범례, 기준선을 생성한다. [SignalWorkbench](../apps/web/src/components/SignalWorkbench.tsx)는 인스턴스 수명, 확대/이동, 실시간 갱신과 원본 참고값을 함께 관리한다.
+- [공통 차트 옵션](../apps/web/src/lib/signalChart.ts): 패널 수에 따라 축과 범례, 기준선을 생성한다. [SignalWorkbench](../apps/web/src/components/SignalWorkbench.tsx)는 인스턴스 수명, 확대/이동, 실시간 갱신과 이상 발생 시점 참고값을 함께 관리한다.
 - [공유 계약](../packages/contracts/src/index.ts): 지원 설비 ID와 설비별 안전 체크리스트의 기준이다. 서버도 같은 체크리스트를 검사한다.
 - [서버 런타임](../apps/stream-server/src/runtime.ts): 설비별 합성 이력과 WebSocket 구독을 처리하고 발행 요청의 이상 ID를 확인한다.
 - [공통 진단 페이지](../apps/web/src/routes/DiagnosticsPage.tsx), [발행 다이얼로그](../apps/web/src/components/VerificationDialog.tsx), [업무 명령](../apps/web/src/domain/workspace.ts): 두 설비가 같은 구현을 사용한다. 정비 관리와 이상 종결 화면을 복제하지 않았다.

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { api, requestJson } from "./client";
+import { MAX_HISTORY_POINTS } from "@nexus/contracts";
 import { isHistory, isPlantSummary, isVerificationRecord } from "./validation";
 
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
@@ -43,6 +44,14 @@ describe("API recovery boundaries", () => {
     expect(isHistory({ ...history, points: [point, { ...point, timestamp: 1_100, lineSpeed: Infinity }] })).toBe(false);
     expect(isPlantSummary({})).toBe(false);
     expect(isVerificationRecord({ status: "issued" })).toBe(false);
+  });
+
+  it("accepts the documented history ceiling and rejects larger payloads", () => {
+    const point = { timestamp: 1_000, webTensionLeft: 31, webTensionRight: 32, ovenTemperature: 160, lineSpeed: 80, defectRate: 0.2 };
+    const points = Array.from({ length: MAX_HISTORY_POINTS }, (_, index) => ({ ...point, timestamp: index + 1 }));
+    const history = { equipmentId: "COATER-02", intervalMs: 18, generatedAt: 200_000, points };
+    expect(isHistory(history)).toBe(true);
+    expect(isHistory({ ...history, points: [...points, { ...point, timestamp: MAX_HISTORY_POINTS + 1 }] })).toBe(false);
   });
 
   it("rejects a valid history belonging to the previous equipment", async () => {

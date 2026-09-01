@@ -25,6 +25,7 @@
     "test:e2e": {
       "dependsOn": ["^build"],
       "cache": false,
+      "env": ["NEXUS_E2E_PORT"],
       "outputs": []
     }
   }

@@ -1,16 +1,45 @@
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { cpus, platform, release } from "node:os";
 import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import { chromium } from "@playwright/test";
 import { build } from "vite";
 
-const rawPointCount = 18_000;
-const sampledPointCount = 1_800;
-const repetitions = 60;
-const warmups = 3;
+const options = {
+  rawPointCount: 18_000,
+  sampledPointCount: 1_800,
+  repetitions: 60,
+  warmups: 3,
+  cpuThrottle: 1,
+  output: null,
+};
+const argumentsList = process.argv.slice(2);
+for (let index = 0; index < argumentsList.length; index += 2) {
+  const key = {
+    "--raw-points": "rawPointCount",
+    "--sampled-points": "sampledPointCount",
+    "--repetitions": "repetitions",
+    "--warmups": "warmups",
+    "--cpu-throttle": "cpuThrottle",
+    "--output": "output",
+  }[argumentsList[index]];
+  const value = argumentsList[index + 1];
+  if (!key || value === undefined) {
+    throw new Error("Usage: --raw-points N --sampled-points N --repetitions N --warmups N --cpu-throttle N --output FILE");
+  }
+  options[key] = key === "output" ? resolve(value) : Number(value);
+}
+if (!Number.isInteger(options.rawPointCount) || options.rawPointCount < 2 || options.rawPointCount > 100_000 ||
+  !Number.isInteger(options.sampledPointCount) || options.sampledPointCount < 2 || options.sampledPointCount > options.rawPointCount ||
+  !Number.isInteger(options.repetitions) || options.repetitions < 1 || options.repetitions > 100 ||
+  !Number.isInteger(options.warmups) || options.warmups < 0 || options.warmups > 10 ||
+  !Number.isFinite(options.cpuThrottle) || options.cpuThrottle < 1 || options.cpuThrottle > 6) {
+  throw new Error("raw-points 2–100000; sampled-points 2–raw; repetitions 1–100; warmups 0–10; cpu-throttle 1–6.");
+}
+const { rawPointCount, sampledPointCount, repetitions, warmups } = options;
 const samplerUrl = new URL("../apps/web/src/lib/downsample.ts", import.meta.url);
 
 const baselineBundleSource = `
@@ -287,7 +316,10 @@ async function measureChartRendering() {
   const browser = await chromium.launch({ args: ["--enable-precise-memory-info"] });
 
   try {
-    const page = await browser.newPage({ viewport: { width: 1200, height: 700 }, deviceScaleFactor: 1 });
+    const context = await browser.newContext({ viewport: { width: 1200, height: 700 }, deviceScaleFactor: 1 });
+    const page = await context.newPage();
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: options.cpuThrottle });
     await page.goto(`http://127.0.0.1:${address.port}`);
     await page.waitForFunction(() => typeof globalThis.runNexusBenchmark === "function");
     const browserVersion = browser.version();
@@ -324,14 +356,16 @@ const renderReduction = 1 - chartRendering.sampled.medianMs / chartRendering.raw
 
 const result = {
   measuredAt: new Date().toISOString(),
-  environment: {
+    environment: {
     os: `${platform()} ${release()}`,
     cpu: cpus()[0]?.model ?? "unknown",
     node: process.version,
     chromium: chartRendering.browserVersion,
     viewport: "1200x700, DPR 1",
-    repetitions,
-    warmupsPerScenario: warmups,
+      repetitions,
+      warmupsPerScenario: warmups,
+      cpuThrottleRate: options.cpuThrottle,
+      cpuThrottleMethod: options.cpuThrottle === 1 ? "none" : "Chromium DevTools Protocol Emulation.setCPUThrottlingRate",
   },
   echartsImportBundle: {
     baseline: baselineBundle,
@@ -347,7 +381,7 @@ const result = {
       sampler: "shared-bucket-edges-and-per-sensor-extrema",
       samplerSourceSha256: createHash("sha256").update(await readFile(samplerUrl)).digest("hex"),
       perSeriesSampling: "none",
-      excludes: ["network", "React", "stream-batching", "browser-compositor", "long-running-load"],
+      excludes: ["network", "React", "stream-batching", "browser-compositor", "long-running-load", "physical low-end device"],
     },
     baseline: { points: rawPointCount, ...chartRendering.raw },
     optimized: { pointBudget: sampledPointCount, points: chartRendering.selectedPointCount, ...chartRendering.sampled },
@@ -365,4 +399,10 @@ const result = {
   },
 };
 
-console.log(JSON.stringify(result, null, 2));
+const serialized = `${JSON.stringify(result, null, 2)}\n`;
+if (options.output) {
+  await writeFile(options.output, serialized, { flag: "wx" });
+  console.log(JSON.stringify({ output: options.output, synchronizedChartRender: result.synchronizedChartRender }, null, 2));
+} else {
+  console.log(serialized);
+}

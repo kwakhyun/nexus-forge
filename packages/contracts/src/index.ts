@@ -16,6 +16,9 @@ export interface SensorPoint {
   defectRate: number;
 }
 
+/** Maximum number of timestamped records accepted from a single history response. */
+export const MAX_HISTORY_POINTS = 100_000;
+
 export interface EquipmentNode {
   id: string;
   name: string;

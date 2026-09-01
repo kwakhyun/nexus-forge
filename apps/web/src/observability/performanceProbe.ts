@@ -7,6 +7,15 @@ interface Measurement { name: string; equipmentId: string; startTime: number; du
 interface HistoryTiming { start: number; fetched?: number; adopted?: number }
 interface BatchTiming { first: number; last: number; timestamp: number; committed: number }
 interface NavigationTiming { start: number; historyReady?: boolean }
+interface PerformanceSnapshot {
+  elapsedMs: number;
+  visibility: DocumentVisibilityState;
+  measurements: Measurement[];
+  longTasks: Array<{ startTime: number; durationMs: number }>;
+  events: Array<{ name: string; interactionId: number; startTime: number; durationMs: number; inputDelayMs: number }>;
+  counts: typeof counts;
+  supportedEntryTypes: readonly string[];
+}
 export interface ChartTicket {
   equipmentId: string;
   start: number;
@@ -40,6 +49,24 @@ function nextFrameOpportunity(callback: () => void) {
   requestAnimationFrame(() => requestAnimationFrame(callback));
 }
 
+function capture(clear: boolean): PerformanceSnapshot {
+  const snapshot = {
+    elapsedMs: performance.now(),
+    visibility: document.visibilityState,
+    measurements: measurements.map((value) => ({ ...value })),
+    longTasks: longTasks.map((value) => ({ ...value })),
+    events: events.map((value) => ({ ...value })),
+    counts: { ...counts },
+    supportedEntryTypes: PerformanceObserver.supportedEntryTypes,
+  };
+  if (clear) {
+    measurements.length = 0;
+    longTasks.length = 0;
+    events.length = 0;
+  }
+  return snapshot;
+}
+
 export function setupPerformanceProbe() {
   if (!enabled || window.__nexusPerformance) return;
   if (PerformanceObserver.supportedEntryTypes.includes("longtask")) {
@@ -57,11 +84,10 @@ export function setupPerformanceProbe() {
     }).observe({ type: "event", buffered: true, durationThreshold: 16 } as PerformanceObserverInit);
   }
   window.__nexusPerformance = {
-    snapshot: () => ({
-      elapsedMs: performance.now(), visibility: document.visibilityState,
-      measurements: measurements.map((value) => ({ ...value })), longTasks: [...longTasks], events: [...events], counts: { ...counts },
-      supportedEntryTypes: PerformanceObserver.supportedEntryTypes,
-    }),
+    snapshot: () => capture(false),
+    // Long-running benchmark harnesses drain completed entries incrementally so
+    // the probe itself does not become the source of an artificial memory leak.
+    drain: () => capture(true),
   };
 }
 
@@ -165,11 +191,9 @@ export function verificationPresented(requestId: string) {
 
 declare global {
   interface Window {
-    __nexusPerformance?: { snapshot: () => {
-      elapsedMs: number; visibility: DocumentVisibilityState; measurements: Measurement[];
-      longTasks: Array<{ startTime: number; durationMs: number }>;
-      events: Array<{ name: string; interactionId: number; startTime: number; durationMs: number; inputDelayMs: number }>;
-      counts: typeof counts; supportedEntryTypes: readonly string[];
-    } };
+    __nexusPerformance?: {
+      snapshot: () => PerformanceSnapshot;
+      drain: () => PerformanceSnapshot;
+    };
   }
 }

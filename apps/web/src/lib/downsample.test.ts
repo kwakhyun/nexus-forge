@@ -37,6 +37,17 @@ describe("downsampleSynchronized", () => {
     expect(Math.max(...sampled.map((item) => item.defectRate))).toBe(2.1);
   });
 
+  it("samples a trailing time window without retaining an older prefix", () => {
+    const points = Array.from({ length: 1_200 }, (_, index) => point(index));
+    points[901]!.defectRate = 4.2;
+    const sampled = downsampleSynchronized(points, 120, 800);
+
+    expect(sampled[0]).toBe(points[800]);
+    expect(sampled.at(-1)).toBe(points.at(-1));
+    expect(sampled).toContain(points[901]);
+    expect(sampled.every((item) => item.timestamp >= points[800]!.timestamp)).toBe(true);
+  });
+
   it("keeps competing tension and temperature peaks at the real chart budget", () => {
     const points = Array.from({ length: 18_000 }, (_, index) => ({
       timestamp: index * 100,
@@ -105,6 +116,10 @@ describe("downsampleSynchronized", () => {
 
   it.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])("rejects an invalid budget: %s", (budget) => {
     expect(() => downsampleSynchronized([point(0)], budget)).toThrow(RangeError);
+  });
+
+  it.each([-1, 1.5, 101])("rejects an invalid start index: %s", (startIndex) => {
+    expect(() => downsampleSynchronized(Array.from({ length: 100 }, (_, index) => point(index)), 20, startIndex)).toThrow(RangeError);
   });
 
   it("rejects a reduction budget too small to guarantee all five sensors' extrema", () => {

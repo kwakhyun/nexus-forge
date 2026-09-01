@@ -27,12 +27,21 @@ async function requestHealth(options?: Parameters<typeof createOperationsHandler
   return { statusCode: response.statusCode, body: JSON.parse(body) as Record<string, unknown> };
 }
 
-async function requestApi(url: string, body?: unknown) {
+async function requestApi(
+  url: string,
+  body?: unknown,
+  options?: Parameters<typeof createOperationsHandler>[0],
+) {
   const request = { method: body === undefined ? "GET" : "POST", url, body, headers: { host: "localhost" } } as unknown as IncomingMessage;
   let output = "";
-  const response = { statusCode: 0, setHeader() {}, end(chunk: unknown) { output = String(chunk); } } as unknown as ServerResponse;
-  await createOperationsHandler()(request, response);
-  return { status: response.statusCode, data: JSON.parse(output) };
+  const headers = new Map<string, string>();
+  const response = {
+    statusCode: 0,
+    setHeader(name: string, value: string | number) { headers.set(name.toLowerCase(), String(value)); },
+    end(chunk: unknown) { output = String(chunk); },
+  } as unknown as ServerResponse;
+  await createOperationsHandler(options)(request, response);
+  return { status: response.statusCode, data: JSON.parse(output), headers, output };
 }
 
 describe("operations runtime input boundaries", () => {
@@ -57,6 +66,18 @@ describe("operations runtime input boundaries", () => {
     const history = await requestApi("/api/equipment/COATER-02/history?intervalMs=1000");
     expect(history.status).toBe(200);
     expect(history.data.points.length).toBeGreaterThan(1);
+  });
+
+  it("serves an exact benchmark-only history count with a correct content length", async () => {
+    const history = await requestApi(
+      "/api/equipment/COATER-02/history?intervalMs=1000",
+      undefined,
+      { historyPointCount: 2_500 },
+    );
+    expect(history.data.points).toHaveLength(2_500);
+    expect(history.data.intervalMs).toBe(720);
+    expect(Number(history.headers.get("content-length"))).toBe(Buffer.byteLength(history.output));
+    expect(() => createOperationsHandler({ historyPointCount: 100_001 })).toThrow("between 2 and 100000");
   });
 
   it("requires the known incident and all canonical safety confirmations", async () => {

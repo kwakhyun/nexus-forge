@@ -104,3 +104,21 @@ it("only measures a verification result after durable storage and a later frame"
     ["verification_submit_to_result_frame_opportunity", 80],
   ]);
 });
+
+it("drains completed entries while preserving cumulative counters for a long run", async () => {
+  const { probe, at, frame } = await controlledProbe();
+  probe.interactionRequested("COATER-02", "zoom");
+  const ticket = probe.chartUpdateStarted("COATER-02", 1_000, 20_000, 1_800);
+  probe.chartUpdateFinished(ticket, () => false);
+  at(80); frame(); frame();
+
+  const first = window.__nexusPerformance!.drain();
+  expect(first.measurements.map((entry) => entry.name)).toContain("interaction_zoom_to_frame_opportunity");
+  expect(first.counts).toMatchObject({ frames: 1, rawPoints: 20_000, displayedPoints: 1_800 });
+  expect(window.__nexusPerformance!.snapshot()).toMatchObject({
+    measurements: [],
+    longTasks: [],
+    events: [],
+    counts: { frames: 1, rawPoints: 20_000, displayedPoints: 1_800 },
+  });
+});

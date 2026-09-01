@@ -71,6 +71,23 @@ export function generateHistory(
   );
 }
 
+export function generateHistoryByCount(
+  now = Date.now(),
+  pointCount = 18_000,
+  durationMs = 30 * 60_000,
+  eventTime = now - ANOMALY_AGE_MS,
+  equipmentId: DiagnosticEquipmentId = SELECTED_EQUIPMENT_ID,
+): SensorPoint[] {
+  if (!Number.isInteger(pointCount) || pointCount < 2) {
+    throw new Error("History point count must be an integer greater than one");
+  }
+  const intervalMs = durationMs / pointCount;
+  const start = now - durationMs;
+  return Array.from({ length: pointCount }, (_, index) =>
+    createSensorPoint(start + index * intervalMs, index, eventTime, equipmentId),
+  );
+}
+
 export function createDryerIncident(startedAt: number, predictedImpactAt: number): Incident {
   return {
     id: DRYER_INCIDENT_ID,

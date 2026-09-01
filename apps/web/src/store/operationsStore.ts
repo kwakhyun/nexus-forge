@@ -1,11 +1,25 @@
 import { create } from "zustand";
 import type { SensorPoint, VerificationRecord, VerificationRequest } from "@nexus/contracts";
 import { SELECTED_EQUIPMENT_ID } from "@nexus/contracts";
+import { downsampleSynchronized } from "../lib/downsample";
 import { RingBuffer } from "../lib/ringBuffer";
 import { historyAdopted } from "../observability/performanceProbe";
 
-const sensorBuffer = new RingBuffer<SensorPoint>(20_000);
+const sensorBufferCapacity = 20_000;
+const sensorBuffer = new RingBuffer<SensorPoint>(sensorBufferCapacity);
 const historyDurationMs = 30 * 60_000;
+const extremaPreservingMinimum = 12;
+
+function firstTimestampAtOrAfter(points: SensorPoint[], cutoff: number): number {
+  let low = 0;
+  let high = points.length;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (points[middle]!.timestamp < cutoff) low = middle + 1;
+    else high = middle;
+  }
+  return low;
+}
 
 export interface OperatorAnnotation {
   id: string;
@@ -69,9 +83,21 @@ export const useOperationsStore = create<OperationsState>((set, get) => ({
     // A history response must not discard points received while it was in flight.
     const historyEnd = points.at(-1)?.timestamp ?? -Infinity;
     const newerPoints = get().sensorPoints.filter((point) => point.timestamp > historyEnd);
-    const combined = [...points, ...newerPoints];
-    const end = combined.at(-1)?.timestamp ?? 0;
-    sensorBuffer.replace(combined.filter((point) => point.timestamp >= end - historyDurationMs));
+    const end = newerPoints.at(-1)?.timestamp ?? historyEnd;
+    const cutoff = end - historyDurationMs;
+    const retainedNewer = newerPoints.filter((point) => point.timestamp >= cutoff).slice(-sensorBufferCapacity);
+    const historySlots = sensorBufferCapacity - retainedNewer.length;
+    const historyStart = firstTimestampAtOrAfter(points, cutoff);
+    const historyCount = points.length - historyStart;
+    const retained = historySlots <= 0
+      ? []
+      : historyCount <= historySlots
+        ? points.slice(historyStart)
+        : historySlots >= extremaPreservingMinimum
+          ? downsampleSynchronized(points, historySlots, historyStart)
+          : points.slice(-historySlots);
+    retained.push(...retainedNewer);
+    sensorBuffer.replace(retained);
     set({ sensorPoints: sensorBuffer.toArray() });
   },
   appendStreamPoints: (points, sequence, latencyMs, equipmentId = get().selectedEquipmentId) => {

@@ -50,6 +50,22 @@ describe("operations store stream batching", () => {
     expect(useOperationsStore.getState().sensorPoints.map((item) => item.timestamp)).toEqual([2_000, 1_802_000]);
   });
 
+  it("adopts a 100,000-point response without retaining more than the bounded raw buffer", () => {
+    const history = Array.from({ length: 100_000 }, (_, index) => ({
+      ...point,
+      timestamp: index * 18,
+    }));
+    history[20_000]!.defectRate = 4.2;
+    useOperationsStore.getState().appendStreamPoints([{ ...point, timestamp: 1_800_100 }], 1, 0);
+    useOperationsStore.getState().setHistoricalPoints(history);
+
+    const retained = useOperationsStore.getState().sensorPoints;
+    expect(retained.length).toBeLessThanOrEqual(20_000);
+    expect(retained[0]?.timestamp).toBeLessThan(10_000);
+    expect(retained).toContain(history[20_000]);
+    expect(retained.at(-1)?.timestamp).toBe(1_800_100);
+  });
+
   it("bounds annotations by both length and count without retaining blank input", () => {
     const add = useOperationsStore.getState().addAnnotation;
     add({ id: "blank", incidentId: "INC", time: 0, title: "  " });

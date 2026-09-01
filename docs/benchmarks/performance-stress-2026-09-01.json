@@ -1,0 +1,241 @@
+{
+  "measuredAt": "2026-09-01T03:39:08.668Z",
+  "environment": {
+    "os": "darwin 25.6.0",
+    "cpu": "Apple M2",
+    "node": "v22.21.0",
+    "chromium": "151.0.7922.34",
+    "viewport": "1200x700, DPR 1",
+    "repetitions": 20,
+    "warmupsPerScenario": 2,
+    "cpuThrottleRate": 4,
+    "cpuThrottleMethod": "Chromium DevTools Protocol Emulation.setCPUThrottlingRate"
+  },
+  "echartsImportBundle": {
+    "baseline": {
+      "rawBytes": 1132104,
+      "gzipBytes": 380176
+    },
+    "optimized": {
+      "rawBytes": 589906,
+      "gzipBytes": 199492
+    },
+    "gzipReductionPercent": 47.5
+  },
+  "synchronizedChartRender": {
+    "scope": {
+      "panels": 4,
+      "series": 6,
+      "sensorSeries": 5,
+      "includes": [
+        "set-temperature-reference",
+        "linked-axis-pointer",
+        "data-zoom",
+        "mark-area",
+        "mark-line"
+      ],
+      "sampler": "shared-bucket-edges-and-per-sensor-extrema",
+      "samplerSourceSha256": "ae1795a546222ff2c3a2681a5fb64c158a57a17f739b2822e4219aacd8b1db85",
+      "perSeriesSampling": "none",
+      "excludes": [
+        "network",
+        "React",
+        "stream-batching",
+        "browser-compositor",
+        "long-running-load",
+        "physical low-end device"
+      ]
+    },
+    "baseline": {
+      "points": 100000,
+      "medianMs": 724.2,
+      "p95Ms": 783.2,
+      "samplesMs": [
+        650.3,
+        620.7,
+        627.2,
+        648.8,
+        724.2,
+        748.2,
+        728.9,
+        743.6,
+        783.2,
+        747.9,
+        764.4,
+        822.7,
+        733.5,
+        754,
+        779,
+        688.9,
+        628.9,
+        655,
+        699.9,
+        660.7
+      ]
+    },
+    "optimized": {
+      "pointBudget": 1800,
+      "points": 1732,
+      "medianMs": 32.7,
+      "p95Ms": 36.9,
+      "samplesMs": [
+        30.4,
+        27.9,
+        31,
+        32.7,
+        33.3,
+        36.4,
+        31.4,
+        36.9,
+        33.2,
+        35.3,
+        36.8,
+        41.6,
+        32.8,
+        31,
+        35.8,
+        36,
+        25.7,
+        27.8,
+        27.4,
+        27.4
+      ]
+    },
+    "medianReductionPercent": 95.5
+  },
+  "chartPreparation": {
+    "samplingOnly": {
+      "medianMs": 62.1,
+      "p95Ms": 73.2,
+      "samplesMs": [
+        52,
+        54.3,
+        54.7,
+        55.5,
+        55.3,
+        63.2,
+        71.3,
+        65.8,
+        63,
+        63.8,
+        60.4,
+        60.7,
+        69.5,
+        68.1,
+        73.2,
+        74.3,
+        58.2,
+        58.4,
+        62.6,
+        62.1
+      ]
+    },
+    "baselineOption": {
+      "medianMs": 57.3,
+      "p95Ms": 102.8,
+      "samplesMs": [
+        49.5,
+        43.9,
+        47.8,
+        53.5,
+        57.5,
+        61.4,
+        48.2,
+        56.7,
+        125.7,
+        77,
+        82.9,
+        78.6,
+        57.3,
+        85.4,
+        102.8,
+        74.4,
+        49.2,
+        47.7,
+        59.5,
+        50.1
+      ]
+    },
+    "optimizedSamplingAndOption": {
+      "medianMs": 63.6,
+      "p95Ms": 75.9,
+      "samplesMs": [
+        53.9,
+        55.8,
+        56.4,
+        57.7,
+        57.6,
+        65.4,
+        72.7,
+        68,
+        65.6,
+        66,
+        62.3,
+        63.6,
+        72.4,
+        70.3,
+        75.9,
+        77.2,
+        61,
+        60.6,
+        64.6,
+        63.6
+      ]
+    }
+  },
+  "chartPreparationAndDraw": {
+    "baseline": {
+      "medianMs": 777.1,
+      "p95Ms": 901.3,
+      "samplesMs": [
+        699.8,
+        664.6,
+        675,
+        702.3,
+        781.7,
+        809.6,
+        777.1,
+        800.3,
+        908.9,
+        824.9,
+        847.3,
+        901.3,
+        790.8,
+        839.4,
+        881.8,
+        763.3,
+        678.1,
+        702.7,
+        759.4,
+        710.8
+      ]
+    },
+    "optimized": {
+      "medianMs": 98.8,
+      "p95Ms": 111.7,
+      "samplesMs": [
+        84.3,
+        83.7,
+        87.4,
+        90.4,
+        90.9,
+        101.8,
+        104.1,
+        104.9,
+        98.8,
+        101.3,
+        99.1,
+        105.2,
+        105.2,
+        101.3,
+        111.7,
+        113.2,
+        86.7,
+        88.4,
+        92,
+        91
+      ]
+    },
+    "scope": "Synchronous data preparation plus setOption/flush, not full application or paint latency"
+  }
+}

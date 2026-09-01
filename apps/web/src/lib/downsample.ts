@@ -16,15 +16,22 @@ const candidatesPerBucket = 2 + sensorKeys.length * 2;
  * Input is finite, timestamp-ordered sensor data validated at the API boundary.
  * Keeps each shared bucket's edges and per-sensor min/max within maxPoints.
  * It does NOT preserve every local peak, its duration, or occurrence count.
+ * startIndex lets callers reduce an already validated trailing time window
+ * without allocating a full-size intermediate slice.
  */
 export function downsampleSynchronized(
   points: SensorPoint[],
   maxPoints = 1_600,
+  startIndex = 0,
 ): SensorPoint[] {
   if (!Number.isInteger(maxPoints) || maxPoints <= 0) {
     throw new RangeError("The timestamp budget must be a positive integer");
   }
-  if (points.length <= maxPoints) return points;
+  if (!Number.isInteger(startIndex) || startIndex < 0 || startIndex > points.length) {
+    throw new RangeError("The start index must be inside the input range");
+  }
+  const pointCount = points.length - startIndex;
+  if (pointCount <= maxPoints) return startIndex === 0 ? points : points.slice(startIndex);
   if (maxPoints < candidatesPerBucket) {
     throw new RangeError(`At least ${candidatesPerBucket} timestamps are required to preserve all sensor extrema`);
   }
@@ -33,8 +40,8 @@ export function downsampleSynchronized(
   const bucketCount = Math.floor(maxPoints / candidatesPerBucket);
 
   for (let bucket = 0; bucket < bucketCount; bucket += 1) {
-    const start = Math.floor(bucket * points.length / bucketCount);
-    const end = Math.floor((bucket + 1) * points.length / bucketCount);
+    const start = startIndex + Math.floor(bucket * pointCount / bucketCount);
+    const end = startIndex + Math.floor((bucket + 1) * pointCount / bucketCount);
     const selected = new Set<number>([start, end - 1]);
 
     for (const key of sensorKeys) {

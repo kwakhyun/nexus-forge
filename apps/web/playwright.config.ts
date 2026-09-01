@@ -4,6 +4,11 @@ import { fileURLToPath } from "node:url";
 
 const webDirectory = dirname(fileURLToPath(import.meta.url));
 const streamServerDirectory = resolve(webDirectory, "../stream-server");
+const webPort = Number(process.env.NEXUS_E2E_PORT ?? 4174);
+if (!Number.isInteger(webPort) || webPort < 1_024 || webPort > 65_535) {
+  throw new Error("NEXUS_E2E_PORT must be an integer between 1024 and 65535");
+}
+const webBaseUrl = `http://127.0.0.1:${webPort}`;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -15,7 +20,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
   use: {
-    baseURL: "http://127.0.0.1:4174",
+    baseURL: webBaseUrl,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -35,9 +40,9 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
-      command: "npm run dev -- --host 0.0.0.0 --port 4174 --strictPort",
+      command: `npm run dev -- --host 0.0.0.0 --port ${webPort} --strictPort`,
       cwd: webDirectory,
-      url: "http://127.0.0.1:4174/overview",
+      url: `${webBaseUrl}/overview`,
       reuseExistingServer: false,
       timeout: 120_000,
     },

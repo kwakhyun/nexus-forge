@@ -176,7 +176,7 @@ test("chart buttons expose the viewed range and retain a fixed range across live
   await expect(region).toContainText("구간 고정");
   const fixed = await region.textContent();
   const renderStat = page.locator(".render-stat");
-  await expect(renderStat).toContainText(/원본 [\d,]+개 시점 \/ 표시 [\d,]+개 · Canvas/);
+  await expect(renderStat).toContainText(/보존 [\d,]+개 시점 \/ 표시 [\d,]+개 · Canvas/);
   const before = await renderStat.textContent();
   await expect(async () => expect(await renderStat.textContent()).not.toBe(before)).toPass({ timeout: 5_000 });
   expect(await region.textContent()).toBe(fixed);

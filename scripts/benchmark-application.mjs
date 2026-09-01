@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { execFileSync } from "node:child_process";
 import { chromium, expect } from "@playwright/test";
 import { createOperationsHandler, attachOperationsStream } from "../apps/stream-server/dist/runtime.js";
+import { MAX_HISTORY_POINTS } from "../packages/contracts/dist/index.js";
 
 // This serves the real production-built app, HTTP handlers and WebSocket runtime.
 // It is a loopback experiment, not a substitute for deployment/RUM measurements.
@@ -16,18 +17,42 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const webRequire = createRequire(join(root, "apps/web/package.json"));
 const { build } = await import(pathToFileURL(webRequire.resolve("vite")).href);
 const dependencyVersions = Object.fromEntries(["vite", "react", "echarts", "@playwright/test"].map((name) => [name, webRequire(`${name}/package.json`).version]));
-const options = { runs: 3, seconds: 30, soakSeconds: 180, output: null };
+const options = {
+  runs: 3,
+  seconds: 30,
+  soakSeconds: 180,
+  output: null,
+  historyPoints: 18_000,
+  cpuThrottle: 1,
+  checkpointSeconds: 5,
+  soakInteractionSeconds: 300,
+};
 const argumentsList = process.argv.slice(2);
 for (let index = 0; index < argumentsList.length; index += 2) {
-  const key = { "--runs": "runs", "--seconds": "seconds", "--soak-seconds": "soakSeconds", "--output": "output" }[argumentsList[index]];
+  const key = {
+    "--runs": "runs",
+    "--seconds": "seconds",
+    "--soak-seconds": "soakSeconds",
+    "--output": "output",
+    "--history-points": "historyPoints",
+    "--cpu-throttle": "cpuThrottle",
+    "--checkpoint-seconds": "checkpointSeconds",
+    "--soak-interaction-seconds": "soakInteractionSeconds",
+  }[argumentsList[index]];
   const value = argumentsList[index + 1];
-  if (!key || value === undefined) throw new Error("Usage: --runs N --seconds N --soak-seconds N --output FILE");
+  if (!key || value === undefined) {
+    throw new Error("Usage: --runs N --seconds N --soak-seconds N --history-points N --cpu-throttle N --checkpoint-seconds N --soak-interaction-seconds N --output FILE");
+  }
   options[key] = key === "output" ? resolve(value) : Number(value);
 }
 if (!Number.isInteger(options.runs) || options.runs < 1 || options.runs > 10 ||
   !Number.isFinite(options.seconds) || options.seconds < 5 || options.seconds > 180 ||
-  !Number.isFinite(options.soakSeconds) || options.soakSeconds < 0 || options.soakSeconds > 180) {
-  throw new Error("runs must be 1–10, seconds 5–180, soak-seconds 0–180 (bounded probe buffers).");
+  !Number.isFinite(options.soakSeconds) || options.soakSeconds < 0 || options.soakSeconds > 28_800 ||
+  !Number.isInteger(options.historyPoints) || options.historyPoints < 2 || options.historyPoints > MAX_HISTORY_POINTS ||
+  !Number.isFinite(options.cpuThrottle) || options.cpuThrottle < 1 || options.cpuThrottle > 6 ||
+  !Number.isFinite(options.checkpointSeconds) || options.checkpointSeconds < 1 || options.checkpointSeconds > 60 ||
+  !Number.isFinite(options.soakInteractionSeconds) || options.soakInteractionSeconds < 0 || options.soakInteractionSeconds > 3_600) {
+  throw new Error(`runs 1–10; seconds 5–180; soak-seconds 0–28800; history-points 2–${MAX_HISTORY_POINTS}; cpu-throttle 1–6; checkpoint-seconds 1–60; soak-interaction-seconds 0–3600.`);
 }
 const temporaryDirectory = await mkdtemp(join(tmpdir(), "nexus-application-benchmark-"));
 const buildDirectory = join(temporaryDirectory, "client");
@@ -36,7 +61,7 @@ const sourcePaths = [
   "apps/web/src/main.tsx", "apps/web/src/App.tsx", "apps/web/src/styles.css",
   "apps/web/src/api/client.ts", "apps/web/src/api/validation.ts",
   "apps/web/src/hooks/useSensorStream.ts", "apps/web/src/lib/downsample.ts",
-  "apps/web/src/lib/signalChart.ts", "apps/web/src/domain/diagnosticProfiles.ts",
+  "apps/web/src/lib/signalChart.ts", "apps/web/src/lib/ringBuffer.ts", "apps/web/src/domain/diagnosticProfiles.ts",
   "apps/web/src/domain/workspace.ts", "apps/web/src/store/operationsStore.ts",
   "apps/web/src/store/workspaceStore.ts", "apps/web/src/lib/workspaceDatabase.ts",
   "apps/web/src/routes/OverviewPage.tsx", "apps/web/src/routes/DiagnosticsPage.tsx", "apps/web/src/components/SignalWorkbench.tsx",
@@ -65,7 +90,7 @@ function summarize(measurements) {
     [name, distribution(measurements.filter((item) => item.name === name).map((item) => item.durationMs))]));
 }
 const mime = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".woff2": "font/woff2", ".json": "application/json" };
-const api = createOperationsHandler();
+const api = createOperationsHandler({ historyPointCount: options.historyPoints });
 const server = createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url ?? "/", "http://localhost").pathname);
@@ -95,73 +120,187 @@ try {
   stream = attachOperationsStream(server);
   await new Promise((done) => server.listen(0, "127.0.0.1", done));
   const baseUrl = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({ headless: true, args: ["--enable-precise-memory-info"] });
   const browserVersion = browser.version();
 
   async function measureRun(equipmentId, runNumber, seconds, soak = false) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1024 }, deviceScaleFactor: 1, locale: "ko-KR", timezoneId: "Asia/Seoul" });
     const page = await context.newPage();
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: options.cpuThrottle });
+    await cdp.send("HeapProfiler.enable");
     const errors = [];
-    const network = { requests: 0, responses: 0, failed: [], httpErrors: [] };
+    const network = { requests: 0, responses: 0, failed: [], httpErrors: [], historyResponses: [] };
+    const collected = {
+      elapsedMs: 0,
+      visibility: "visible",
+      measurements: [],
+      longTasks: [],
+      events: [],
+      counts: null,
+      supportedEntryTypes: [],
+    };
+    const mergeProbe = (chunk) => {
+      collected.elapsedMs = chunk.elapsedMs;
+      collected.visibility = chunk.visibility;
+      collected.measurements.push(...chunk.measurements);
+      collected.longTasks.push(...chunk.longTasks);
+      collected.events.push(...chunk.events);
+      collected.counts = chunk.counts;
+      collected.supportedEntryTypes = chunk.supportedEntryTypes;
+    };
+    const drainProbe = async () => {
+      const chunk = await page.evaluate(() => window.__nexusPerformance.drain());
+      mergeProbe(chunk);
+      return chunk;
+    };
+    const readHeap = async (collectGarbage = false) => {
+      if (collectGarbage) await cdp.send("HeapProfiler.collectGarbage");
+      const [usage, atMs] = await Promise.all([
+        cdp.send("Runtime.getHeapUsage"),
+        page.evaluate(() => performance.now()),
+      ]);
+      return {
+        atMs: round(atMs),
+        usedBytes: Math.round(usage.usedSize),
+        totalBytes: Math.round(usage.totalSize),
+        embedderHeapUsedBytes: Math.round(usage.embedderHeapUsedSize ?? 0),
+        backingStorageBytes: Math.round(usage.backingStorageSize ?? 0),
+        forcedGarbageCollection: collectGarbage,
+      };
+    };
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
     page.on("request", () => { network.requests += 1; });
     page.on("response", (response) => {
       network.responses += 1;
-      if (response.status() >= 400) network.httpErrors.push({ path: new URL(response.url()).pathname, status: response.status() });
+      const path = new URL(response.url()).pathname;
+      if (response.status() >= 400) network.httpErrors.push({ path, status: response.status() });
+      if (path.endsWith("/history")) {
+        const contentLength = Number(response.headers()["content-length"]);
+        network.historyResponses.push({
+          path,
+          status: response.status(),
+          contentLengthBytes: Number.isFinite(contentLength) ? contentLength : null,
+        });
+      }
     });
     page.on("requestfailed", (request) => network.failed.push({ path: new URL(request.url()).pathname, error: request.failure()?.errorText }));
     try {
-      console.log(`${soak ? "Soak" : "Run"} ${runNumber}: ${equipmentId}, ${seconds}s observation`);
+      console.log(`${soak ? "Soak" : "Run"} ${runNumber}: ${equipmentId}, ${seconds}s, ${options.historyPoints} history points, ${options.cpuThrottle}x CPU throttle`);
       await page.goto(`${baseUrl}/overview`);
       await page.getByRole("button", { name: `${equipmentId} 이상 신호 진단 열기`, exact: true }).click();
       await page.waitForFunction(() => window.__nexusPerformance?.snapshot().measurements.some((item) => item.name === "history_request_to_frame_opportunity"));
       await page.waitForFunction(() => window.__nexusPerformance?.snapshot().measurements.some((item) => item.name === "equipment_click_to_history_frame_opportunity"));
       await expect(page.getByRole("button", { name: "현장 검증 시작", exact: true })).toBeEnabled();
       await page.waitForFunction(() => window.__nexusPerformance?.snapshot().measurements.filter((item) => item.name === "stream_latest_receive_to_frame_opportunity").length >= 3);
+      const initialAfterGc = await readHeap(true);
       const start = await page.evaluate(() => performance.now());
       const observations = [];
-      const observe = async () => observations.push(await page.evaluate(() => {
-        const probe = window.__nexusPerformance.snapshot();
-        return { atMs: performance.now(), visibility: document.visibilityState, rawPoints: probe.counts.rawPoints,
-          displayedPoints: probe.counts.displayedPoints, domNodes: document.querySelectorAll("*").length,
-          // Chromium-only, approximate legacy heap telemetry. No forced GC and no leak claim.
-          jsHeapUsedBytes: performance.memory?.usedJSHeapSize ?? null,
-          jsHeapTotalBytes: performance.memory?.totalJSHeapSize ?? null };
-      }));
-      await observe();
+      const observe = async (label, heap = null) => {
+        const client = await page.evaluate(() => {
+          const probe = window.__nexusPerformance.snapshot();
+          return {
+            atMs: performance.now(),
+            visibility: document.visibilityState,
+            rawPoints: probe.counts.rawPoints,
+            displayedPoints: probe.counts.displayedPoints,
+            domNodes: document.querySelectorAll("*").length,
+            jsHeapUsedBytes: performance.memory?.usedJSHeapSize ?? null,
+            jsHeapTotalBytes: performance.memory?.totalJSHeapSize ?? null,
+          };
+        });
+        observations.push({ label, ...client, cdpHeap: heap ?? await readHeap(false) });
+        await drainProbe();
+      };
+      await observe("start", initialAfterGc);
       let interactions = 0;
+      const skippedInteractions = [];
+      const runInteractionCycle = async () => {
+        for (const [label, action] of [["확대", "zoom"], ["이전 구간", "pan"], ["이상 구간으로 이동", "focus_incident"], ["실시간 따라가기", "follow_live"]]) {
+          const name = `interaction_${action}_to_frame_opportunity`;
+          await drainProbe();
+          const button = page.getByRole("button", { name: label, exact: true });
+          if (!await button.isEnabled()) {
+            if (action !== "focus_incident") throw new Error(`Unexpected disabled chart action: ${action}`);
+            skippedInteractions.push({
+              action,
+              atMs: round(await page.evaluate(() => performance.now())),
+              reason: "incident_outside_retained_time_window",
+            });
+            continue;
+          }
+          await button.click();
+          await page.waitForFunction((metric) => window.__nexusPerformance.snapshot().measurements.some((item) => item.name === metric), name);
+          await drainProbe();
+          interactions += 1;
+        }
+      };
       // Seven repetitions per main run yield 21 samples/action across three runs.
       const cycles = soak ? 0 : options.seconds >= 20 ? 7 : 1;
       for (let cycle = 0; cycle < cycles; cycle += 1) {
-        for (const [label, action] of [["확대", "zoom"], ["이전 구간", "pan"], ["이상 구간으로 이동", "focus_incident"], ["실시간 따라가기", "follow_live"]]) {
-          const name = `interaction_${action}_to_frame_opportunity`;
-          const previous = await page.evaluate((metric) => window.__nexusPerformance.snapshot().measurements.filter((item) => item.name === metric).length, name);
-          await page.getByRole("button", { name: label, exact: true }).click();
-          await page.waitForFunction(({ metric, count }) => window.__nexusPerformance.snapshot().measurements.filter((item) => item.name === metric).length > count, { metric: name, count: previous });
-          interactions += 1;
-        }
+        await runInteractionCycle();
       }
       let elapsed = (await page.evaluate(() => performance.now())) - start;
+      let nextSoakInteractionMs = options.soakInteractionSeconds > 0 ? options.soakInteractionSeconds * 1_000 : Infinity;
+      let lastProgressSeconds = 0;
       while (elapsed < seconds * 1000) {
-        await page.waitForTimeout(Math.min(5000, seconds * 1000 - elapsed));
-        await observe();
+        await page.waitForTimeout(Math.min(options.checkpointSeconds * 1_000, seconds * 1000 - elapsed));
         elapsed = (await page.evaluate(() => performance.now())) - start;
-        if (soak) console.log(`  ${equipmentId} visible stream ${Math.round(elapsed / 1000)}/${seconds}s, ${observations.at(-1).rawPoints} points`);
+        if (soak && elapsed >= nextSoakInteractionMs && elapsed < seconds * 1_000) {
+          await runInteractionCycle();
+          nextSoakInteractionMs += options.soakInteractionSeconds * 1_000;
+          elapsed = (await page.evaluate(() => performance.now())) - start;
+        }
+        await observe("checkpoint");
+        const progressSeconds = Math.round(elapsed / 1000);
+        if (soak && (progressSeconds - lastProgressSeconds >= 60 || progressSeconds >= seconds)) {
+          console.log(`  ${equipmentId} visible stream ${progressSeconds}/${seconds}s, ${observations.at(-1).rawPoints} retained points`);
+          lastProgressSeconds = progressSeconds;
+        }
       }
       const observationEnd = await page.evaluate(() => performance.now());
-      await page.getByRole("button", { name: "현장 검증 시작", exact: true }).click();
-      const dialog = page.getByRole("dialog");
-      for (const checkbox of await dialog.getByRole("checkbox").all()) await checkbox.check();
-      await dialog.getByRole("button", { name: "검증 작업 지시 발행", exact: true }).click();
-      await expect(page.getByTestId("verification-success")).toBeVisible();
-      await page.waitForFunction(() => window.__nexusPerformance.snapshot().measurements.some((item) => item.name === "verification_submit_to_result_frame_opportunity"));
-      const snapshot = await page.evaluate(() => window.__nexusPerformance.snapshot());
+      const endBeforeGc = await readHeap(false);
+      await observe("end", endBeforeGc);
+      const endAfterGc = await readHeap(true);
+      await drainProbe();
+      let verificationOutcome = "issued";
+      const verificationButton = page.getByRole("button", { name: "현장 검증 시작", exact: true });
+      const canVerify = await verificationButton.count() > 0 && await verificationButton.isEnabled();
+      if (canVerify) {
+        await verificationButton.click();
+        const dialog = page.getByRole("dialog");
+        for (const checkbox of await dialog.getByRole("checkbox").all()) await checkbox.check();
+        await dialog.getByRole("button", { name: "검증 작업 지시 발행", exact: true }).click();
+        await expect(page.getByTestId("verification-success")).toBeVisible();
+        await page.waitForFunction(() => window.__nexusPerformance.snapshot().measurements.some((item) => item.name === "verification_submit_to_result_frame_opportunity"));
+      } else if (soak) {
+        verificationOutcome = "correctly_blocked_after_incident_left_retained_time_window";
+        await expect(page.getByRole("button", { name: "현장 검증 보류", exact: true })).toBeDisabled();
+      } else {
+        throw new Error("Verification unexpectedly unavailable during a journey run");
+      }
+      await drainProbe();
+      const snapshot = { ...collected, counts: collected.counts ?? {} };
       const steadyMeasurements = snapshot.measurements.filter((item) => item.startTime >= start && item.startTime < observationEnd);
       const steadyTasks = snapshot.longTasks.filter((item) => item.startTime >= start && item.startTime < observationEnd);
       const result = {
         equipmentId, runNumber, kind: soak ? "soak" : "journey", requestedObservationSeconds: seconds,
-        observation: { startMs: start, endMs: observationEnd, durationMs: observationEnd - start, scriptedChartInteractions: interactions },
+        observation: { startMs: start, endMs: observationEnd, durationMs: observationEnd - start, scriptedChartInteractions: interactions, skippedChartInteractions: skippedInteractions, verificationOutcome },
+        ingestion: {
+          requestedHistoryPoints: options.historyPoints,
+          sensorValues: options.historyPoints * 5,
+          retainedRawPoints: snapshot.counts.rawPoints,
+          displayedPoints: snapshot.counts.displayedPoints,
+          responseContentLengthBytes: network.historyResponses[0]?.contentLengthBytes ?? null,
+        },
+        heap: {
+          initialAfterGc,
+          endBeforeGc,
+          endAfterGc,
+          retainedGrowthBytes: endAfterGc.usedBytes - initialAfterGc.usedBytes,
+          retainedGrowthPercent: initialAfterGc.usedBytes > 0 ? round((endAfterGc.usedBytes - initialAfterGc.usedBytes) / initialAfterGc.usedBytes * 100) : null,
+        },
         summary: summarize(snapshot.measurements), steadySummary: summarize(steadyMeasurements),
         longTasks: { all: snapshot.longTasks.length, steady: steadyTasks.length, steadyBlockingMs: round(steadyTasks.reduce((sum, task) => sum + Math.max(0, task.durationMs - 50), 0)) },
         observations, raw: snapshot, network, errors,
@@ -173,6 +312,8 @@ try {
       expect(snapshot.counts.hiddenFrames).toBe(0);
       expect(snapshot.counts.droppedMeasurements).toBe(0);
       expect(observations.every((item) => item.visibility === "visible" && item.rawPoints <= 20_000 && item.displayedPoints <= 1_800)).toBe(true);
+      expect(network.historyResponses.length).toBeGreaterThanOrEqual(1);
+      expect(network.historyResponses.every((item) => item.contentLengthBytes > 0)).toBe(true);
       console.log(`  click→history frame ${result.summary.equipment_click_to_history_frame_opportunity.medianMs}ms; history→frame ${result.summary.history_request_to_frame_opportunity.medianMs}ms; live latest→frame p95 ${result.steadySummary.stream_latest_receive_to_frame_opportunity?.p95Ms ?? "N<20"}ms; steady long tasks ${steadyTasks.length}`);
       results.push(result);
     } finally {
@@ -192,19 +333,50 @@ try {
       longTasks: runs.reduce((sum, item) => sum + item.longTasks.steady, 0) }];
   }));
   const git = (args) => execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  const soakRun = results.find((item) => item.kind === "soak");
   const artifact = {
-    schemaVersion: 1, generatedAt: new Date().toISOString(),
-    environment: { cpu: cpus()[0]?.model, logicalCores: cpus().length, platform: platform(), osRelease: release(), node: process.version, chromium: browserVersion, dependencyVersions, headless: true, viewport: { width: 1440, height: 1024 }, deviceScaleFactor: 1, transport: "loopback HTTP + WebSocket; no network/CPU throttling", build: "App-local Vite production minified; VITE_PERFORMANCE_PROBE=true; Sentry disabled; static responses no-store" },
+    schemaVersion: 2, generatedAt: new Date().toISOString(),
+    environment: {
+      cpu: cpus()[0]?.model,
+      logicalCores: cpus().length,
+      platform: platform(),
+      osRelease: release(),
+      node: process.version,
+      chromium: browserVersion,
+      dependencyVersions,
+      headless: true,
+      viewport: { width: 1440, height: 1024 },
+      deviceScaleFactor: 1,
+      cpuThrottleRate: options.cpuThrottle,
+      cpuThrottleMethod: options.cpuThrottle === 1 ? "none" : "Chromium DevTools Protocol Emulation.setCPUThrottlingRate",
+      transport: "loopback HTTP + WebSocket; no network throttling",
+      build: "App-local Vite production minified; VITE_PERFORMANCE_PROBE=true; Sentry disabled; static responses no-store",
+    },
     source: { baseCommit: git(["rev-parse", "HEAD"]), dirty: Boolean(git(["status", "--porcelain"])), sha256: hashes },
-    protocol: { runsPerEquipment: options.runs, observationSeconds: options.seconds, soakSeconds: options.soakSeconds, historyPoints: 18000, sensorFieldsPerPoint: 5, streamIntervalMs: 250, commitIntervalMs: 500,
+    protocol: { runsPerEquipment: options.runs, observationSeconds: options.seconds, soakSeconds: options.soakSeconds, historyPoints: options.historyPoints, sensorFieldsPerPoint: 5, streamIntervalMs: 250, commitIntervalMs: 500, checkpointSeconds: options.checkpointSeconds, soakInteractionSeconds: options.soakInteractionSeconds,
       startup: "fresh browser context → overview → equipment click handler (before navigation/lazy route loading) → history request through validation/state/chart; all first-load samples retained; excludes initial overview page navigation",
-      steady: "starts after first history frame and at least 3 streaming frame opportunities; 7 zoom/pan/focus/follow cycles per >=20s journey; soak has no chart inputs",
+      steady: `starts after first history frame and at least 3 streaming frame opportunities; 7 zoom/pan/focus/follow cycles per >=20s journey; soak repeats the same cycle every ${options.soakInteractionSeconds || "disabled"}${options.soakInteractionSeconds ? " seconds" : ""}; focus-incident is recorded as skipped and verification must remain blocked after the incident leaves the retained 30-minute window`,
       timing: "ECharts finished + two requestAnimationFrame callbacks: render-frame opportunity, NOT compositor/pixel presentation",
       p95: "nearest rank; null when fewer than 20 samples; repeated stream samples within a run are not independent devices/users",
       eventTiming: "native PerformanceEventTiming >=16ms (8ms rounding); sub-threshold inputs absent, not a production INP score",
-      heap: "performance.memory approximate Chromium-only used/total heap; sampled without forced GC; bounded observation cannot prove no leak",
-      excludes: ["Vercel CDN/serverless cold starts", "public WAN/industrial network", "multi-user load", "physical sensors", "8-hour stability", "mobile/low-end CPU", "production RUM/SLA"] },
-    aggregated, runs: results,
+      heap: "CDP Runtime.getHeapUsage sampled at checkpoints; retained growth compares forced-GC snapshots after initial stabilization and after the observation. It is evidence for this bounded run, not a leak-proof claim.",
+      historySemantics: `${options.historyPoints} timestamped records (${options.historyPoints * 5} sensor values) are received, parsed and validated; the raw ring retains at most 20,000 records and charts render at most 1,800 synchronized records`,
+      cpuThrottle: options.cpuThrottle === 1 ? "none" : `${options.cpuThrottle}x CDP slowdown is a repeatable simulation, not a physical low-end device result`,
+      excludes: ["Vercel CDN/serverless cold starts", "public WAN/industrial network", "multi-user load", "physical sensors", "physical low-end device", "8-hour stability", "production RUM/SLA"] },
+    aggregated,
+    soakSummary: soakRun ? {
+      observationSeconds: round(soakRun.observation.durationMs / 1000),
+      scriptedChartInteractions: soakRun.observation.scriptedChartInteractions,
+      skippedChartInteractions: soakRun.observation.skippedChartInteractions.length,
+      verificationOutcome: soakRun.observation.verificationOutcome,
+      retainedHeapGrowthBytes: soakRun.heap.retainedGrowthBytes,
+      retainedHeapGrowthPercent: soakRun.heap.retainedGrowthPercent,
+      steadyLongTasks: soakRun.longTasks.steady,
+      droppedMeasurements: soakRun.raw.counts.droppedMeasurements,
+      finalRawPoints: soakRun.ingestion.retainedRawPoints,
+      finalDisplayedPoints: soakRun.ingestion.displayedPoints,
+    } : null,
+    runs: results,
   };
   // Keep prior evidence immutable. Reproduction must use a new output filename.
   await writeFile(outputPath, `${JSON.stringify(artifact, null, 2)}\n`, { flag: "wx" });

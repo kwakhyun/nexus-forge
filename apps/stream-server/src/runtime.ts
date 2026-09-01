@@ -9,8 +9,8 @@ import type {
   VerificationRequest,
   DiagnosticEquipmentId,
 } from "@nexus/contracts";
-import { SELECTED_EQUIPMENT_ID, DRYER_EQUIPMENT_ID, diagnosticIncidents, isDiagnosticEquipmentId, verificationChecklist } from "@nexus/contracts";
-import { createPlantSummary, createSensorPoint, generateHistory } from "./simulation.js";
+import { MAX_HISTORY_POINTS, SELECTED_EQUIPMENT_ID, DRYER_EQUIPMENT_ID, diagnosticIncidents, isDiagnosticEquipmentId, verificationChecklist } from "@nexus/contracts";
+import { createPlantSummary, createSensorPoint, generateHistory, generateHistoryByCount } from "./simulation.js";
 import { createProductionHistory } from "./production.js";
 
 const streamIntervalMs = 250;
@@ -31,6 +31,8 @@ type ClientCountScope = "process" | "unavailable";
 interface OperationsHandlerOptions {
   getClientCount?: () => number | null;
   clientCountScope?: ClientCountScope;
+  /** Benchmark-only override. Production callers omit it and retain the 18,000-point default. */
+  historyPointCount?: number;
 }
 
 function applyCors(response: ServerResponse): void {
@@ -42,9 +44,11 @@ function applyCors(response: ServerResponse): void {
 
 function json(response: ServerResponse, statusCode: number, body: unknown): void {
   applyCors(response);
+  const payload = JSON.stringify(body);
   response.statusCode = statusCode;
   response.setHeader("Content-Type", "application/json; charset=utf-8");
-  response.end(JSON.stringify(body));
+  response.setHeader("Content-Length", Buffer.byteLength(payload, "utf8"));
+  response.end(payload);
 }
 
 async function readJson<T>(request: BodyAwareRequest): Promise<T> {
@@ -103,7 +107,12 @@ export function normalizeHistoryInterval(input: string | null): number {
 export function createOperationsHandler({
   getClientCount = () => null,
   clientCountScope = "unavailable",
+  historyPointCount,
 }: OperationsHandlerOptions = {}) {
+  if (historyPointCount !== undefined &&
+    (!Number.isInteger(historyPointCount) || historyPointCount < 2 || historyPointCount > MAX_HISTORY_POINTS)) {
+    throw new Error(`historyPointCount must be an integer between 2 and ${MAX_HISTORY_POINTS}`);
+  }
   return async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     const method = request.method ?? "GET";
     const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
@@ -144,12 +153,17 @@ export function createOperationsHandler({
         json(response, 404, { error: "equipment_history_unavailable" });
         return;
       }
-      const intervalMs = normalizeHistoryInterval(url.searchParams.get("intervalMs"));
+      const durationMs = 30 * 60_000;
+      const intervalMs = historyPointCount === undefined
+        ? normalizeHistoryInterval(url.searchParams.get("intervalMs"))
+        : durationMs / historyPointCount;
       json(response, 200, {
         equipmentId,
         intervalMs,
         generatedAt: Date.now(),
-        points: generateHistory(Date.now(), 30 * 60_000, intervalMs, eventTimeFor(equipmentId), equipmentId),
+        points: historyPointCount === undefined
+          ? generateHistory(Date.now(), durationMs, intervalMs, eventTimeFor(equipmentId), equipmentId)
+          : generateHistoryByCount(Date.now(), historyPointCount, durationMs, eventTimeFor(equipmentId), equipmentId),
       });
       return;
     }

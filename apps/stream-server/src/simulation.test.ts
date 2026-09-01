@@ -1,11 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { createPlantSummary, createSensorPoint, generateHistory } from "./simulation";
+import { createPlantSummary, createSensorPoint, generateHistory, generateHistoryByCount } from "./simulation";
 
 describe("sensor simulation", () => {
   it("generates the expected number of monotonically ordered points", () => {
     const points = generateHistory(1_000_000, 10_000, 100);
     expect(points).toHaveLength(100);
     expect(points[0]?.timestamp).toBeLessThan(points.at(-1)?.timestamp ?? 0);
+  });
+
+  it("generates an exact high-volume history without changing interval-based generation", () => {
+    const points = generateHistoryByCount(2_000_000, 100_000, 1_800_000);
+    expect(points).toHaveLength(100_000);
+    expect(points[0]?.timestamp).toBe(200_000);
+    expect(points[1]!.timestamp - points[0]!.timestamp).toBe(18);
+
+    const intervalPoints = generateHistory(1_000_000, 1_000, 333);
+    expect(intervalPoints[1]!.timestamp - intervalPoints[0]!.timestamp).toBe(333);
+  });
+
+  it("rejects invalid exact history counts", () => {
+    expect(() => generateHistoryByCount(1_000_000, 1)).toThrow("greater than one");
+    expect(() => generateHistoryByCount(1_000_000, 2.5)).toThrow("greater than one");
   });
 
   it("keeps physical measurements within plausible bounds", () => {

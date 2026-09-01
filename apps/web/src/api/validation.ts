@@ -1,5 +1,5 @@
 import type { Incident, PlantSummary, ProductionResponse, SensorPoint, VerificationRecord } from "@nexus/contracts";
-import { isDiagnosticEquipmentId } from "@nexus/contracts";
+import { isDiagnosticEquipmentId, MAX_HISTORY_POINTS } from "@nexus/contracts";
 
 type DataObject = Record<string, unknown>;
 const object = (value: unknown): value is DataObject => typeof value === "object" && value !== null;
@@ -38,13 +38,13 @@ export function isPlantSummary(value: unknown): value is PlantSummary {
 
 export function isHistory(value: unknown): value is { equipmentId: string; intervalMs: number; generatedAt: number; points: SensorPoint[] } {
   if (!object(value) || !isDiagnosticEquipmentId(value.equipmentId) || !number(value.intervalMs) || value.intervalMs <= 0 || !number(value.generatedAt) ||
-    !Array.isArray(value.points) || value.points.length < 2 || value.points.length > 40_000) return false;
+    !Array.isArray(value.points) || value.points.length < 2 || value.points.length > MAX_HISTORY_POINTS) return false;
   let previousTimestamp = -Infinity;
-  return value.points.every((point) => {
+  for (const point of value.points) {
     if (!isSensorPoint(point) || point.timestamp <= previousTimestamp) return false;
     previousTimestamp = point.timestamp;
-    return true;
-  });
+  }
+  return true;
 }
 
 export function isVerificationRecord(value: unknown): value is VerificationRecord {

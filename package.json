@@ -18,7 +18,10 @@
     "storybook": "npm --workspace @nexus/web run storybook",
     "storybook:build": "npm --workspace @nexus/web run storybook:build",
     "benchmark:performance": "node scripts/benchmark-performance.mjs",
-    "benchmark:application": "npm run build && node scripts/benchmark-application.mjs"
+    "benchmark:application": "npm run build && node scripts/benchmark-application.mjs",
+    "benchmark:chart:stress": "node scripts/benchmark-performance.mjs --raw-points 100000 --sampled-points 1800 --repetitions 20 --warmups 2 --cpu-throttle 4",
+    "benchmark:stress:smoke": "npm run build && node scripts/benchmark-application.mjs --history-points 100000 --cpu-throttle 4 --runs 1 --seconds 5 --soak-seconds 0 --checkpoint-seconds 2",
+    "benchmark:stress": "npm run build && node scripts/benchmark-application.mjs --history-points 100000 --cpu-throttle 4 --runs 3 --seconds 30 --soak-seconds 3600 --checkpoint-seconds 5 --soak-interaction-seconds 300"
   },
   "engines": {
     "node": "22.x"

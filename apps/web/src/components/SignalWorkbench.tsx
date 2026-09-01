@@ -175,7 +175,7 @@ export function SignalWorkbench({
         <span className="toolbar-spacer" />
         <button type="button" aria-label="이상 구간으로 이동" disabled={noData || !selectedPoint} onClick={focusIncident}><CrosshairIcon size={17} /> 이상 구간</button>
         <button type="button" disabled={noData} onClick={() => updateRange(bounds, "full_range")}>전체 구간</button>
-        <span className="render-stat">원본 {points.length.toLocaleString()}개 시점 / 표시 {sampled.length.toLocaleString()}개 · Canvas</span>
+        <span className="render-stat">보존 {points.length.toLocaleString()}개 시점 / 표시 {sampled.length.toLocaleString()}개 · Canvas</span>
       </div>
       <div className="signal-window" aria-label="차트 표시 구간">
         <span>{viewRange ? rangeAdjusted ? "보관 중인 이력 범위로 이동" : "구간 고정" : `최근 ${chartMinutes}분, 실시간 갱신`}</span>
