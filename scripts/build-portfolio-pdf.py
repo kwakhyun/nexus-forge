@@ -642,7 +642,7 @@ def submission_story() -> list:
         architecture_diagram(),
         Spacer(1, 2 * mm),
         h("시계열 요약의 보장 범위", 3),
-        p("공개 데모는 18,000개 시점을 받고, 성능 검증 API는 100,000개까지 허용합니다. 입력이 20,000개를 넘으면 전체 30분 구간을 최대 20,000개로 먼저 줄이고 차트에는 최대 1,800개의 공통 시점을 전달합니다. 구간 경계와 다섯 센서별 최솟값과 최댓값을 보존하지만, 모든 작은 피크의 반복 횟수와 지속 시간까지 보존하지는 않습니다."),
+        p("공개 데모는 18,000개 시점을 수신하고, 성능 검증 API는 100,000개까지 허용합니다. 입력이 20,000개를 넘으면 전체 30분 구간을 최대 20,000개로 먼저 줄이고 차트에는 최대 1,800개의 공통 시점을 전달합니다. 구간 경계와 다섯 센서별 최솟값과 최댓값을 보존하지만, 모든 작은 피크의 반복 횟수와 지속 시간까지 보존하지는 않습니다."),
         h("10만 개 시점 차트 전후 비교", 3),
         table_flow([
             ["측정 항목", "원본/전체 import", "현재 요약/Core", "변화"],
@@ -664,7 +664,7 @@ def submission_story() -> list:
             ["배치 상태 → 차트", f'p95 / {coater_steady["batch_commit_to_frame_opportunity"]["samples"]}', milliseconds(coater_steady["batch_commit_to_frame_opportunity"]["p95Ms"]), milliseconds(dryer_steady["batch_commit_to_frame_opportunity"]["p95Ms"])],
             ["작업 지시 발행 → 결과", f'중앙값 / {coater_all["verification_submit_to_result_frame_opportunity"]["samples"]}', milliseconds(coater_all["verification_submit_to_result_frame_opportunity"]["medianMs"]), milliseconds(dryer_all["verification_submit_to_result_frame_opportunity"]["medianMs"])],
         ], 171 * mm),
-        p(f'차트 반영 시간은 ECharts의 `finished` 이후 두 번의 렌더 프레임 기회까지이며 실제 픽셀 합성 완료 시각은 아닙니다. 60분 실행에서 최신 수신→차트 반영 {soak_steady["stream_latest_receive_to_frame_opportunity"]["samples"]:,}개 표본의 p95는 {milliseconds(soak_steady["stream_latest_receive_to_frame_opportunity"]["p95Ms"])}였고, 상태 반영→차트 반영 p95는 {milliseconds(soak_steady["batch_commit_to_frame_opportunity"]["p95Ms"])}였습니다. {len(soak_run["observations"]) - 2}개 체크포인트에서 보존 시점은 {min(retained_counts):,}–{max(retained_counts):,}개, 표시 시점은 {min(displayed_counts):,}–{max(displayed_counts):,}개였습니다.'),
+        p(f'차트 반영 시간은 ECharts의 `finished` 이후 두 번의 렌더 프레임 기회까지이며 실제 픽셀 합성 완료 시각은 아닙니다. 60분 실행에서 최신 수신→차트 반영 {soak_steady["stream_latest_receive_to_frame_opportunity"]["samples"]:,}개 표본의 p95는 {milliseconds(soak_steady["stream_latest_receive_to_frame_opportunity"]["p95Ms"])}였고, 상태 반영→차트 반영 p95는 {milliseconds(soak_steady["batch_commit_to_frame_opportunity"]["p95Ms"])}였습니다. 시작·종료 관측을 포함한 {len(soak_run["observations"])}개 관측값(정기 체크포인트 {len(soak_run["observations"]) - 2}개)에서 보존 시점은 {min(retained_counts):,}–{max(retained_counts):,}개, 표시 시점은 {min(displayed_counts):,}–{max(displayed_counts):,}개였습니다.'),
         p(f'관찰 구간 Long Task는 {soak_run["longTasks"]["steady"]}건, 최댓값은 {long_task_max:.0f}ms, 50ms 초과 누적 차단은 {soak_run["longTasks"]["steadyBlockingMs"]:,}ms였습니다. 강제 GC 뒤 사용 힙은 {soak_run["heap"]["initialAfterGc"]["usedBytes"] / 1_000_000:.1f}MB에서 {soak_run["heap"]["endAfterGc"]["usedBytes"] / 1_000_000:.1f}MB로 {soak_run["heap"]["retainedGrowthBytes"] / 1_000_000:.1f}MB 증가했습니다. 오류와 실패 요청은 0건이지만 제한된 1시간 관찰은 메모리 누수 부재나 8시간 교대 안정성을 증명하지 않습니다.', "small"),
         h("기여 범위", 3),
         p("2026년 8월 30일 시작한 개인 프로젝트입니다. 지원 포지션과 개발 범위, 개선 우선순위, 공개 데모 표시 기준을 정했습니다. 실제 화면에서 발견한 결함의 재현 조건과 완료 기준을 기록하고, 수정 후 테스트와 배포 결과를 확인했습니다. GitHub 저장소 생성과 Vercel 연결도 직접 진행했습니다."),
@@ -689,7 +689,7 @@ def submission_story() -> list:
         table_flow([
             ["근거", "확인 범위"],
             ["차트 스트레스", "10만 개 시점, CPU 4배 제한, 20회 표본의 Canvas 렌더와 번들 비교"],
-            ["실제 앱 스트레스", "두 설비의 3회 흐름과 COATER-02 60분 수신, 힙·Long Task·오류·소스 해시"],
+            ["실제 앱 스트레스", "두 설비별 3회 업무 흐름과 COATER-02 60분 수신, 힙·Long Task·오류·소스 해시"],
             ["업무 회귀", "두 설비의 진단, 작업 지시 발행, 복구, 모바일과 접근성 조건을 포함한 E2E 58개"],
         ], 171 * mm),
         p("[차트 원본](./docs/benchmarks/performance-stress-2026-09-01.json) | [60분 앱 원본](./docs/benchmarks/application-stress-2026-09-01.json) | [성능 측정 방법](./docs/PERFORMANCE.md)", "linkbar"),
