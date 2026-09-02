@@ -7,6 +7,8 @@ storybook-static/
 playwright-report/
 test-results/
 artifacts/ui-audit/
+/output/pdf/
+/scripts/build-portfolio-pdf.py
 *.log
 .DS_Store
 .env
