@@ -154,6 +154,9 @@ test("header links stay labelled, keyboard accessible and distinct from status t
   await expect(page).toHaveURL(/\/diagnostics\/COATER-02/);
   await expect(diagnosticsLink).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("button", { name: "현장 검증 시작" })).toBeEnabled();
+  const processToggle = page.locator(".diagnostic-process > summary");
+  await processToggle.focus();
+  await processToggle.press("Enter");
   const processStrip = page.getByRole("region", { name: "공정 단계", exact: true });
   await processStrip.focus();
   await expect(processStrip).toHaveCSS("outline-style", "solid");

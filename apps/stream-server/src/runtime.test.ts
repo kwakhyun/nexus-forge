@@ -163,3 +163,14 @@ describe("operations runtime input boundaries", () => {
     });
   });
 });
+
+it("looks up a previously issued request without creating records, including unknown requests", async () => {
+  const input = { requestId: "lookup-regression", incidentId: ACTIVE_INCIDENT_ID, requestedBy: "조회 검사", assignee: "점검 담당자", checks: [...VERIFICATION_CHECKLIST] };
+  const issued = await requestApi("/api/verifications", input);
+  const before = await requestApi("/api/verifications");
+  const found = await requestApi("/api/verifications/by-request/lookup-regression");
+  expect(found.data).toEqual({ status: "found", record: issued.data });
+  expect((await requestApi("/api/verifications/by-request/never-issued")).data).toEqual({ status: "unknown" });
+  expect((await requestApi("/api/verifications")).data).toEqual(before.data);
+  expect((await requestApi("/api/verifications/by-request/%ZZ")).status).toBe(400);
+});

@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { cpus, platform, release, tmpdir } from "node:os";
 import { dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -57,7 +57,13 @@ if (!Number.isInteger(options.runs) || options.runs < 1 || options.runs > 10 ||
 const temporaryDirectory = await mkdtemp(join(tmpdir(), "nexus-application-benchmark-"));
 const buildDirectory = join(temporaryDirectory, "client");
 const outputPath = options.output ?? join(temporaryDirectory, "application-flow.json");
+const splitSourceDirectories = ["apps/web/src/styles", "apps/web/src/domain/workspace", "apps/web/src/components/operations"];
+const splitSourcePaths = (await Promise.all(splitSourceDirectories.map(async (directory) =>
+  (await readdir(join(root, directory))).sort().map((file) => `${directory}/${file}`)))).flat();
 const sourcePaths = [
+  ...splitSourcePaths,
+  "apps/web/src/components/SignalInspector.tsx", "apps/web/vite.config.ts",
+  "packages/ui/src/components/Button.tsx", "packages/ui/src/components/StatusBadge.tsx", "packages/ui/src/styles/tokens.css",
   "apps/web/src/main.tsx", "apps/web/src/App.tsx", "apps/web/src/styles.css",
   "apps/web/src/api/client.ts", "apps/web/src/api/validation.ts",
   "apps/web/src/hooks/useSensorStream.ts", "apps/web/src/lib/downsample.ts",

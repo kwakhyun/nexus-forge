@@ -1,0 +1,48 @@
+/* Shared readable controls and the accessible alternative to canvas interaction. */
+.diagnostic-process > summary { display: none; }
+.signal-data-info, .signal-inspector { min-width: 0; padding: 8px 14px; color: var(--nf-text-2); border-bottom: 1px solid var(--nf-line); font-size: 13px; line-height: 1.6; }
+.signal-data-info summary, .signal-inspector summary, .diagnostic-process summary { cursor: pointer; padding: 4px 0; }
+.signal-data-info p { margin: 8px 0; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.signal-inspector fieldset { display: flex; flex-wrap: wrap; gap: 8px 18px; border: 0; margin: 12px 0; padding: 0; }
+.signal-inspector legend { margin-bottom: 8px; font-weight: 600; }
+.signal-inspector label { display: flex; align-items: center; gap: 8px; min-height: 36px; }
+.signal-inspector input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--nf-blue); }
+.signal-point-values input[type="range"] { display: block; width: 100%; min-height: 36px; }
+.signal-point-navigation { display: flex; flex-wrap: wrap; gap: 8px; }
+.signal-point-navigation button { min-height: 44px; padding: 8px 12px; border: 1px solid #496170; border-radius: 4px; background: #14232d; cursor: pointer; }
+.signal-point-navigation button:disabled { opacity: .45; }
+.signal-point-values table { width: 100%; margin-top: 12px; border-collapse: collapse; }
+.signal-point-values caption { text-align: left; padding: 8px 0; color: #cfdded; }
+.signal-point-values th, .signal-point-values td { padding: 8px; text-align: left; border-bottom: 1px solid var(--nf-line); }
+.signal-point-values td { text-align: right; font-family: var(--nf-font-mono); }
+.signal-point-values p { font-size: 12px; }
+.unknown-verification { margin: 0 22px 16px; padding: 16px; border: 1px solid #a28044; border-radius: 6px; color: var(--nf-text-2); font-size: 13px; line-height: 1.7; }
+.unknown-verification h3 { margin-top: 0; }
+.unknown-verification a { color: #b5cbff; }
+.unknown-verification label { display: flex; align-items: start; gap: 8px; margin: 12px 0; }
+.unknown-verification input { flex: 0 0 auto; margin-top: 5px; }
+.evidence-list li, .incident-time, .analysis-disclaimer, .action-summary p, .recommended-action small { font-size: 13px; line-height: 1.6; }
+.incident-time span, .cause-step small { font-size: 12px; }
+.current-values dt, .current-values dd { font-size: 13px; }
+.flow-equipment strong, .flow-equipment-list--dense .flow-equipment strong { font-size: 13px; }
+.flow-equipment small, .overview-incident dt, .overview-incident dd { font-size: 13px; }
+.flow-equipment { min-height: 66px; }
+.diagnostic-equipment-context span { font-size: 12px; }
+.cause-rail .recommended-action { background: #101d25; }
+summary:focus-visible, textarea:focus-visible { outline: 2px solid #9bbaff; outline-offset: 3px; }
+
+@media (max-width: 700px) {
+  .diagnostic-process > summary { display: list-item; margin-left: 26px; min-height: 40px; padding: 8px 0; font-size: 13px; color: var(--nf-text-2); }
+  .diagnostic-process:not([open]) .process-strip { display: none; }
+  .diagnostic-layout--tree-collapsed .equipment-tree { height: auto; min-height: 54px; padding: 4px 10px; }
+  .diagnostic-equipment-context { padding: 8px 14px; }
+  .diagnostic-equipment-context span { display: none; }
+  .signal-toolbar { gap: 6px; padding: 6px 10px; }
+  .signal-toolbar button { min-height: 44px; font-size: 12px; padding-inline: 8px; }
+  .signal-toolbar .toolbar-divider, .signal-toolbar .toolbar-spacer { display: none; }
+  .signal-window { padding-block: 6px; font-size: 12px; }
+  .signal-data-info summary, .signal-inspector summary { min-height: 44px; display: list-item; padding-top: 10px; }
+  .signal-inspector label { min-height: 44px; }
+  .signal-workbench { --signal-chart-min-height: 640px; }
+  .current-values:where([data-panels="3"]) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import type { SensorPoint, StreamMessage } from "@nexus/contracts";
 import { SELECTED_EQUIPMENT_ID, isDiagnosticEquipmentId } from "@nexus/contracts";
+import { useEffect, useState } from "react";
 import { getStreamHealth } from "../lib/streamHealth";
+import { batchCommitted, streamReceived } from "../observability/performanceProbe";
 import { useOperationsStore } from "../store/operationsStore";
-import { streamReceived, batchCommitted } from "../observability/performanceProbe";
 
 const flushIntervalMs = 500;
 const healthCheckIntervalMs = 1_000;
@@ -56,11 +56,20 @@ export function parseStreamMessage(payload: string): StreamMessage | null {
 }
 
 export function useSensorStream(enabled: boolean, equipmentId = SELECTED_EQUIPMENT_ID): void {
+  const [visible, setVisible] = useState(() => document.visibilityState !== "hidden");
+  useEffect(() => {
+    const update = () => setVisible(document.visibilityState !== "hidden");
+    document.addEventListener("visibilitychange", update);
+    return () => document.removeEventListener("visibilitychange", update);
+  }, []);
   const appendStreamPoints = useOperationsStore((state) => state.appendStreamPoints);
   const setConnection = useOperationsStore((state) => state.setConnection);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !visible) {
+      setConnection("paused");
+      return;
+    }
     useOperationsStore.getState().selectEquipment(equipmentId);
 
     let socket: WebSocket | null = null;
@@ -161,5 +170,5 @@ export function useSensorStream(enabled: boolean, equipmentId = SELECTED_EQUIPME
       if (retryTimer) window.clearTimeout(retryTimer);
       socket?.close();
     };
-  }, [appendStreamPoints, enabled, equipmentId, setConnection]);
+  }, [appendStreamPoints, enabled, equipmentId, setConnection, visible]);
 }

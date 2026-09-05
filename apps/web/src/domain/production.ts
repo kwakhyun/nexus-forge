@@ -1,4 +1,4 @@
-import type { ProductionRun } from "@nexus/contracts";
+import type { ProductionRun, ProductionResponse } from "@nexus/contracts";
 
 /** The synthetic equipment tree groups every asset by its -01/-02 line suffix. */
 export function matchesProductionLine(equipmentId: string, lineId: string): boolean {
@@ -64,4 +64,37 @@ export function groupProduction(
     runCount: items.length,
     ...aggregateProduction(items),
   }));
+}
+
+export function analyzeProduction(data: ProductionResponse | undefined, hours: number, line: string) {
+  const hourMs = 60 * 60_000;
+  if (!data) return null;
+  const to = data.to;
+  const from = to - hours * hourMs;
+  const all = data.runs.filter(
+    (run) => line === "all" || run.lineId === line,
+  );
+  const current = all.filter(
+    (run) => run.startedAt >= from && run.endedAt <= to,
+  );
+  const previous = all.filter(
+    (run) => run.startedAt >= from - hours * hourMs && run.endedAt <= from,
+  );
+  return {
+    from,
+    to,
+    current,
+    totals: aggregateProduction(current),
+    previous: aggregateProduction(previous),
+    complete: current.length === hours * (line === "all" ? 2 : 1),
+    comparable:
+      current.length === hours * (line === "all" ? 2 : 1) &&
+      previous.length === current.length,
+    buckets: groupProduction(
+      current,
+      from,
+      to,
+      hours === 24 ? hourMs : 24 * hourMs,
+    ),
+  };
 }

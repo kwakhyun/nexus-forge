@@ -1,23 +1,23 @@
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { diagnosticIncidents, isDiagnosticEquipmentId, type SensorPoint } from "@nexus/contracts";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import { AppHeader } from "../components/AppHeader";
 import { CauseRail } from "../components/CauseRail";
 import { EquipmentTree } from "../components/EquipmentTree";
 import { EventTimeline } from "../components/EventTimeline";
 import { ProcessStrip } from "../components/ProcessStrip";
-import { SignalWorkbench } from "../components/SignalWorkbench";
-import { VerificationDialog } from "../components/VerificationDialog";
-import { useOperationsStore } from "../store/operationsStore";
-import { usePlantSummary } from "../hooks/usePlantSummary";
 import { RouteFeedback } from "../components/RouteFeedback";
+import { SignalWorkbench } from "../components/SignalWorkbench";
 import { SummaryNotice } from "../components/SummaryNotice";
-import { nearestIncidentPoint } from "../lib/signalWindow";
+import { VerificationDialog } from "../components/VerificationDialog";
 import { DIAGNOSTIC_PROFILES } from "../domain/diagnosticProfiles";
-import { diagnosticNavigationRequested } from "../observability/performanceProbe";
 import { useDiagnosticAnchor } from "../hooks/useDiagnosticAnchor";
+import { usePlantSummary } from "../hooks/usePlantSummary";
+import { nearestIncidentPoint } from "../lib/signalWindow";
+import { diagnosticNavigationRequested } from "../observability/performanceProbe";
+import { useOperationsStore } from "../store/operationsStore";
 
 const narrowPanelQuery = "(max-width: 700px)";
 const emptyPoints: SensorPoint[] = [];
@@ -33,6 +33,7 @@ export function DiagnosticsPage() {
     queryKey: ["history", equipmentId],
     queryFn: ({ signal }) => api.getHistory(equipmentId!, signal),
     enabled: supported,
+    refetchOnWindowFocus: "always",
     retry: 1,
     retryDelay: 500,
   });
@@ -100,7 +101,10 @@ export function DiagnosticsPage() {
           <div className="diagnostic-context">
             {summaryStale ? <SummaryNotice updatedAt={summary.updatedAt} retrying={summaryQuery.isFetching} onRetry={() => void summaryQuery.refetch()} /> : null}
             <div className="diagnostic-equipment-context"><strong>{profile.label} / {equipmentId}</strong><span>{profile.description}</span></div>
-            <ProcessStrip stages={summary.stages} />
+            <details className="diagnostic-process" open={!treeCollapsed}>
+              <summary>공정 단계 보기</summary>
+              <ProcessStrip stages={summary.stages} />
+            </details>
             <nav className="diagnostic-jump-links" aria-label="진단 화면 내 이동"><a href="#evidence">원인 근거</a><a href="#recommended-action">현장 검증</a><a href="#event-title">이벤트와 주석</a><Link to={`/incidents?incident=${encodeURIComponent(incident.id)}`}>이상 관리</Link><Link to="/maintenance">정비 관리</Link></nav>
           </div>
           <SignalWorkbench

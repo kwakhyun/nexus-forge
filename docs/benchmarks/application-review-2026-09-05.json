@@ -1,0 +1,3036 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-05T04:47:57.905Z",
+  "environment": {
+    "cpu": "Apple M2",
+    "logicalCores": 8,
+    "platform": "darwin",
+    "osRelease": "25.6.0",
+    "node": "v22.21.0",
+    "chromium": "151.0.7922.34",
+    "dependencyVersions": {
+      "vite": "6.4.3",
+      "react": "19.2.8",
+      "echarts": "6.1.0",
+      "@playwright/test": "1.62.1"
+    },
+    "headless": true,
+    "viewport": {
+      "width": 1440,
+      "height": 1024
+    },
+    "deviceScaleFactor": 1,
+    "cpuThrottleRate": 1,
+    "cpuThrottleMethod": "none",
+    "transport": "loopback HTTP + WebSocket; no network throttling",
+    "build": "App-local Vite production minified; VITE_PERFORMANCE_PROBE=true; Sentry disabled; static responses no-store"
+  },
+  "source": {
+    "baseCommit": "6f1e97be1987c3b6149762a97f080cdf6b0a7e04",
+    "dirty": true,
+    "sha256": {
+      "apps/web/src/styles/accessibility.css": "99ad9cf64ab929317341b4c1617903bdbb513c4433e140abb7e4de4161e1efaf",
+      "apps/web/src/styles/base.css": "bc052d40c20babe71623a3e681b54fc9472f6720cd1636ca6aefe3b6541c6072",
+      "apps/web/src/styles/diagnostics.css": "07b256023a05de9e73caa7a81a04b2dee3083493b61efab844cd35c1727c9fc9",
+      "apps/web/src/styles/feedback.css": "2ab80381f8dc6e8e86fccf1eff876470f53c763f6d33835734574dd15800eaa6",
+      "apps/web/src/styles/header.css": "607965e09f6291d9bb77fa01d26a1ec2e2fee6c4c006071c8632306cb292c856",
+      "apps/web/src/styles/overview.css": "5c0dbd666d3930c087ab3050b3a9a43b293233ada3151c9459db4ada9ea6f721",
+      "apps/web/src/styles/responsive.css": "d772ce8188ab11d8c41f70e55cb92c6783628b0b1519f52632d8e8a91b423d78",
+      "apps/web/src/styles/workspace.css": "398e9ce76f002c79ecc0b683e461d10e046e5d416222dde27d6891dd5f6895b8",
+      "apps/web/src/domain/workspace/context.ts": "a515d514bb3740f921905b3f2307d4e4df7dc9548842e7149e99ed73741b0ba0",
+      "apps/web/src/domain/workspace/incidents.ts": "63e10b2e6829b1b0afa56c41b51ad8af5942c94bd5321af8ed3ceb4eacae7753",
+      "apps/web/src/domain/workspace/model.ts": "360787fdec70c2ff53206cdaf8d0a74f3dab68e77ba462ced1d825b70c134b38",
+      "apps/web/src/domain/workspace/notifications.ts": "f4bc3bccb0ccdb62940c1176e15766d5d0b7d50aaa8b9b26a2f3b7a3e627f893",
+      "apps/web/src/domain/workspace/preferences.ts": "cb5a1469a9f76ec3ad99b2214a33e1e2d2a211ea1547cb00976fe62b0304c8ea",
+      "apps/web/src/domain/workspace/seed.ts": "5046c8df119b4fd5fb2ff52f0877306bc02b7fbb30b4ad4a7a2080a3cc68dfb8",
+      "apps/web/src/domain/workspace/validation.ts": "8d56de2891f65fef74a879f9a946c606987b7be51d9d1205d706952024d28f1c",
+      "apps/web/src/domain/workspace/verification.ts": "a3419c899590a117e7ee816fc43208d1a243f93db557143c97587bfda9e57223",
+      "apps/web/src/domain/workspace/work.ts": "5fe26f0178511857c3c070754bc7cf2cba9b93c0ade39344e6b5668698bed309",
+      "apps/web/src/components/operations/IncidentDetail.tsx": "5ce550d5cca4ab56098394c352d86947f1a3b26d5ad0d8831ccd28b5e9dbeb96",
+      "apps/web/src/components/operations/ProductionBars.tsx": "d728d3fd506193a9a482dbc7a9af1a7e2bdaca843672e316d5aea87c329f1b08",
+      "apps/web/src/components/operations/WorkDetail.tsx": "5d088179f570a5df1398290135fbec3b6a5c19af3946a877681c06e684b54cb4",
+      "apps/web/src/components/SignalInspector.tsx": "eac39c4844c18f223bf453a4e5ccbcb7417b255ac7ef7074991737478281ad68",
+      "apps/web/vite.config.ts": "c46d6559f72a4a4d024680052e309f49e3674329cf26c4526f18f448c30b970c",
+      "packages/ui/src/components/Button.tsx": "f5e1d61dff2ddbfd982a76254d8b75a73cf7f9d8beb8f32a3b5ffa86e27b5263",
+      "packages/ui/src/components/StatusBadge.tsx": "89195cb239bb624cdb61fe6f8523bc03a65104e7adb369732f468d53a47518d5",
+      "packages/ui/src/styles/tokens.css": "a4e66cbd5d7db39f0891cc3ddbc24a5fe1c4a9fdddaaac503748f72c4ea83746",
+      "apps/web/src/main.tsx": "853ce9632160f4b543a4c885a1f7e33288c1a3bff941a7d97f06745e653ad485",
+      "apps/web/src/App.tsx": "02f88b2d235de6d7150b871cf1095b337bb82a1fb943008a14629417f9db7826",
+      "apps/web/src/styles.css": "a51e203bbd075fcd63ad5801c1773f9570a51ab610ee83b0e690102296e457f4",
+      "apps/web/src/api/client.ts": "c7e12f7792e731a1df87428cb5d1cc9c8d3caf7a8e4c9a2449bb1b57e6f01daf",
+      "apps/web/src/api/validation.ts": "6db899de8585d16fbe161095378369f67c6a4603446860064189c9bd7c947d15",
+      "apps/web/src/hooks/useSensorStream.ts": "8fc69519a5d2a391a7b4825b54d4499dfbe1ab6ea22b1a4695f080d38e619a53",
+      "apps/web/src/lib/downsample.ts": "ae1795a546222ff2c3a2681a5fb64c158a57a17f739b2822e4219aacd8b1db85",
+      "apps/web/src/lib/signalChart.ts": "3dc37e84e76cf01ecd56d49ed512208f2b0710024dd57add160616d0847f87e5",
+      "apps/web/src/lib/ringBuffer.ts": "48277f5fd55ae89ac2653c7f22576f9881f38c61650d01ef6f377fb8e4cfb741",
+      "apps/web/src/domain/diagnosticProfiles.ts": "b1609dd1bedef62f28a277702147050cd639ac25f384a185033d1b31d9e0e4a1",
+      "apps/web/src/domain/workspace.ts": "b92d6f2fd180e1fdf52d9e13e6394b7887a5565753002e6ed10803690523916d",
+      "apps/web/src/store/operationsStore.ts": "35a4222596213a4476421c6e86cf56b3bfdaa7fea491d3498a244f21f0d0c435",
+      "apps/web/src/store/workspaceStore.ts": "c9cf5ce896fa0defe9493a3f1196dd672ec736c6ea57162e4d48d0108e4665ac",
+      "apps/web/src/lib/workspaceDatabase.ts": "d4543b47a3f4d190005d00303b5567fdd7f64a3a863453e462b165f36a267129",
+      "apps/web/src/routes/OverviewPage.tsx": "4467fd44cb2ca45f02bff05e86154f58ac399484f2f53e60a8f89ab269d23bb5",
+      "apps/web/src/routes/DiagnosticsPage.tsx": "c6c384d923524b503a573741a2699e36ce5d7e53806cb5efd1355da4f62f0e6d",
+      "apps/web/src/components/SignalWorkbench.tsx": "7a0788553c326ee443d2913809254d5ace5c323e23479f4f56115d1d9dee0fc0",
+      "apps/web/src/components/WorkspaceBootstrap.tsx": "88dee04e15befaaf63d3df69ea16b99e062b40b78cb3e4590c9745e55bf4e6bd",
+      "apps/web/src/components/VerificationDialog.tsx": "db1543edf425984b73eea51ceb754ad4102d3d88532717796ef944afcfe0b44e",
+      "apps/web/src/observability/performanceProbe.ts": "ea082beb27c687a204c180ed0521d3c7c4c302ef13549479886a0b3a6f51d81d",
+      "apps/stream-server/src/runtime.ts": "2254613cbfcdc57ecfd3c2bfa3aa5cf15ed0e311e373751dcd15cdfac8854ec5",
+      "apps/stream-server/src/simulation.ts": "0ec41c887b7956577d58f18ebe8fa6cb944334f2b6262ee9f84119cd79ccf3ff",
+      "packages/contracts/src/index.ts": "ca75d88a6eeb0e1bede6426e24a214c5922e8f04a632d2cd774b52be4b409ef5",
+      "scripts/benchmark-application.mjs": "eea86011665f5cbbfb0c37202a287c26d5c250c1d0dc7f8fd3fe156adab6d780",
+      "package-lock.json": "8a5523bc55b1b6c68558bf100c9a4bf20f531f5a22250ca91941b6355461238b"
+    }
+  },
+  "protocol": {
+    "runsPerEquipment": 1,
+    "observationSeconds": 5,
+    "soakSeconds": 0,
+    "historyPoints": 18000,
+    "sensorFieldsPerPoint": 5,
+    "streamIntervalMs": 250,
+    "commitIntervalMs": 500,
+    "checkpointSeconds": 5,
+    "soakInteractionSeconds": 300,
+    "startup": "fresh browser context → overview → equipment click handler (before navigation/lazy route loading) → history request through validation/state/chart; all first-load samples retained; excludes initial overview page navigation",
+    "steady": "starts after first history frame and at least 3 streaming frame opportunities; 7 zoom/pan/focus/follow cycles per >=20s journey; soak repeats the same cycle every 300 seconds; focus-incident is recorded as skipped and verification must remain blocked after the incident leaves the retained 30-minute window",
+    "timing": "ECharts finished + two requestAnimationFrame callbacks: render-frame opportunity, NOT compositor/pixel presentation",
+    "p95": "nearest rank; null when fewer than 20 samples; repeated stream samples within a run are not independent devices/users",
+    "eventTiming": "native PerformanceEventTiming >=16ms (8ms rounding); sub-threshold inputs absent, not a production INP score",
+    "heap": "CDP Runtime.getHeapUsage sampled at checkpoints; retained growth compares forced-GC snapshots after initial stabilization and after the observation. It is evidence for this bounded run, not a leak-proof claim.",
+    "historySemantics": "18000 timestamped records (90000 sensor values) are received, parsed and validated; the raw ring retains at most 20,000 records and charts render at most 1,800 synchronized records",
+    "cpuThrottle": "none",
+    "excludes": [
+      "Vercel CDN/serverless cold starts",
+      "public WAN/industrial network",
+      "multi-user load",
+      "physical sensors",
+      "physical low-end device",
+      "8-hour stability",
+      "production RUM/SLA"
+    ]
+  },
+  "aggregated": {
+    "COATER-02": {
+      "all": {
+        "batch_commit_to_frame_opportunity": {
+          "samples": 20,
+          "medianMs": 64,
+          "p95Ms": 1589.7,
+          "minMs": 42.5,
+          "maxMs": 4416.7
+        },
+        "chart_effect_to_frame_opportunity": {
+          "samples": 25,
+          "medianMs": 45.2,
+          "p95Ms": 1571.2,
+          "minMs": 35.3,
+          "maxMs": 4403.1
+        },
+        "equipment_click_to_history_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 974.4,
+          "p95Ms": null,
+          "minMs": 974.4,
+          "maxMs": 974.4
+        },
+        "history_adopt_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 133.3,
+          "p95Ms": null,
+          "minMs": 133.3,
+          "maxMs": 133.3
+        },
+        "history_fetch_parse_validate": {
+          "samples": 1,
+          "medianMs": 487.3,
+          "p95Ms": null,
+          "minMs": 487.3,
+          "maxMs": 487.3
+        },
+        "history_request_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 623.9,
+          "p95Ms": null,
+          "minMs": 623.9,
+          "maxMs": 623.9
+        },
+        "interaction_focus_incident_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 39.1,
+          "p95Ms": null,
+          "minMs": 39.1,
+          "maxMs": 39.1
+        },
+        "interaction_follow_live_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 42.1,
+          "p95Ms": null,
+          "minMs": 42.1,
+          "maxMs": 42.1
+        },
+        "interaction_pan_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 36.1,
+          "p95Ms": null,
+          "minMs": 36.1,
+          "maxMs": 36.1
+        },
+        "interaction_zoom_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 43.4,
+          "p95Ms": null,
+          "minMs": 43.4,
+          "maxMs": 43.4
+        },
+        "loopback_sample_age_at_frame_opportunity": {
+          "samples": 20,
+          "medianMs": 304,
+          "p95Ms": 4135,
+          "minMs": 85,
+          "maxMs": 4602
+        },
+        "stream_batch_wait": {
+          "samples": 20,
+          "medianMs": 435.7,
+          "p95Ms": 615.8,
+          "minMs": 0.9,
+          "maxMs": 1492.1
+        },
+        "stream_latest_receive_to_frame_opportunity": {
+          "samples": 20,
+          "medianMs": 290.95,
+          "p95Ms": 1589.8,
+          "minMs": 74,
+          "maxMs": 4601.4
+        },
+        "stream_oldest_receive_to_frame_opportunity": {
+          "samples": 20,
+          "medianMs": 513.45,
+          "p95Ms": 1624.6,
+          "minMs": 116.1,
+          "maxMs": 4844
+        },
+        "verification_request_and_persistence": {
+          "samples": 1,
+          "medianMs": 101.8,
+          "p95Ms": null,
+          "minMs": 101.8,
+          "maxMs": 101.8
+        },
+        "verification_submit_to_result_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 108.7,
+          "p95Ms": null,
+          "minMs": 108.7,
+          "maxMs": 108.7
+        }
+      },
+      "steady": {
+        "batch_commit_to_frame_opportunity": {
+          "samples": 11,
+          "medianMs": 57.9,
+          "p95Ms": null,
+          "minMs": 53.9,
+          "maxMs": 104.2
+        },
+        "chart_effect_to_frame_opportunity": {
+          "samples": 15,
+          "medianMs": 44.5,
+          "p95Ms": null,
+          "minMs": 35.3,
+          "maxMs": 88.7
+        },
+        "interaction_focus_incident_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 39.1,
+          "p95Ms": null,
+          "minMs": 39.1,
+          "maxMs": 39.1
+        },
+        "interaction_follow_live_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 42.1,
+          "p95Ms": null,
+          "minMs": 42.1,
+          "maxMs": 42.1
+        },
+        "interaction_pan_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 36.1,
+          "p95Ms": null,
+          "minMs": 36.1,
+          "maxMs": 36.1
+        },
+        "interaction_zoom_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 43.4,
+          "p95Ms": null,
+          "minMs": 43.4,
+          "maxMs": 43.4
+        },
+        "loopback_sample_age_at_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 298,
+          "p95Ms": null,
+          "minMs": 85,
+          "maxMs": 326
+        },
+        "stream_batch_wait": {
+          "samples": 11,
+          "medianMs": 455.8,
+          "p95Ms": null,
+          "minMs": 233,
+          "maxMs": 479.7
+        },
+        "stream_latest_receive_to_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 293.8,
+          "p95Ms": null,
+          "minMs": 74,
+          "maxMs": 323.6
+        },
+        "stream_oldest_receive_to_frame_opportunity": {
+          "samples": 11,
+          "medianMs": 514.7,
+          "p95Ms": null,
+          "minMs": 292.7,
+          "maxMs": 4844
+        }
+      },
+      "longTasks": 0
+    },
+    "DRYER-02": {
+      "all": {
+        "batch_commit_to_frame_opportunity": {
+          "samples": 16,
+          "medianMs": 51,
+          "p95Ms": null,
+          "minMs": 46,
+          "maxMs": 229.4
+        },
+        "chart_effect_to_frame_opportunity": {
+          "samples": 21,
+          "medianMs": 39.6,
+          "p95Ms": 78.8,
+          "minMs": 31.8,
+          "maxMs": 225.3
+        },
+        "equipment_click_to_history_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 1200.9,
+          "p95Ms": null,
+          "minMs": 1200.9,
+          "maxMs": 1200.9
+        },
+        "history_adopt_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 98.3,
+          "p95Ms": null,
+          "minMs": 98.3,
+          "maxMs": 98.3
+        },
+        "history_fetch_parse_validate": {
+          "samples": 1,
+          "medianMs": 558.2,
+          "p95Ms": null,
+          "minMs": 558.2,
+          "maxMs": 558.2
+        },
+        "history_request_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 660.7,
+          "p95Ms": null,
+          "minMs": 660.7,
+          "maxMs": 660.7
+        },
+        "interaction_focus_incident_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 48.6,
+          "p95Ms": null,
+          "minMs": 48.6,
+          "maxMs": 48.6
+        },
+        "interaction_follow_live_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 70.2,
+          "p95Ms": null,
+          "minMs": 70.2,
+          "maxMs": 70.2
+        },
+        "interaction_pan_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 37.2,
+          "p95Ms": null,
+          "minMs": 37.2,
+          "maxMs": 37.2
+        },
+        "interaction_zoom_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 41.7,
+          "p95Ms": null,
+          "minMs": 41.7,
+          "maxMs": 41.7
+        },
+        "loopback_sample_age_at_frame_opportunity": {
+          "samples": 16,
+          "medianMs": 178.5,
+          "p95Ms": null,
+          "minMs": 70,
+          "maxMs": 298
+        },
+        "stream_batch_wait": {
+          "samples": 16,
+          "medianMs": 362.8,
+          "p95Ms": null,
+          "minMs": 1.4,
+          "maxMs": 471.9
+        },
+        "stream_latest_receive_to_frame_opportunity": {
+          "samples": 16,
+          "medianMs": 177.8,
+          "p95Ms": null,
+          "minMs": 68.7,
+          "maxMs": 296.7
+        },
+        "stream_oldest_receive_to_frame_opportunity": {
+          "samples": 16,
+          "medianMs": 411.55,
+          "p95Ms": null,
+          "minMs": 68.7,
+          "maxMs": 517.9
+        },
+        "verification_request_and_persistence": {
+          "samples": 1,
+          "medianMs": 87.7,
+          "p95Ms": null,
+          "minMs": 87.7,
+          "maxMs": 87.7
+        },
+        "verification_submit_to_result_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 95.9,
+          "p95Ms": null,
+          "minMs": 95.9,
+          "maxMs": 95.9
+        }
+      },
+      "steady": {
+        "batch_commit_to_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 49.4,
+          "p95Ms": null,
+          "minMs": 46,
+          "maxMs": 53.1
+        },
+        "chart_effect_to_frame_opportunity": {
+          "samples": 14,
+          "medianMs": 37.75,
+          "p95Ms": null,
+          "minMs": 31.8,
+          "maxMs": 69.4
+        },
+        "interaction_focus_incident_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 48.6,
+          "p95Ms": null,
+          "minMs": 48.6,
+          "maxMs": 48.6
+        },
+        "interaction_follow_live_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 70.2,
+          "p95Ms": null,
+          "minMs": 70.2,
+          "maxMs": 70.2
+        },
+        "interaction_pan_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 37.2,
+          "p95Ms": null,
+          "minMs": 37.2,
+          "maxMs": 37.2
+        },
+        "interaction_zoom_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 41.7,
+          "p95Ms": null,
+          "minMs": 41.7,
+          "maxMs": 41.7
+        },
+        "loopback_sample_age_at_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 185.5,
+          "p95Ms": null,
+          "minMs": 156,
+          "maxMs": 280
+        },
+        "stream_batch_wait": {
+          "samples": 10,
+          "medianMs": 384.55,
+          "p95Ms": null,
+          "minMs": 353.6,
+          "maxMs": 471.9
+        },
+        "stream_latest_receive_to_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 184.2,
+          "p95Ms": null,
+          "minMs": 154.6,
+          "maxMs": 278
+        },
+        "stream_oldest_receive_to_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 434.85,
+          "p95Ms": null,
+          "minMs": 407.2,
+          "maxMs": 517.9
+        }
+      },
+      "longTasks": 0
+    }
+  },
+  "soakSummary": null,
+  "runs": [
+    {
+      "equipmentId": "COATER-02",
+      "runNumber": 1,
+      "kind": "journey",
+      "requestedObservationSeconds": 5,
+      "observation": {
+        "startMs": 2551.5,
+        "endMs": 7667.199999988079,
+        "durationMs": 5115.699999988079,
+        "scriptedChartInteractions": 4,
+        "skippedChartInteractions": [],
+        "verificationOutcome": "issued"
+      },
+      "ingestion": {
+        "requestedHistoryPoints": 18000,
+        "sensorValues": 90000,
+        "retainedRawPoints": 17926,
+        "displayedPoints": 1622,
+        "responseContentLengthBytes": 3582828
+      },
+      "heap": {
+        "initialAfterGc": {
+          "atMs": 2542,
+          "usedBytes": 13002436,
+          "totalBytes": 14024704,
+          "embedderHeapUsedBytes": 2504584,
+          "backingStorageBytes": 1358967,
+          "forcedGarbageCollection": true
+        },
+        "endBeforeGc": {
+          "atMs": 7674,
+          "usedBytes": 45162608,
+          "totalBytes": 99221504,
+          "embedderHeapUsedBytes": 2921448,
+          "backingStorageBytes": 2802570,
+          "forcedGarbageCollection": false
+        },
+        "endAfterGc": {
+          "atMs": 7899.1,
+          "usedBytes": 14214276,
+          "totalBytes": 15335424,
+          "embedderHeapUsedBytes": 2531912,
+          "backingStorageBytes": 1380905,
+          "forcedGarbageCollection": true
+        },
+        "retainedGrowthBytes": 1211840,
+        "retainedGrowthPercent": 9.32
+      },
+      "summary": {
+        "batch_commit_to_frame_opportunity": {
+          "samples": 20,
+          "medianMs": 64,
+          "p95Ms": 1589.7,
+          "minMs": 42.5,
+          "maxMs": 4416.7
+        },
+        "chart_effect_to_frame_opportunity": {
+          "samples": 25,
+          "medianMs": 45.2,
+          "p95Ms": 1571.2,
+          "minMs": 35.3,
+          "maxMs": 4403.1
+        },
+        "equipment_click_to_history_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 974.4,
+          "p95Ms": null,
+          "minMs": 974.4,
+          "maxMs": 974.4
+        },
+        "history_adopt_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 133.3,
+          "p95Ms": null,
+          "minMs": 133.3,
+          "maxMs": 133.3
+        },
+        "history_fetch_parse_validate": {
+          "samples": 1,
+          "medianMs": 487.3,
+          "p95Ms": null,
+          "minMs": 487.3,
+          "maxMs": 487.3
+        },
+        "history_request_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 623.9,
+          "p95Ms": null,
+          "minMs": 623.9,
+          "maxMs": 623.9
+        },
+        "interaction_focus_incident_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 39.1,
+          "p95Ms": null,
+          "minMs": 39.1,
+          "maxMs": 39.1
+        },
+        "interaction_follow_live_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 42.1,
+          "p95Ms": null,
+          "minMs": 42.1,
+          "maxMs": 42.1
+        },
+        "interaction_pan_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 36.1,
+          "p95Ms": null,
+          "minMs": 36.1,
+          "maxMs": 36.1
+        },
+        "interaction_zoom_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 43.4,
+          "p95Ms": null,
+          "minMs": 43.4,
+          "maxMs": 43.4
+        },
+        "loopback_sample_age_at_frame_opportunity": {
+          "samples": 20,
+          "medianMs": 304,
+          "p95Ms": 4135,
+          "minMs": 85,
+          "maxMs": 4602
+        },
+        "stream_batch_wait": {
+          "samples": 20,
+          "medianMs": 435.7,
+          "p95Ms": 615.8,
+          "minMs": 0.9,
+          "maxMs": 1492.1
+        },
+        "stream_latest_receive_to_frame_opportunity": {
+          "samples": 20,
+          "medianMs": 290.95,
+          "p95Ms": 1589.8,
+          "minMs": 74,
+          "maxMs": 4601.4
+        },
+        "stream_oldest_receive_to_frame_opportunity": {
+          "samples": 20,
+          "medianMs": 513.45,
+          "p95Ms": 1624.6,
+          "minMs": 116.1,
+          "maxMs": 4844
+        },
+        "verification_request_and_persistence": {
+          "samples": 1,
+          "medianMs": 101.8,
+          "p95Ms": null,
+          "minMs": 101.8,
+          "maxMs": 101.8
+        },
+        "verification_submit_to_result_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 108.7,
+          "p95Ms": null,
+          "minMs": 108.7,
+          "maxMs": 108.7
+        }
+      },
+      "steadySummary": {
+        "batch_commit_to_frame_opportunity": {
+          "samples": 11,
+          "medianMs": 57.9,
+          "p95Ms": null,
+          "minMs": 53.9,
+          "maxMs": 104.2
+        },
+        "chart_effect_to_frame_opportunity": {
+          "samples": 15,
+          "medianMs": 44.5,
+          "p95Ms": null,
+          "minMs": 35.3,
+          "maxMs": 88.7
+        },
+        "interaction_focus_incident_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 39.1,
+          "p95Ms": null,
+          "minMs": 39.1,
+          "maxMs": 39.1
+        },
+        "interaction_follow_live_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 42.1,
+          "p95Ms": null,
+          "minMs": 42.1,
+          "maxMs": 42.1
+        },
+        "interaction_pan_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 36.1,
+          "p95Ms": null,
+          "minMs": 36.1,
+          "maxMs": 36.1
+        },
+        "interaction_zoom_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 43.4,
+          "p95Ms": null,
+          "minMs": 43.4,
+          "maxMs": 43.4
+        },
+        "loopback_sample_age_at_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 298,
+          "p95Ms": null,
+          "minMs": 85,
+          "maxMs": 326
+        },
+        "stream_batch_wait": {
+          "samples": 11,
+          "medianMs": 455.8,
+          "p95Ms": null,
+          "minMs": 233,
+          "maxMs": 479.7
+        },
+        "stream_latest_receive_to_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 293.8,
+          "p95Ms": null,
+          "minMs": 74,
+          "maxMs": 323.6
+        },
+        "stream_oldest_receive_to_frame_opportunity": {
+          "samples": 11,
+          "medianMs": 514.7,
+          "p95Ms": null,
+          "minMs": 292.7,
+          "maxMs": 4844
+        }
+      },
+      "longTasks": {
+        "all": 3,
+        "steady": 0,
+        "steadyBlockingMs": 0
+      },
+      "observations": [
+        {
+          "label": "start",
+          "atMs": 2557.099999964237,
+          "visibility": "visible",
+          "rawPoints": 17996,
+          "displayedPoints": 1637,
+          "domNodes": 378,
+          "jsHeapUsedBytes": 14390823,
+          "jsHeapTotalBytes": 15285367,
+          "cdpHeap": {
+            "atMs": 2542,
+            "usedBytes": 13002436,
+            "totalBytes": 14024704,
+            "embedderHeapUsedBytes": 2504584,
+            "backingStorageBytes": 1358967,
+            "forcedGarbageCollection": true
+          }
+        },
+        {
+          "label": "checkpoint",
+          "atMs": 7562.599999964237,
+          "visibility": "visible",
+          "rawPoints": 17967,
+          "displayedPoints": 1643,
+          "domNodes": 378,
+          "jsHeapUsedBytes": 55896981,
+          "jsHeapTotalBytes": 90251293,
+          "cdpHeap": {
+            "atMs": 7590.2,
+            "usedBytes": 62374652,
+            "totalBytes": 91619328,
+            "embedderHeapUsedBytes": 2896080,
+            "backingStorageBytes": 2722909,
+            "forcedGarbageCollection": false
+          }
+        },
+        {
+          "label": "end",
+          "atMs": 7675.899999976158,
+          "visibility": "visible",
+          "rawPoints": 17964,
+          "displayedPoints": 1654,
+          "domNodes": 378,
+          "jsHeapUsedBytes": 47968734,
+          "jsHeapTotalBytes": 102024074,
+          "cdpHeap": {
+            "atMs": 7674,
+            "usedBytes": 45162608,
+            "totalBytes": 99221504,
+            "embedderHeapUsedBytes": 2921448,
+            "backingStorageBytes": 2802570,
+            "forcedGarbageCollection": false
+          }
+        }
+      ],
+      "raw": {
+        "elapsedMs": 14048,
+        "visibility": "visible",
+        "measurements": [
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1560.3999999761581,
+            "durationMs": 307.60000002384186
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 920.6999999880791,
+            "durationMs": 947.3000000119209
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 920.6999999880791,
+            "durationMs": 947.3000000119209
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1065.2999999523163,
+            "durationMs": 802.7000000476837
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 920.6999999880791,
+            "durationMs": 144.5999999642372
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 919,
+            "durationMs": 949
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1842.8999999761581,
+            "durationMs": 39
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1223.5999999642372,
+            "durationMs": 658.3000000119209
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1431.699999988079,
+            "durationMs": 450.19999998807907
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1839.3999999761581,
+            "durationMs": 42.5
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 1223.5999999642372,
+            "durationMs": 615.8000000119209
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1431.8999999761581,
+            "durationMs": 450
+          },
+          {
+            "name": "history_fetch_parse_validate",
+            "equipmentId": "COATER-02",
+            "startTime": 1572.699999988079,
+            "durationMs": 487.30000001192093
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2080.599999964237,
+            "durationMs": 116
+          },
+          {
+            "name": "equipment_click_to_history_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1222.199999988079,
+            "durationMs": 974.3999999761581
+          },
+          {
+            "name": "history_request_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 1572.699999988079,
+            "durationMs": 623.8999999761581
+          },
+          {
+            "name": "history_adopt_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2063.2999999523163,
+            "durationMs": 133.30000001192093
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2156.599999964237,
+            "durationMs": 45.10000002384186
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2025.5999999642372,
+            "durationMs": 176.10000002384186
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2025.5999999642372,
+            "durationMs": 176.10000002384186
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2133.399999976158,
+            "durationMs": 68.30000001192093
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 2025.5999999642372,
+            "durationMs": 107.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2025.699999988079,
+            "durationMs": 176
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2581.5,
+            "durationMs": 53.69999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2282.7999999523163,
+            "durationMs": 352.4000000357628
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2533.899999976158,
+            "durationMs": 101.30000001192093
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2563.599999964237,
+            "durationMs": 71.60000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 2282.7999999523163,
+            "durationMs": 280.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2533.199999988079,
+            "durationMs": 102
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2742.599999964237,
+            "durationMs": 42.60000002384186
+          },
+          {
+            "name": "interaction_zoom_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2741.7999999523163,
+            "durationMs": 43.40000003576279
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2951.2999999523163,
+            "durationMs": 35.30000001192093
+          },
+          {
+            "name": "interaction_pan_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2950.5,
+            "durationMs": 36.09999996423721
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3080,
+            "durationMs": 54.5
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 2789.399999976158,
+            "durationMs": 345.10000002384186
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3060.5,
+            "durationMs": 74
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3064.099999964237,
+            "durationMs": 70.40000003576279
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 2789.399999976158,
+            "durationMs": 274.69999998807907
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3049.5,
+            "durationMs": 85
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3298.7999999523163,
+            "durationMs": 38.30000001192093
+          },
+          {
+            "name": "interaction_focus_incident_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3298,
+            "durationMs": 39.09999996423721
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3410.5,
+            "durationMs": 41.5
+          },
+          {
+            "name": "interaction_follow_live_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3409.899999976158,
+            "durationMs": 42.10000002384186
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3575.2999999523163,
+            "durationMs": 48.30000001192093
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3330.899999976158,
+            "durationMs": 292.69999998807907
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3330.899999976158,
+            "durationMs": 292.69999998807907
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3563.899999976158,
+            "durationMs": 59.69999998807907
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 3330.899999976158,
+            "durationMs": 233
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3300.599999964237,
+            "durationMs": 323
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4079.199999988079,
+            "durationMs": 56.19999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3585.599999964237,
+            "durationMs": 549.8000000119209
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3811.7999999523163,
+            "durationMs": 323.60000002384186
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4065.2999999523163,
+            "durationMs": 70.10000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 3585.599999964237,
+            "durationMs": 479.69999998807907
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 3809.399999976158,
+            "durationMs": 326
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4576.299999952316,
+            "durationMs": 44.5
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4120.899999976158,
+            "durationMs": 499.89999997615814
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4314.799999952316,
+            "durationMs": 306
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4565,
+            "durationMs": 55.799999952316284
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 4120.899999976158,
+            "durationMs": 444.10000002384186
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4313.799999952316,
+            "durationMs": 307
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5074.899999976158,
+            "durationMs": 43.80000001192093
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4586.699999988079,
+            "durationMs": 532
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4819.299999952316,
+            "durationMs": 299.4000000357628
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5063.699999988079,
+            "durationMs": 55
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 4586.699999988079,
+            "durationMs": 477
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 4817.699999988079,
+            "durationMs": 301
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5574.5,
+            "durationMs": 44
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5108,
+            "durationMs": 510.5
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5323.599999964237,
+            "durationMs": 294.9000000357628
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5563.799999952316,
+            "durationMs": 54.700000047683716
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 5108,
+            "durationMs": 455.7999999523163
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5323.5,
+            "durationMs": 295
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6074.699999988079,
+            "durationMs": 47.59999996423721
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5607.599999964237,
+            "durationMs": 514.6999999880791
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5833.099999964237,
+            "durationMs": 289.19999998807907
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6064.399999976158,
+            "durationMs": 57.89999997615814
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 5607.599999964237,
+            "durationMs": 456.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 5831.299999952316,
+            "durationMs": 291
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6574.399999976158,
+            "durationMs": 44.10000002384186
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6106.299999952316,
+            "durationMs": 512.2000000476837
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6337.099999964237,
+            "durationMs": 281.4000000357628
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6564.599999964237,
+            "durationMs": 53.90000003576279
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 6106.299999952316,
+            "durationMs": 458.30000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6336.5,
+            "durationMs": 282
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7074.099999964237,
+            "durationMs": 46.10000002384186
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6603.399999976158,
+            "durationMs": 516.8000000119209
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6855.5,
+            "durationMs": 264.69999998807907
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7064.699999988079,
+            "durationMs": 55.5
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 6603.399999976158,
+            "durationMs": 461.30000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 6849.199999988079,
+            "durationMs": 271
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7579.699999988079,
+            "durationMs": 88.69999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7108.5,
+            "durationMs": 559.8999999761581
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7359.599999964237,
+            "durationMs": 308.80000001192093
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7564.199999988079,
+            "durationMs": 104.19999998807907
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 7108.5,
+            "durationMs": 455.69999998807907
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7358.399999976158,
+            "durationMs": 310
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 8097.5,
+            "durationMs": 4403.099999964237
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7656.599999964237,
+            "durationMs": 4844
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7899.199999988079,
+            "durationMs": 4601.399999976158
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 8083.899999976158,
+            "durationMs": 4416.699999988079
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 7656.599999964237,
+            "durationMs": 427.30000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 7898.599999964237,
+            "durationMs": 4602
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 11003.599999964237,
+            "durationMs": 1571.199999988079
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 10984.199999988079,
+            "durationMs": 1590.5999999642372
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 10985,
+            "durationMs": 1589.7999999523163
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 10985.099999964237,
+            "durationMs": 1589.699999988079
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 10984.199999988079,
+            "durationMs": 0.8999999761581421
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 8439.799999952316,
+            "durationMs": 4135
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12527.699999988079,
+            "durationMs": 113.19999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 11016.299999952316,
+            "durationMs": 1624.6000000238419
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12507.5,
+            "durationMs": 133.39999997615814
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12508.399999976158,
+            "durationMs": 132.5
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 11016.299999952316,
+            "durationMs": 1492.1000000238419
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 11023.899999976158,
+            "durationMs": 1617
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12612,
+            "durationMs": 45.19999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12541.099999964237,
+            "durationMs": 116.10000002384186
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12541.5,
+            "durationMs": 115.69999998807907
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12583,
+            "durationMs": 74.19999998807907
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 12541.099999964237,
+            "durationMs": 41.90000003576279
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12289.199999988079,
+            "durationMs": 368
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 13075,
+            "durationMs": 43.69999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12654.799999952316,
+            "durationMs": 463.9000000357628
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12908,
+            "durationMs": 210.69999998807907
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 13064.599999964237,
+            "durationMs": 54.10000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 12654.799999952316,
+            "durationMs": 409.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 12907.699999988079,
+            "durationMs": 211
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 13574.599999964237,
+            "durationMs": 44.30000001192093
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 13161.799999952316,
+            "durationMs": 457.10000002384186
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 13477.5,
+            "durationMs": 141.39999997615814
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 13564.599999964237,
+            "durationMs": 54.30000001192093
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "COATER-02",
+            "startTime": 13161.799999952316,
+            "durationMs": 402.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 13475.899999976158,
+            "durationMs": 143
+          },
+          {
+            "name": "verification_request_and_persistence",
+            "equipmentId": "COATER-02",
+            "startTime": 13837.099999964237,
+            "durationMs": 101.80000001192093
+          },
+          {
+            "name": "verification_submit_to_result_frame_opportunity",
+            "equipmentId": "COATER-02",
+            "startTime": 13837.099999964237,
+            "durationMs": 108.69999998807907
+          }
+        ],
+        "longTasks": [
+          {
+            "startTime": 1577.8999999761581,
+            "durationMs": 260
+          },
+          {
+            "startTime": 8138.699999988079,
+            "durationMs": 2844
+          },
+          {
+            "startTime": 11018.099999964237,
+            "durationMs": 1489
+          }
+        ],
+        "events": [
+          {
+            "name": "pointerdown",
+            "interactionId": 2417,
+            "startTime": 1120.5999999642372,
+            "durationMs": 104,
+            "inputDelayMs": 2.199999988079071
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2417,
+            "startTime": 1144.699999988079,
+            "durationMs": 112,
+            "inputDelayMs": 76.69999998807907
+          },
+          {
+            "name": "click",
+            "interactionId": 2417,
+            "startTime": 1144.699999988079,
+            "durationMs": 112,
+            "inputDelayMs": 77.19999998807907
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2424,
+            "startTime": 2737.899999976158,
+            "durationMs": 48,
+            "inputDelayMs": 3.199999988079071
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2424,
+            "startTime": 2738.399999976158,
+            "durationMs": 48,
+            "inputDelayMs": 3.199999988079071
+          },
+          {
+            "name": "click",
+            "interactionId": 2424,
+            "startTime": 2738.399999976158,
+            "durationMs": 48,
+            "inputDelayMs": 3.199999988079071
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2431,
+            "startTime": 2948.5,
+            "durationMs": 48,
+            "inputDelayMs": 1.2999999523162842
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2431,
+            "startTime": 2948.699999988079,
+            "durationMs": 48,
+            "inputDelayMs": 1.5
+          },
+          {
+            "name": "click",
+            "interactionId": 2431,
+            "startTime": 2948.699999988079,
+            "durationMs": 48,
+            "inputDelayMs": 1.5999999642372131
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2438,
+            "startTime": 3295,
+            "durationMs": 40,
+            "inputDelayMs": 2
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2438,
+            "startTime": 3295,
+            "durationMs": 40,
+            "inputDelayMs": 2.699999988079071
+          },
+          {
+            "name": "click",
+            "interactionId": 2438,
+            "startTime": 3295,
+            "durationMs": 40,
+            "inputDelayMs": 2.899999976158142
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2445,
+            "startTime": 3408.5,
+            "durationMs": 40,
+            "inputDelayMs": 0.8999999761581421
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2445,
+            "startTime": 3409.099999964237,
+            "durationMs": 40,
+            "inputDelayMs": 0.6000000238418579
+          },
+          {
+            "name": "click",
+            "interactionId": 2445,
+            "startTime": 3409.099999964237,
+            "durationMs": 40,
+            "inputDelayMs": 0.699999988079071
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2452,
+            "startTime": 8054.5,
+            "durationMs": 2952,
+            "inputDelayMs": 0.5
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2452,
+            "startTime": 8056.799999952316,
+            "durationMs": 2952,
+            "inputDelayMs": 0.20000004768371582
+          },
+          {
+            "name": "click",
+            "interactionId": 2452,
+            "startTime": 8056.799999952316,
+            "durationMs": 2952,
+            "inputDelayMs": 0.30000001192092896
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2459,
+            "startTime": 12937.799999952316,
+            "durationMs": 16,
+            "inputDelayMs": 0.9000000357627869
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2459,
+            "startTime": 12937.899999976158,
+            "durationMs": 16,
+            "inputDelayMs": 1.399999976158142
+          },
+          {
+            "name": "click",
+            "interactionId": 2459,
+            "startTime": 12937.899999976158,
+            "durationMs": 16,
+            "inputDelayMs": 1.5
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2473,
+            "startTime": 13655.599999964237,
+            "durationMs": 16,
+            "inputDelayMs": 0.30000001192092896
+          },
+          {
+            "name": "click",
+            "interactionId": 2473,
+            "startTime": 13655.599999964237,
+            "durationMs": 16,
+            "inputDelayMs": 0.40000003576278687
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2480,
+            "startTime": 13829,
+            "durationMs": 32,
+            "inputDelayMs": 2.5
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2480,
+            "startTime": 13829,
+            "durationMs": 32,
+            "inputDelayMs": 3.699999988079071
+          },
+          {
+            "name": "click",
+            "interactionId": 2480,
+            "startTime": 13829,
+            "durationMs": 32,
+            "inputDelayMs": 3.799999952316284
+          }
+        ],
+        "counts": {
+          "frames": 25,
+          "hiddenFrames": 0,
+          "droppedMeasurements": 0,
+          "rawPoints": 17926,
+          "displayedPoints": 1622
+        },
+        "supportedEntryTypes": [
+          "element",
+          "event",
+          "first-input",
+          "interaction-contentful-paint",
+          "largest-contentful-paint",
+          "layout-shift",
+          "long-animation-frame",
+          "longtask",
+          "mark",
+          "measure",
+          "navigation",
+          "paint",
+          "resource",
+          "soft-navigation",
+          "visibility-state"
+        ]
+      },
+      "network": {
+        "requests": 11,
+        "responses": 11,
+        "failed": [],
+        "httpErrors": [],
+        "historyResponses": [
+          {
+            "path": "/api/equipment/COATER-02/history",
+            "status": 200,
+            "contentLengthBytes": 3582828
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "equipmentId": "DRYER-02",
+      "runNumber": 1,
+      "kind": "journey",
+      "requestedObservationSeconds": 5,
+      "observation": {
+        "startMs": 2152.399999976158,
+        "endMs": 7212.199999988079,
+        "durationMs": 5059.800000011921,
+        "scriptedChartInteractions": 4,
+        "skippedChartInteractions": [],
+        "verificationOutcome": "issued"
+      },
+      "ingestion": {
+        "requestedHistoryPoints": 18000,
+        "sensorValues": 90000,
+        "retainedRawPoints": 17954,
+        "displayedPoints": 1675,
+        "responseContentLengthBytes": 3585271
+      },
+      "heap": {
+        "initialAfterGc": {
+          "atMs": 2145.2,
+          "usedBytes": 12063884,
+          "totalBytes": 13238272,
+          "embedderHeapUsedBytes": 2578072,
+          "backingStorageBytes": 1263320,
+          "forcedGarbageCollection": true
+        },
+        "endBeforeGc": {
+          "atMs": 7227.5,
+          "usedBytes": 24038708,
+          "totalBytes": 78774272,
+          "embedderHeapUsedBytes": 2641176,
+          "backingStorageBytes": 1921650,
+          "forcedGarbageCollection": false
+        },
+        "endAfterGc": {
+          "atMs": 7471.1,
+          "usedBytes": 13229060,
+          "totalBytes": 14024704,
+          "embedderHeapUsedBytes": 2380928,
+          "backingStorageBytes": 1277736,
+          "forcedGarbageCollection": true
+        },
+        "retainedGrowthBytes": 1165176,
+        "retainedGrowthPercent": 9.658
+      },
+      "summary": {
+        "batch_commit_to_frame_opportunity": {
+          "samples": 16,
+          "medianMs": 51,
+          "p95Ms": null,
+          "minMs": 46,
+          "maxMs": 229.4
+        },
+        "chart_effect_to_frame_opportunity": {
+          "samples": 21,
+          "medianMs": 39.6,
+          "p95Ms": 78.8,
+          "minMs": 31.8,
+          "maxMs": 225.3
+        },
+        "equipment_click_to_history_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 1200.9,
+          "p95Ms": null,
+          "minMs": 1200.9,
+          "maxMs": 1200.9
+        },
+        "history_adopt_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 98.3,
+          "p95Ms": null,
+          "minMs": 98.3,
+          "maxMs": 98.3
+        },
+        "history_fetch_parse_validate": {
+          "samples": 1,
+          "medianMs": 558.2,
+          "p95Ms": null,
+          "minMs": 558.2,
+          "maxMs": 558.2
+        },
+        "history_request_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 660.7,
+          "p95Ms": null,
+          "minMs": 660.7,
+          "maxMs": 660.7
+        },
+        "interaction_focus_incident_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 48.6,
+          "p95Ms": null,
+          "minMs": 48.6,
+          "maxMs": 48.6
+        },
+        "interaction_follow_live_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 70.2,
+          "p95Ms": null,
+          "minMs": 70.2,
+          "maxMs": 70.2
+        },
+        "interaction_pan_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 37.2,
+          "p95Ms": null,
+          "minMs": 37.2,
+          "maxMs": 37.2
+        },
+        "interaction_zoom_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 41.7,
+          "p95Ms": null,
+          "minMs": 41.7,
+          "maxMs": 41.7
+        },
+        "loopback_sample_age_at_frame_opportunity": {
+          "samples": 16,
+          "medianMs": 178.5,
+          "p95Ms": null,
+          "minMs": 70,
+          "maxMs": 298
+        },
+        "stream_batch_wait": {
+          "samples": 16,
+          "medianMs": 362.8,
+          "p95Ms": null,
+          "minMs": 1.4,
+          "maxMs": 471.9
+        },
+        "stream_latest_receive_to_frame_opportunity": {
+          "samples": 16,
+          "medianMs": 177.8,
+          "p95Ms": null,
+          "minMs": 68.7,
+          "maxMs": 296.7
+        },
+        "stream_oldest_receive_to_frame_opportunity": {
+          "samples": 16,
+          "medianMs": 411.55,
+          "p95Ms": null,
+          "minMs": 68.7,
+          "maxMs": 517.9
+        },
+        "verification_request_and_persistence": {
+          "samples": 1,
+          "medianMs": 87.7,
+          "p95Ms": null,
+          "minMs": 87.7,
+          "maxMs": 87.7
+        },
+        "verification_submit_to_result_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 95.9,
+          "p95Ms": null,
+          "minMs": 95.9,
+          "maxMs": 95.9
+        }
+      },
+      "steadySummary": {
+        "batch_commit_to_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 49.4,
+          "p95Ms": null,
+          "minMs": 46,
+          "maxMs": 53.1
+        },
+        "chart_effect_to_frame_opportunity": {
+          "samples": 14,
+          "medianMs": 37.75,
+          "p95Ms": null,
+          "minMs": 31.8,
+          "maxMs": 69.4
+        },
+        "interaction_focus_incident_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 48.6,
+          "p95Ms": null,
+          "minMs": 48.6,
+          "maxMs": 48.6
+        },
+        "interaction_follow_live_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 70.2,
+          "p95Ms": null,
+          "minMs": 70.2,
+          "maxMs": 70.2
+        },
+        "interaction_pan_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 37.2,
+          "p95Ms": null,
+          "minMs": 37.2,
+          "maxMs": 37.2
+        },
+        "interaction_zoom_to_frame_opportunity": {
+          "samples": 1,
+          "medianMs": 41.7,
+          "p95Ms": null,
+          "minMs": 41.7,
+          "maxMs": 41.7
+        },
+        "loopback_sample_age_at_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 185.5,
+          "p95Ms": null,
+          "minMs": 156,
+          "maxMs": 280
+        },
+        "stream_batch_wait": {
+          "samples": 10,
+          "medianMs": 384.55,
+          "p95Ms": null,
+          "minMs": 353.6,
+          "maxMs": 471.9
+        },
+        "stream_latest_receive_to_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 184.2,
+          "p95Ms": null,
+          "minMs": 154.6,
+          "maxMs": 278
+        },
+        "stream_oldest_receive_to_frame_opportunity": {
+          "samples": 10,
+          "medianMs": 434.85,
+          "p95Ms": null,
+          "minMs": 407.2,
+          "maxMs": 517.9
+        }
+      },
+      "longTasks": {
+        "all": 2,
+        "steady": 0,
+        "steadyBlockingMs": 0
+      },
+      "observations": [
+        {
+          "label": "start",
+          "atMs": 2154.399999976158,
+          "visibility": "visible",
+          "rawPoints": 17995,
+          "displayedPoints": 1675,
+          "domNodes": 374,
+          "jsHeapUsedBytes": 13350676,
+          "jsHeapTotalBytes": 14239448,
+          "cdpHeap": {
+            "atMs": 2145.2,
+            "usedBytes": 12063884,
+            "totalBytes": 13238272,
+            "embedderHeapUsedBytes": 2578072,
+            "backingStorageBytes": 1263320,
+            "forcedGarbageCollection": true
+          }
+        },
+        {
+          "label": "checkpoint",
+          "atMs": 7182.800000011921,
+          "visibility": "visible",
+          "rawPoints": 17964,
+          "displayedPoints": 1671,
+          "domNodes": 374,
+          "jsHeapUsedBytes": 25758182,
+          "jsHeapTotalBytes": 80695922,
+          "cdpHeap": {
+            "atMs": 7189.4,
+            "usedBytes": 23841656,
+            "totalBytes": 78774272,
+            "embedderHeapUsedBytes": 2641176,
+            "backingStorageBytes": 1921650,
+            "forcedGarbageCollection": false
+          }
+        },
+        {
+          "label": "end",
+          "atMs": 7243.100000023842,
+          "visibility": "visible",
+          "rawPoints": 17964,
+          "displayedPoints": 1671,
+          "domNodes": 374,
+          "jsHeapUsedBytes": 25963594,
+          "jsHeapTotalBytes": 80695922,
+          "cdpHeap": {
+            "atMs": 7227.5,
+            "usedBytes": 24038708,
+            "totalBytes": 78774272,
+            "embedderHeapUsedBytes": 2641176,
+            "backingStorageBytes": 1921650,
+            "forcedGarbageCollection": false
+          }
+        }
+      ],
+      "raw": {
+        "elapsedMs": 8850,
+        "visibility": "visible",
+        "measurements": [
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1035.5,
+            "durationMs": 225.30000001192093
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 986.8000000119209,
+            "durationMs": 274
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 986.8000000119209,
+            "durationMs": 274
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1031.3999999761581,
+            "durationMs": 229.4000000357628
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 986.8000000119209,
+            "durationMs": 44.59999996423721
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 977.8000000119209,
+            "durationMs": 283
+          },
+          {
+            "name": "history_fetch_parse_validate",
+            "equipmentId": "DRYER-02",
+            "startTime": 1017.1999999880791,
+            "durationMs": 558.1999999880791
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1511.5,
+            "durationMs": 64.19999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1507,
+            "durationMs": 68.69999998807907
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1507,
+            "durationMs": 68.69999998807907
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1508.3999999761581,
+            "durationMs": 67.30000001192093
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 1507,
+            "durationMs": 1.399999976158142
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1505.699999988079,
+            "durationMs": 70
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1599.1000000238419,
+            "durationMs": 78.79999995231628
+          },
+          {
+            "name": "equipment_click_to_history_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 477,
+            "durationMs": 1200.8999999761581
+          },
+          {
+            "name": "history_request_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1017.1999999880791,
+            "durationMs": 660.6999999880791
+          },
+          {
+            "name": "history_adopt_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1579.6000000238419,
+            "durationMs": 98.29999995231628
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2020.300000011921,
+            "durationMs": 38.80000001192093
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1762.3999999761581,
+            "durationMs": 296.7000000476837
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1762.3999999761581,
+            "durationMs": 296.7000000476837
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2007.5,
+            "durationMs": 51.60000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 1762.3999999761581,
+            "durationMs": 245.10000002384186
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 1761.1000000238419,
+            "durationMs": 298
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2233.800000011921,
+            "durationMs": 40.69999998807907
+          },
+          {
+            "name": "interaction_zoom_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2232.800000011921,
+            "durationMs": 41.69999998807907
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2373.100000023842,
+            "durationMs": 36.299999952316284
+          },
+          {
+            "name": "interaction_pan_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2372.199999988079,
+            "durationMs": 37.19999998807907
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2524.600000023842,
+            "durationMs": 32.799999952316284
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2056.199999988079,
+            "durationMs": 501.19999998807907
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2283.100000023842,
+            "durationMs": 274.2999999523163
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2508,
+            "durationMs": 49.39999997615814
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 2056.199999988079,
+            "durationMs": 451.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2281.399999976158,
+            "durationMs": 276
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2644.199999988079,
+            "durationMs": 48
+          },
+          {
+            "name": "interaction_focus_incident_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2643.600000023842,
+            "durationMs": 48.59999996423721
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2996.5,
+            "durationMs": 69.39999997615814
+          },
+          {
+            "name": "interaction_follow_live_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2995.699999988079,
+            "durationMs": 70.19999998807907
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3042.600000023842,
+            "durationMs": 31.799999952316284
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2556.5,
+            "durationMs": 517.8999999761581
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2796.399999976158,
+            "durationMs": 278
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3028.399999976158,
+            "durationMs": 46
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 2556.5,
+            "durationMs": 471.89999997615814
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 2794.399999976158,
+            "durationMs": 280
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3520.600000023842,
+            "durationMs": 41.89999997615814
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3107.300000011921,
+            "durationMs": 455.19999998807907
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3363.699999988079,
+            "durationMs": 198.80000001192093
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3509.399999976158,
+            "durationMs": 53.10000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 3107.300000011921,
+            "durationMs": 402.0999999642372
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3363.5,
+            "durationMs": 199
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4020.199999988079,
+            "durationMs": 37.60000002384186
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3614.899999976158,
+            "durationMs": 442.9000000357628
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3868.300000011921,
+            "durationMs": 189.5
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4009,
+            "durationMs": 48.80000001192093
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 3614.899999976158,
+            "durationMs": 394.10000002384186
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 3866.800000011921,
+            "durationMs": 191
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4521.899999976158,
+            "durationMs": 35.700000047683716
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4119.600000023842,
+            "durationMs": 438
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4372.600000023842,
+            "durationMs": 185
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4508,
+            "durationMs": 49.60000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 4119.600000023842,
+            "durationMs": 388.39999997615814
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4370.600000023842,
+            "durationMs": 187
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5019.5,
+            "durationMs": 37.89999997615814
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4622.100000023842,
+            "durationMs": 435.2999999523163
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4874,
+            "durationMs": 183.39999997615814
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5008.399999976158,
+            "durationMs": 49
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 4622.100000023842,
+            "durationMs": 386.2999999523163
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 4873.399999976158,
+            "durationMs": 184
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5521.5,
+            "durationMs": 39.60000002384186
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5126.699999988079,
+            "durationMs": 434.4000000357628
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5388.899999976158,
+            "durationMs": 172.20000004768372
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5509.5,
+            "durationMs": 51.60000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 5126.699999988079,
+            "durationMs": 382.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5388.100000023842,
+            "durationMs": 173
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6019.399999976158,
+            "durationMs": 37.40000003576279
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5640.899999976158,
+            "durationMs": 415.9000000357628
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5897.100000023842,
+            "durationMs": 159.69999998807907
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6008.699999988079,
+            "durationMs": 48.10000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 5640.899999976158,
+            "durationMs": 367.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 5895.800000011921,
+            "durationMs": 161
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6524.600000023842,
+            "durationMs": 33.19999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6150.600000023842,
+            "durationMs": 407.19999998807907
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6401.199999988079,
+            "durationMs": 156.60000002384186
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6508.399999976158,
+            "durationMs": 49.40000003576279
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 6150.600000023842,
+            "durationMs": 357.7999999523163
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6399.800000011921,
+            "durationMs": 158
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7021.199999988079,
+            "durationMs": 38.5
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6652.5,
+            "durationMs": 407.19999998807907
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6905.100000023842,
+            "durationMs": 154.5999999642372
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7009.300000011921,
+            "durationMs": 50.39999997615814
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 6652.5,
+            "durationMs": 356.80000001192093
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 6903.699999988079,
+            "durationMs": 156
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7521.300000011921,
+            "durationMs": 41.59999996423721
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7155.699999988079,
+            "durationMs": 407.19999998807907
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7415.100000023842,
+            "durationMs": 147.79999995231628
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7509.300000011921,
+            "durationMs": 53.59999996423721
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 7155.699999988079,
+            "durationMs": 353.60000002384186
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7406.899999976158,
+            "durationMs": 156
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 8021.600000023842,
+            "durationMs": 39.89999997615814
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7672,
+            "durationMs": 389.5
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7949.899999976158,
+            "durationMs": 111.60000002384186
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 8007.899999976158,
+            "durationMs": 53.60000002384186
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 7672,
+            "durationMs": 335.89999997615814
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 7946.5,
+            "durationMs": 115
+          },
+          {
+            "name": "chart_effect_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 8521.699999988079,
+            "durationMs": 54.19999998807907
+          },
+          {
+            "name": "stream_oldest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 8239,
+            "durationMs": 336.89999997615814
+          },
+          {
+            "name": "stream_latest_receive_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 8488.399999976158,
+            "durationMs": 87.5
+          },
+          {
+            "name": "batch_commit_to_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 8511.600000023842,
+            "durationMs": 64.29999995231628
+          },
+          {
+            "name": "stream_batch_wait",
+            "equipmentId": "DRYER-02",
+            "startTime": 8239,
+            "durationMs": 272.60000002384186
+          },
+          {
+            "name": "loopback_sample_age_at_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 8487.899999976158,
+            "durationMs": 88
+          },
+          {
+            "name": "verification_request_and_persistence",
+            "equipmentId": "DRYER-02",
+            "startTime": 8720.5,
+            "durationMs": 87.69999998807907
+          },
+          {
+            "name": "verification_submit_to_result_frame_opportunity",
+            "equipmentId": "DRYER-02",
+            "startTime": 8720.5,
+            "durationMs": 95.89999997615814
+          }
+        ],
+        "longTasks": [
+          {
+            "startTime": 510,
+            "durationMs": 244
+          },
+          {
+            "startTime": 1047.800000011921,
+            "durationMs": 198
+          }
+        ],
+        "events": [
+          {
+            "name": "pointerup",
+            "interactionId": 2328,
+            "startTime": 475.80000001192093,
+            "durationMs": 288,
+            "inputDelayMs": 0.30000001192092896
+          },
+          {
+            "name": "click",
+            "interactionId": 2328,
+            "startTime": 475.80000001192093,
+            "durationMs": 288,
+            "inputDelayMs": 0.800000011920929
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2335,
+            "startTime": 2227.600000023842,
+            "durationMs": 56,
+            "inputDelayMs": 4.5
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2335,
+            "startTime": 2227.800000011921,
+            "durationMs": 56,
+            "inputDelayMs": 4.800000011920929
+          },
+          {
+            "name": "click",
+            "interactionId": 2335,
+            "startTime": 2227.800000011921,
+            "durationMs": 56,
+            "inputDelayMs": 4.800000011920929
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2342,
+            "startTime": 2370.5,
+            "durationMs": 40,
+            "inputDelayMs": 0.8999999761581421
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2342,
+            "startTime": 2370.5,
+            "durationMs": 40,
+            "inputDelayMs": 1.399999976158142
+          },
+          {
+            "name": "click",
+            "interactionId": 2342,
+            "startTime": 2370.5,
+            "durationMs": 40,
+            "inputDelayMs": 1.5
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2349,
+            "startTime": 2640.300000011921,
+            "durationMs": 48,
+            "inputDelayMs": 2.399999976158142
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2349,
+            "startTime": 2640.399999976158,
+            "durationMs": 48,
+            "inputDelayMs": 2.900000035762787
+          },
+          {
+            "name": "click",
+            "interactionId": 2349,
+            "startTime": 2640.399999976158,
+            "durationMs": 48,
+            "inputDelayMs": 3
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2356,
+            "startTime": 2995,
+            "durationMs": 40,
+            "inputDelayMs": 0.3999999761581421
+          },
+          {
+            "name": "click",
+            "interactionId": 2356,
+            "startTime": 2995,
+            "durationMs": 40,
+            "inputDelayMs": 0.6000000238418579
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2363,
+            "startTime": 7964.600000023842,
+            "durationMs": 88,
+            "inputDelayMs": 1.5999999642372131
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2363,
+            "startTime": 7964.800000011921,
+            "durationMs": 88,
+            "inputDelayMs": 2.800000011920929
+          },
+          {
+            "name": "click",
+            "interactionId": 2363,
+            "startTime": 7964.800000011921,
+            "durationMs": 88,
+            "inputDelayMs": 2.899999976158142
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2370,
+            "startTime": 8261.899999976158,
+            "durationMs": 16,
+            "inputDelayMs": 0.20000004768371582
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2370,
+            "startTime": 8262.699999988079,
+            "durationMs": 16,
+            "inputDelayMs": 0.5
+          },
+          {
+            "name": "click",
+            "interactionId": 2370,
+            "startTime": 8262.699999988079,
+            "durationMs": 16,
+            "inputDelayMs": 0.6000000238418579
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2377,
+            "startTime": 8364.800000011921,
+            "durationMs": 16,
+            "inputDelayMs": 0.5
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2377,
+            "startTime": 8365,
+            "durationMs": 16,
+            "inputDelayMs": 1.399999976158142
+          },
+          {
+            "name": "click",
+            "interactionId": 2377,
+            "startTime": 8365,
+            "durationMs": 16,
+            "inputDelayMs": 1.5
+          },
+          {
+            "name": "pointerdown",
+            "interactionId": 2391,
+            "startTime": 8714.199999988079,
+            "durationMs": 48,
+            "inputDelayMs": 1.300000011920929
+          },
+          {
+            "name": "pointerup",
+            "interactionId": 2391,
+            "startTime": 8714.399999976158,
+            "durationMs": 48,
+            "inputDelayMs": 2.400000035762787
+          },
+          {
+            "name": "click",
+            "interactionId": 2391,
+            "startTime": 8714.399999976158,
+            "durationMs": 48,
+            "inputDelayMs": 2.5
+          }
+        ],
+        "counts": {
+          "frames": 21,
+          "hiddenFrames": 0,
+          "droppedMeasurements": 0,
+          "rawPoints": 17954,
+          "displayedPoints": 1675
+        },
+        "supportedEntryTypes": [
+          "element",
+          "event",
+          "first-input",
+          "interaction-contentful-paint",
+          "largest-contentful-paint",
+          "layout-shift",
+          "long-animation-frame",
+          "longtask",
+          "mark",
+          "measure",
+          "navigation",
+          "paint",
+          "resource",
+          "soft-navigation",
+          "visibility-state"
+        ]
+      },
+      "network": {
+        "requests": 10,
+        "responses": 10,
+        "failed": [],
+        "httpErrors": [],
+        "historyResponses": [
+          {
+            "path": "/api/equipment/DRYER-02/history",
+            "status": 200,
+            "contentLengthBytes": 3585271
+          }
+        ]
+      },
+      "errors": []
+    }
+  ]
+}

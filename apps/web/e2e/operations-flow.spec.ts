@@ -15,6 +15,7 @@ test("an operator verifies safety and a manager assigns the verification work or
   await expect(page).toHaveURL(/\/diagnostics\/COATER-02/);
   await expect(page.getByRole("img", { name: /같은 시간축으로 비교한 그래프/ })).toBeVisible();
   await expect(page.locator(".render-stat")).toContainText(/보존 [\d,]+개 시점 \/ 표시 [\d,]+개 · Canvas/);
+  await page.getByText("데이터 범위와 요약 방식", { exact: true }).click();
   await expect(page.getByText(/작은 반복 피크나 지속 시간은 이 요약만으로 판단할 수 없습니다/)).toBeVisible();
   await expect(page.getByLabel("이상 발생 시점 센서값")).toBeVisible();
   await expect(page.getByText("원인 분석 신뢰도")).toBeVisible();

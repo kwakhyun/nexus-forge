@@ -33,14 +33,14 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "npm run dev",
+      command: "npm run build && npm start",
       cwd: streamServerDirectory,
       url: "http://127.0.0.1:8787/health",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
       timeout: 120_000,
     },
     {
-      command: `npm run dev -- --host 0.0.0.0 --port ${webPort} --strictPort`,
+      command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${webPort} --strictPort`,
       cwd: webDirectory,
       url: `${webBaseUrl}/overview`,
       reuseExistingServer: false,

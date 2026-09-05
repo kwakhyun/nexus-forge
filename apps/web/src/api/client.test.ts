@@ -62,3 +62,13 @@ describe("API recovery boundaries", () => {
     await expect(api.getHistory("DRYER-02")).rejects.toThrow("선택한 설비");
   });
 });
+
+it("validates lookup identity and never substitutes a new issuance for an unknown result", async () => {
+  const input = { requestId: "lookup-1", incidentId: "INC-TEST", requestedBy: "김현수", assignee: "이민호", checks: ["확인"] };
+  const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: "unknown" })));
+  vi.stubGlobal("fetch", fetch);
+  expect(await api.getVerification(input)).toBeNull();
+  expect(fetch.mock.calls[0]?.[1].method).not.toBe("POST");
+  fetch.mockResolvedValue(new Response(JSON.stringify({ status: "found", record: { ...input, requestId: "another", id: "WO-TEST", issuedAt: 1000, dueAt: 2000, status: "issued" } })));
+  await expect(api.getVerification(input)).rejects.toThrow("기존 요청과 다릅니다");
+});

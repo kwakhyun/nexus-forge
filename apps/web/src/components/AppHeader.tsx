@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { StatusBadge } from "@nexus/ui";
 import {
   CaretDownIcon,
   FactoryIcon,
@@ -7,7 +6,8 @@ import {
   SquaresFourIcon,
   UserCircleIcon,
 } from "@phosphor-icons/react";
-import { StatusBadge } from "@nexus/ui";
+import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { useTimeFormat } from "../hooks/useTimeFormat";
 import { useOperationsStore } from "../store/operationsStore";
 import { useWorkspaceStore } from "../store/workspaceStore";
@@ -20,7 +20,7 @@ export function AppHeader() {
   const [now, setNow] = useState(applicationBootTime);
   const connection = useOperationsStore((state) => state.connection);
   const role = useOperationsStore((state) => state.role);
-  const selectedEquipmentId = useOperationsStore((state) => state.selectedEquipmentId);
+  const selectedEquipmentId = useOperationsStore((state) => state.lastDiagnosticEquipmentId);
   const setRole = useOperationsStore((state) => state.setRole);
 
   useEffect(() => {
@@ -29,6 +29,7 @@ export function AppHeader() {
   }, []);
 
   const streamLabel = {
+    paused: "실시간 수신 대기",
     connecting: "데이터 연결 중",
     live: "데이터 수신 정상",
     stale: "센서 데이터 지연",
@@ -40,7 +41,7 @@ export function AppHeader() {
     ? "normal"
     : connection === "offline" || connection === "stale"
       ? "critical"
-      : "warning";
+      : connection === "paused" ? "info" : "warning";
 
   return (
     <header className="app-header">

@@ -1,8 +1,9 @@
+import { StatusBadge } from "@nexus/ui";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { useWorkspaceStore } from "../store/workspaceStore";
 import { AppHeader } from "./AppHeader";
 import { GlobalRail } from "./GlobalRail";
-import { useWorkspaceStore } from "../store/workspaceStore";
 import { WorkspaceDraftsNotice } from "./WorkspaceDraftsNotice";
 
 export function WorkspaceLayout({
@@ -121,6 +122,6 @@ export function StatusPill({
   tone?: "critical" | "warning" | "normal" | "neutral" | "accent";
 }) {
   return (
-    <span className={`workspace-pill workspace-pill--${tone}`}>{label}</span>
+    <StatusBadge tone={tone} appearance="pill">{label}</StatusBadge>
   );
 }

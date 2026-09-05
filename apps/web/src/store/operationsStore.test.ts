@@ -87,3 +87,13 @@ describe("operations store stream batching", () => {
     });
   });
 });
+
+it("does not publish a new sensor array for duplicate or empty batches", () => {
+  const store = useOperationsStore.getState();
+  const point = { timestamp: 1_000, webTensionLeft: 30, webTensionRight: 30, ovenTemperature: 160, lineSpeed: 80, defectRate: .2 };
+  store.setHistoricalPoints([point]);
+  const before = useOperationsStore.getState().sensorPoints;
+  store.appendStreamPoints([point], 2, 0);
+  store.appendStreamPoints([], 3, 0);
+  expect(useOperationsStore.getState().sensorPoints).toBe(before);
+});

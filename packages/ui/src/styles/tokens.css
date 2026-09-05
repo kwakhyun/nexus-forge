@@ -92,3 +92,28 @@
 .nf-kpi__unit { margin-left: 6px; color: var(--nf-text-3); font-size: 13px; }
 .nf-kpi--critical .nf-kpi__value { color: var(--nf-red); }
 .nf-kpi--accent .nf-kpi__value { color: var(--nf-cyan); }
+
+/* Light theme shares the same focus, disabled and sizing contract as diagnostic buttons. */
+:is(.nf-button--light, .workspace-button) { min-height: 44px; display: inline-flex; justify-content: center; align-items: center; gap: 7px; padding: 8px 13px; border: 1px solid #acbcc9; border-radius: 6px; background: #fff; color: #284051; font-size: 13px; font-weight: 600; line-height: 1.5; text-decoration: none; text-align: center; cursor: pointer; overflow-wrap: anywhere; }
+.workspace-button:hover { background: #edf3fa; border-color: #7b95ab; }
+.workspace-button.is-primary { color: #fff; background: #285bc5; border-color: #285bc5; }
+.workspace-button.is-primary:hover { background: #214fac; }
+.workspace-button.is-danger { color: #a32337; border-color: #cda0a8; background: #fff7f8; }
+.workspace-button:disabled { opacity: 0.48; cursor: not-allowed; }
+
+.nf-button--light.nf-button--secondary { background: #fff; color: #284051; border-color: #acbcc9; }
+.nf-button--light.nf-button--primary { background: #285bc5; color: #fff; border-color: #285bc5; }
+.nf-button--light.nf-button--danger { color: #a32337; border-color: #cda0a8; background: #fff7f8; }
+:is(.nf-button--light, .workspace-button):focus-visible { outline: 2px solid #245bc1; outline-offset: 3px; }
+.nf-status--neutral { color: var(--nf-text-3); }
+.nf-status--accent { color: var(--nf-blue); }
+
+.nf-status-pill { display: inline-flex; align-items: center; flex: 0 0 auto; padding: 3px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; line-height: 1.5; color: #445969; background: #edf1f5; }
+.nf-status-pill--critical { color: #a72a3c; background: #ffecf0; }
+.nf-status-pill--warning { color: #815411; background: #fff1d8; }
+.nf-status-pill--normal { color: #1b6949; background: #e8f5ed; }
+.nf-status-pill--accent { color: #2852a0; background: #eaf0ff; }
+.nf-status-pill--info { color: #1c647d; background: #e8f5fa; }
+.nf-button--dark.nf-button--danger { color: #ffb4bf; border-color: #a74b5a; background: #351b25; }
+.nf-button--light.nf-button--primary:hover:not(:disabled) { background: #214fac; }
+.nf-button--light.nf-button--secondary:hover:not(:disabled) { background: #edf3fa; border-color: #7b95ab; }

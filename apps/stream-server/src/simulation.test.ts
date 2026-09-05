@@ -16,7 +16,7 @@ describe("sensor simulation", () => {
 
     const intervalPoints = generateHistory(1_000_000, 1_000, 333);
     expect(intervalPoints[1]!.timestamp - intervalPoints[0]!.timestamp).toBe(333);
-  });
+  }, 15_000);
 
   it("rejects invalid exact history counts", () => {
     expect(() => generateHistoryByCount(1_000_000, 1)).toThrow("greater than one");

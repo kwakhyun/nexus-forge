@@ -1,6 +1,6 @@
-import { create } from "zustand";
 import type { SensorPoint, VerificationRecord, VerificationRequest } from "@nexus/contracts";
 import { SELECTED_EQUIPMENT_ID } from "@nexus/contracts";
+import { create } from "zustand";
 import { downsampleSynchronized } from "../lib/downsample";
 import { RingBuffer } from "../lib/ringBuffer";
 import { historyAdopted } from "../observability/performanceProbe";
@@ -31,10 +31,12 @@ export interface OperatorAnnotation {
 export const MAX_ANNOTATION_LENGTH = 240;
 export const MAX_ANNOTATIONS = 50;
 
-export type ConnectionState = "connecting" | "live" | "stale" | "reconnecting" | "offline";
+export type ConnectionState = "connecting" | "live" | "stale" | "reconnecting" | "offline" | "paused";
 
 interface OperationsState {
   selectedEquipmentId: string;
+  lastDiagnosticEquipmentId: string;
+  rememberDiagnosticEquipment: (equipmentId: string) => void;
   role: "operator" | "manager";
   connection: ConnectionState;
   sensorPoints: SensorPoint[];
@@ -57,6 +59,8 @@ interface OperationsState {
 
 export const useOperationsStore = create<OperationsState>((set, get) => ({
   selectedEquipmentId: SELECTED_EQUIPMENT_ID,
+  lastDiagnosticEquipmentId: SELECTED_EQUIPMENT_ID,
+  rememberDiagnosticEquipment: (lastDiagnosticEquipmentId) => set({ lastDiagnosticEquipmentId }),
   role: "operator",
   connection: "connecting",
   sensorPoints: [],
@@ -110,6 +114,7 @@ export const useOperationsStore = create<OperationsState>((set, get) => ({
       latestTimestamp = point.timestamp;
       return true;
     });
+    if (newerPoints.length === 0) return;
     if (sensorBuffer.size !== current.length) sensorBuffer.replace(current);
     sensorBuffer.pushMany(newerPoints);
     sensorBuffer.discardWhile((point) => point.timestamp < latestTimestamp - historyDurationMs);

@@ -1,5 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import * as echarts from "echarts/core";
+import type { Incident, SensorPoint } from "@nexus/contracts";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CircleNotchIcon,
+  CrosshairIcon,
+  MagnifyingGlassMinusIcon,
+  MagnifyingGlassPlusIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react";
 import { LineChart } from "echarts/charts";
 import {
   AxisPointerComponent,
@@ -11,24 +19,17 @@ import {
   TitleComponent,
   TooltipComponent,
 } from "echarts/components";
+import * as echarts from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
-import type { Incident, SensorPoint } from "@nexus/contracts";
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  CircleNotchIcon,
-  CrosshairIcon,
-  MagnifyingGlassMinusIcon,
-  MagnifyingGlassPlusIcon,
-  WarningCircleIcon,
-} from "@phosphor-icons/react";
-import { downsampleSynchronized } from "../lib/downsample";
-import { useTimeFormat } from "../hooks/useTimeFormat";
-import { useWorkspaceStore } from "../store/workspaceStore";
-import { clampSignalWindow, nearestIncidentPoint } from "../lib/signalWindow";
-import { createSignalChartOption } from "../lib/signalChart";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DIAGNOSTIC_PROFILES, type DiagnosticProfile } from "../domain/diagnosticProfiles";
-import { chartUpdateStarted, chartUpdateFinished, interactionRequested, type ChartTicket } from "../observability/performanceProbe";
+import { useTimeFormat } from "../hooks/useTimeFormat";
+import { downsampleSynchronized } from "../lib/downsample";
+import { createSignalChartDataOption, createSignalChartOption } from "../lib/signalChart";
+import { clampSignalWindow, nearestIncidentPoint } from "../lib/signalWindow";
+import { chartUpdateFinished, chartUpdateStarted, interactionRequested, type ChartTicket } from "../observability/performanceProbe";
+import { useWorkspaceStore } from "../store/workspaceStore";
+import { SignalInspector } from "./SignalInspector";
 
 echarts.use([
   LineChart,
@@ -65,10 +66,13 @@ export function SignalWorkbench({
   const chartRef = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
   const chartTicket = useRef<ChartTicket | null>(null);
-  const legendSelection = useRef<Record<string, boolean>>({});
+  const [legendSelection, setLegendSelection] = useState<Record<string, boolean>>({});
+  const configuration = useRef<string | null>(null);
   const [viewRange, setViewRange] = useState<{ start: number; end: number } | null>(null);
   const [compact, setCompact] = useState(false);
   const sampled = useMemo(() => downsampleSynchronized(points, 1_800), [points]);
+  const configurationKey = useMemo(() => JSON.stringify([profile, compact, incident.startedAt, zoneLabel, legendSelection]),
+    [profile, compact, incident.startedAt, zoneLabel, legendSelection]);
   const selectedPoint = useMemo(() => nearestIncidentPoint(points, incident.startedAt), [incident.startedAt, points]);
 
   useEffect(() => {
@@ -76,6 +80,7 @@ export function SignalWorkbench({
     const instance = echarts.init(chartRef.current, undefined, { renderer: "canvas" });
     let disposed = false;
     chart.current = instance;
+    configuration.current = null;
     instance.on("finished", () => {
       const ticket = chartTicket.current;
       chartTicket.current = null;
@@ -83,7 +88,7 @@ export function SignalWorkbench({
     });
     instance.on("legendselectchanged", (event) => {
       // Keep a user's visible-series choice when the live stream redraws the chart.
-      legendSelection.current = (event as { selected: Record<string, boolean> }).selected;
+      setLegendSelection((current) => ({ ...current, ...(event as { selected: Record<string, boolean> }).selected }));
     });
     instance.on("datazoom", () => {
       const [range] = instance.getOption().dataZoom as Array<{ startValue?: number; endValue?: number }>;
@@ -109,10 +114,15 @@ export function SignalWorkbench({
     if (!chart.current || sampled.length === 0) return;
     chartTicket.current = chartUpdateStarted(profile.equipmentId, points.at(-1)!.timestamp, points.length, sampled.length);
     const visibleRange = viewRange ? clampSignalWindow(viewRange, { start: sampled[0]!.timestamp, end: sampled.at(-1)!.timestamp }) : chartMinutes < 30 ? { start: Math.max(sampled[0]!.timestamp, sampled.at(-1)!.timestamp - chartMinutes * 60_000), end: sampled.at(-1)!.timestamp } : null;
-    const option = createSignalChartOption({ points: sampled, incident, profile, compact, formatTime,
-      selected: legendSelection.current, visibleRange });
-    chart.current.setOption(option, { notMerge: true, lazyUpdate: true });
-  }, [chartMinutes, compact, formatTime, incident, points, profile, sampled, viewRange]);
+    const key = configurationKey;
+    const reconfigure = key !== configuration.current;
+    const option = reconfigure
+      ? createSignalChartOption({ points: sampled, incident, profile, compact, formatTime,
+        selected: legendSelection, visibleRange })
+      : createSignalChartDataOption(sampled, profile, visibleRange);
+    chart.current.setOption(option, { notMerge: reconfigure, lazyUpdate: true });
+    configuration.current = key;
+  }, [chartMinutes, compact, configurationKey, formatTime, incident, legendSelection, points, profile, sampled, viewRange, zoneLabel]);
 
   const updateRange = (range: { start: number; end: number } | null, action: string) => {
     if (range?.start === viewRange?.start && range?.end === viewRange?.end) return;
@@ -166,23 +176,28 @@ export function SignalWorkbench({
     <section className="signal-workbench" aria-label="센서 신호 비교">
       <div className="signal-toolbar">
         <button type="button" onClick={() => updateRange(null, "follow_live")} aria-pressed={viewRange === null}>실시간 따라가기</button>
-        <span className="signal-toolbar__meta">이력 100ms / 실시간 250ms</span>
+
         <span className="toolbar-divider" />
-        <button type="button" aria-label="축소" title="축소" disabled={noData || !viewRange} onClick={() => zoom(1.45)}><MagnifyingGlassMinusIcon size={17} /></button>
+        <button type="button" aria-label="축소" title="축소" disabled={noData || Boolean(currentRange && bounds && currentRange.end - currentRange.start >= bounds.end - bounds.start)} onClick={() => zoom(1.45)}><MagnifyingGlassMinusIcon size={17} /></button>
         <button type="button" aria-label="확대" title="확대" disabled={noData || Boolean(currentRange && currentRange.end - currentRange.start <= 60_000)} onClick={() => zoom(0.65)}><MagnifyingGlassPlusIcon size={17} /></button>
         <button type="button" aria-label="이전 구간" title="이전 구간" disabled={noData || !currentRange || !bounds || currentRange.start <= bounds.start} onClick={() => pan(-1)}><ArrowLeftIcon size={17} /></button>
         <button type="button" aria-label="다음 구간" title="다음 구간" disabled={noData || !currentRange || !bounds || currentRange.end >= bounds.end} onClick={() => pan(1)}><ArrowRightIcon size={17} /></button>
         <span className="toolbar-spacer" />
         <button type="button" aria-label="이상 구간으로 이동" disabled={noData || !selectedPoint} onClick={focusIncident}><CrosshairIcon size={17} /> 이상 구간</button>
         <button type="button" disabled={noData} onClick={() => updateRange(bounds, "full_range")}>전체 구간</button>
-        <span className="render-stat">보존 {points.length.toLocaleString()}개 시점 / 표시 {sampled.length.toLocaleString()}개 · Canvas</span>
+
       </div>
       <div className="signal-window" aria-label="차트 표시 구간">
         <span>{viewRange ? rangeAdjusted ? "보관 중인 이력 범위로 이동" : "구간 고정" : `최근 ${chartMinutes}분, 실시간 갱신`}</span>
         <span>{currentRange ? `${formatTime(currentRange.start)}–${formatTime(currentRange.end)}` : "데이터 대기 중"}</span>
         <span>이상 발생 {formatTime(incident.startedAt)} ({zoneLabel})</span>
-        <span>구간별 최솟값과 최댓값을 표시합니다. 작은 반복 피크나 지속 시간은 이 요약만으로 판단할 수 없습니다.</span>
+
       </div>
+      <details className="signal-data-info">
+        <summary>데이터 범위와 요약 방식</summary>
+        <p className="render-stat">보존 {points.length.toLocaleString()}개 시점 / 표시 {sampled.length.toLocaleString()}개 · Canvas</p>
+        <p>이력 100ms / 실시간 250ms. 구간별 최솟값과 최댓값을 표시합니다. 작은 반복 피크나 지속 시간은 이 요약만으로 판단할 수 없습니다.</p>
+      </details>
       <div className="signal-chart-wrap">
         {historyError ? (
           <div className="chart-error" role="alert">
@@ -199,6 +214,8 @@ export function SignalWorkbench({
         ) : null}
         <div className="signal-chart" ref={chartRef} role="img" aria-label={profile.chartLabel} data-equipment-id={profile.equipmentId} />
       </div>
+      <SignalInspector points={points} profile={profile} unavailable={noData}
+        selected={legendSelection} onToggle={(label, checked) => setLegendSelection((current) => ({ ...current, [label]: checked }))} />
         {selectedPoint && !historyError && !loading ? (
           <dl className="current-values" data-panels={profile.panels.length} aria-label="이상 발생 시점 센서값">
             <div className="current-values__caption"><dt>이상 발생 시점 참고값</dt><dd>{formatTime(selectedPoint.timestamp)} 기준</dd></div>

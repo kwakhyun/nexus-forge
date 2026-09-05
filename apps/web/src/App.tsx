@@ -1,11 +1,12 @@
-import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes, useLocation, matchPath } from "react-router-dom";
-import { SELECTED_EQUIPMENT_ID, isDiagnosticEquipmentId } from "@nexus/contracts";
-import { OverviewPage } from "./routes/OverviewPage";
-import { useSensorStream } from "./hooks/useSensorStream";
+import { isDiagnosticEquipmentId, SELECTED_EQUIPMENT_ID } from "@nexus/contracts";
+import { lazy, Suspense, useEffect } from "react";
+import { matchPath, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { RouteFeedback } from "./components/RouteFeedback";
 import { ScreenErrorBoundary } from "./components/ScreenErrorBoundary";
 import { WorkspaceBootstrap } from "./components/WorkspaceBootstrap";
+import { useSensorStream } from "./hooks/useSensorStream";
+import { OverviewPage } from "./routes/OverviewPage";
+import { useOperationsStore } from "./store/operationsStore";
 
 const DiagnosticsPage = lazy(async () => {
   const module = await import("./routes/DiagnosticsPage");
@@ -40,7 +41,12 @@ const SettingsPage = lazy(() =>
 export function App() {
   const { pathname } = useLocation();
   const routeEquipment = matchPath("/diagnostics/:equipmentId", pathname)?.params.equipmentId;
-  useSensorStream(true, isDiagnosticEquipmentId(routeEquipment) ? routeEquipment : SELECTED_EQUIPMENT_ID);
+  const diagnosticRoute = isDiagnosticEquipmentId(routeEquipment);
+  useEffect(() => {
+    if (diagnosticRoute) useOperationsStore.getState().rememberDiagnosticEquipment(routeEquipment);
+  }, [diagnosticRoute, routeEquipment]);
+  useSensorStream(pathname === "/" || pathname === "/overview" || diagnosticRoute,
+    diagnosticRoute ? routeEquipment : SELECTED_EQUIPMENT_ID);
 
   return (
     <>

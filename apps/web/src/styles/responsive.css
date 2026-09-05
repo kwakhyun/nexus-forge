@@ -1,0 +1,169 @@
+@media (max-width: 1280px) {
+  .diagnostic-layout { grid-template-columns: 220px minmax(620px, 1fr) 286px; }
+  .diagnostic-layout--tree-collapsed { grid-template-columns: 52px minmax(620px, 1fr) 286px; }
+  .cause-rail section { padding-left: 14px; padding-right: 14px; }
+  .overview-layout { grid-template-columns: 68px minmax(650px, 1fr) 304px; }
+  .overview-map { padding-left: 22px; padding-right: 22px; }
+}
+
+@media (max-width: 1180px) {
+  body { overflow: auto; }
+  .app-frame { display: block; height: auto; min-height: 100vh; }
+  .app-header {
+    min-height: 62px;
+    height: auto;
+    position: sticky;
+    top: 0;
+  }
+  .app-header { gap: 10px; padding-inline: 16px; }
+  .header-time { display: none; }
+
+  .diagnostic-layout,
+  .diagnostic-layout--tree-collapsed {
+    height: auto;
+    min-height: calc(100vh - 62px);
+    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-areas:
+      "tree main"
+      "cause cause";
+  }
+  .diagnostic-layout--tree-collapsed { grid-template-columns: 52px minmax(0, 1fr); }
+  .equipment-tree { grid-area: tree; min-height: 760px; height: calc(100vh - 62px); }
+  .diagnostic-main { grid-area: main; min-height: 0; height: auto; overflow: visible; }
+  .event-timeline { min-height: 230px; }
+  .process-strip { overflow-x: auto; }
+  .process-strip__segment { min-width: 152px; flex: 1 0 152px; }
+  .signal-toolbar { overflow-x: auto; }
+  .signal-toolbar > * { flex: 0 0 auto; }
+  .cause-rail {
+    grid-area: cause;
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+    border-top: 1px solid var(--nf-line);
+    border-left: 0;
+  }
+  .cause-rail section { padding: 22px; border-right: 1px solid var(--nf-line); border-bottom: 0; }
+  .cause-rail section:last-child { border-right: 0; }
+
+  .overview-layout {
+    height: auto;
+    min-height: calc(100vh - 62px);
+    grid-template-columns: 68px minmax(0, 1fr);
+  }
+  .global-rail { grid-column: 1; grid-row: 1 / span 2; }
+  .overview-content {
+    grid-column: 2;
+    grid-row: 1;
+    height: auto;
+    grid-template-rows: minmax(640px, auto) auto;
+    overflow: visible;
+  }
+  .overview-map { min-height: 640px; }
+  .overview-incident {
+    grid-column: 2;
+    grid-row: 2;
+    height: auto;
+    overflow: visible;
+    border-top: 1px solid #d0d7dc;
+    border-left: 0;
+  }
+  .flow-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 14px;
+  }
+  .flow-stage-wrap { display: block; }
+  .flow-stage { height: 100%; }
+  .flow-stage-arrow { display: none; }
+}
+
+@media (max-width: 1000px) {
+  .app-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; }
+  .brand { grid-column: 1; grid-row: 1; justify-self: start; padding: 0; }
+  .role-select { grid-column: 2; grid-row: 1; width: 148px; }
+  .header-context { grid-column: 1; grid-row: 2; padding: 0; }
+  .header-status { grid-column: 2; grid-row: 2; justify-self: end; padding: 0; }
+  .header-nav { grid-column: 1 / -1; grid-row: 3; }
+  .header-nav a { min-width: 0; flex: 1; }
+  .header-spacer { display: none; }
+  .demo-notice { grid-column: 1 / -1; grid-row: 4; }
+}
+
+@media (max-width: 820px) {
+  .cause-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cause-rail section { border-bottom: 1px solid var(--nf-line); }
+  .overview-title-row { flex-direction: column; gap: 8px; }
+  .overview-legend { margin-top: 4px; flex-wrap: wrap; }
+  .overview-trends { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  .trend-copy { grid-column: 1 / -1; }
+}
+
+@media (max-width: 700px) {
+  .brand { font-size: 17px; }
+
+  .diagnostic-layout,
+  .diagnostic-layout--tree-collapsed {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "tree" "main" "cause";
+  }
+  .equipment-tree { width: 100%; min-height: 0; height: auto; max-height: 420px; border-right: 0; border-bottom: 1px solid var(--nf-line); }
+  .equipment-tree--collapsed { height: 58px; }
+  .tree-expand { display: flex; justify-content: center; gap: 8px; border-color: #3b4f5c; color: var(--nf-text-2); font-size: 12px; }
+  .tree-expand span { display: inline; }
+  .tree-collapse { position: static; }
+  .diagnostic-main {
+    min-height: 0;
+    height: auto;
+  }
+  .process-strip { overflow-x: auto; }
+  .process-strip__segment { min-width: 164px; flex: 0 0 164px; }
+  .signal-toolbar { overflow-x: auto; }
+  .signal-toolbar > * { flex: 0 0 auto; }
+  .signal-workbench { --signal-chart-min-height: 560px; }
+  .current-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .event-heading { flex-wrap: wrap; gap: 8px 12px; padding: 7px 0; }
+  .event-heading button { margin-left: 0; }
+  .event-annotation { grid-template-columns: 1fr auto; }
+  .event-annotation label { grid-column: 1 / -1; }
+  .chart-error { grid-template-columns: auto minmax(0, 1fr); }
+  .chart-error button { grid-column: 1 / -1; }
+
+  .overview-layout { display: block; }
+  .global-rail {
+    min-height: 70px;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 5px 8px;
+    border-right: 0;
+    border-bottom: 1px solid #d0d7dc;
+  }
+  .global-rail a, .global-rail__item { min-width: 68px; min-height: 58px; }
+  .overview-content { display: grid; }
+  .overview-map { min-height: 0; padding: 24px 18px 18px; }
+  .flow-grid { grid-template-columns: minmax(0, 1fr); padding-top: 24px; }
+  .overview-trends { padding: 20px 18px; }
+  .overview-incident { padding: 24px 18px; }
+}
+
+@media (max-width: 520px) {
+  .app-header { padding: 8px 12px; gap: 8px; }
+  .header-context { gap: 6px; font-size: 11px; }
+  .header-context small { font-size: 10px; }
+  .header-status .nf-status { gap: 6px; font-size: 11px; }
+  .cause-rail { grid-template-columns: minmax(0, 1fr); }
+  .flow-equipment-list--dense { grid-template-columns: minmax(0, 1fr); }
+  .overview-trends { grid-template-columns: minmax(0, 1fr); }
+  .trend-copy { grid-column: auto; }
+  .dialog-backdrop { align-items: flex-start; padding: 12px; overflow-y: auto; }
+  .verification-dialog { max-height: calc(100dvh - 24px); overflow-y: auto; }
+  .assignment-field { grid-template-columns: 1fr; }
+}
+
+@media (max-height: 850px) and (min-width: 701px) {
+  .process-node { min-height: 62px; }
+  .cause-rail section { padding-top: 14px; padding-bottom: 14px; }
+}

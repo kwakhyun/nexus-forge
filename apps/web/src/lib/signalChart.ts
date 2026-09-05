@@ -1,5 +1,5 @@
-import type { EChartsCoreOption } from "echarts/core";
 import type { Incident, SensorPoint } from "@nexus/contracts";
+import type { EChartsCoreOption } from "echarts/core";
 import type { DiagnosticProfile } from "../domain/diagnosticProfiles";
 
 const colors = { blue: "#3d72ff", cyan: "#37c9d0", red: "#ff4d57", grid: "rgba(148, 163, 184, 0.14)", text: "#7f8c95" };
@@ -31,13 +31,14 @@ export function createSignalChartOption({ points, incident, profile, compact, fo
       valueFormatter: (value: unknown) => typeof value === "number" ? value.toFixed(2) : String(value),
     },
     axisPointer: { link: [{ xAxisIndex: "all" }] },
-    legend: panels.flatMap((panel, index) => panel.series.length > 1 || panel.reference ? [{
+    legend: panels.map((panel, index) => ({
+      show: panel.series.length > 1 || Boolean(panel.reference),
       data: [...(panel.reference ? [panel.reference.label] : []), ...panel.series.map((series) => series.label)],
       selected,
       left: compact ? 12 : 165,
       top: `${index * band + (compact ? 6 : 2)}%`,
-      itemWidth: 14, itemHeight: 2, textStyle: { color: "#9ba8b0", fontSize: 10 },
-    }] : []),
+      itemWidth: 14, itemHeight: 2, textStyle: { color: "#9ba8b0", fontSize: 12 },
+    })),
     grid: panels.map((_, index) => ({
       left: compact ? 44 : 165, right: 20,
       top: `${index * band + (compact ? 11 : 7)}%`, height: `${band - (compact ? 13 : 9)}%`,
@@ -55,7 +56,7 @@ export function createSignalChartOption({ points, incident, profile, compact, fo
     })),
     yAxis: panels.map((panel, gridIndex) => ({
       type: "value", gridIndex, min: panel.min, max: panel.max,
-      axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: colors.text, fontSize: 10 },
+      axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: colors.text, fontSize: 12 },
       splitLine: { lineStyle: { color: colors.grid, type: "dashed" } },
     })),
     dataZoom: [{
@@ -65,13 +66,13 @@ export function createSignalChartOption({ points, incident, profile, compact, fo
     }],
     series: panels.flatMap((panel, axisIndex) => [
       ...(panel.reference ? [{
-        name: panel.reference.label, type: "line", xAxisIndex: axisIndex, yAxisIndex: axisIndex,
+        id: `${panel.id}-reference`, name: panel.reference.label, type: "line", xAxisIndex: axisIndex, yAxisIndex: axisIndex,
         showSymbol: false, sampling: "none", silent: true,
         lineStyle: { color: colors.cyan, width: 1.2, type: "dashed" }, itemStyle: { color: colors.cyan },
         data: points.map((point) => [point.timestamp, panel.reference!.value]),
       }] : []),
       ...panel.series.map((series, seriesIndex) => ({
-        name: series.label, type: "line", xAxisIndex: axisIndex, yAxisIndex: axisIndex,
+        id: `${panel.id}-${series.key}`, name: series.label, type: "line", xAxisIndex: axisIndex, yAxisIndex: axisIndex,
         showSymbol: false, sampling: "none",
         lineStyle: { color: series.color, width: 1.4 }, itemStyle: { color: series.color },
         data: points.map((point) => [point.timestamp, point[series.key]]),
@@ -85,6 +86,21 @@ export function createSignalChartOption({ points, incident, profile, compact, fo
           ],
         } } : {}),
       })),
+    ]),
+  };
+}
+
+/** Live updates reuse axes, labels, styles and mark areas already installed on the chart. */
+export function createSignalChartDataOption(points: SensorPoint[], profile: DiagnosticProfile,
+  visibleRange: { start: number; end: number } | null): EChartsCoreOption {
+  return {
+    dataZoom: [visibleRange ? { startValue: visibleRange.start, endValue: visibleRange.end }
+      : { start: 0, end: 100 }],
+    series: profile.panels.flatMap((panel) => [
+      ...(panel.reference ? [{ id: `${panel.id}-reference`,
+        data: points.map((point) => [point.timestamp, panel.reference!.value]) }] : []),
+      ...panel.series.map((series) => ({ id: `${panel.id}-${series.key}`,
+        data: points.map((point) => [point.timestamp, point[series.key]]) })),
     ]),
   };
 }

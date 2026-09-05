@@ -1,14 +1,16 @@
-import { useMemo, useState } from "react";
+import { Button } from "@nexus/ui";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
-import { aggregateProduction, formatProductionDelta, groupProduction, matchesProductionLine } from "../domain/production";
-import { WorkspaceLayout, EmptyState } from "../components/WorkspaceLayout";
-import { useWorkspaceStore } from "../store/workspaceStore";
-import { useTimeFormat } from "../hooks/useTimeFormat";
-import { useNow } from "../hooks/useNow";
-import { downloadText } from "../lib/download";
+import { ProductionBars } from "../components/operations/ProductionBars";
 import { WorkspaceCatalogStatus } from "../components/WorkspaceCatalogStatus";
+import { EmptyState, WorkspaceLayout } from "../components/WorkspaceLayout";
+import { analyzeProduction, formatProductionDelta, matchesProductionLine } from "../domain/production";
+import { useNow } from "../hooks/useNow";
+import { useTimeFormat } from "../hooks/useTimeFormat";
+import { downloadText } from "../lib/download";
+import { useWorkspaceStore } from "../store/workspaceStore";
 
 const hourMs = 60 * 60_000;
 const integer = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
@@ -27,37 +29,8 @@ export function ProductionPage() {
   const cases = useWorkspaceStore((state) => state.document.cases);
   const works = useWorkspaceStore((state) => state.document.workOrders);
   const now = useNow(60_000);
-  const analysis = useMemo(() => {
-    if (!query.data) return null;
-    const to = query.data.to;
-    const from = to - hours * hourMs;
-    const all = query.data.runs.filter(
-      (run) => line === "all" || run.lineId === line,
-    );
-    const current = all.filter(
-      (run) => run.startedAt >= from && run.endedAt <= to,
-    );
-    const previous = all.filter(
-      (run) => run.startedAt >= from - hours * hourMs && run.endedAt <= from,
-    );
-    return {
-      from,
-      to,
-      current,
-      totals: aggregateProduction(current),
-      previous: aggregateProduction(previous),
-      complete: current.length === hours * (line === "all" ? 2 : 1),
-      comparable:
-        current.length === hours * (line === "all" ? 2 : 1) &&
-        previous.length === current.length,
-      buckets: groupProduction(
-        current,
-        from,
-        to,
-        hours === 24 ? hourMs : 24 * hourMs,
-      ),
-    };
-  }, [hours, line, query.data]);
+  const analysis = useMemo(() => analyzeProduction(query.data, hours, line), [hours, line, query.data]);
+
   const exportCsv = () => {
     if (!analysis) return;
     const header =
@@ -88,14 +61,14 @@ export function ProductionPage() {
       title="생산 분석"
       description="완료된 시간대의 합성 코팅 실적을 집계합니다. 센서 순간값이나 실제 생산 실적이 아닙니다."
       actions={
-        <button
+        <Button theme="light" variant="secondary"
           className="workspace-button"
           type="button"
           onClick={exportCsv}
           disabled={!analysis?.current.length}
         >
           조회 실적 CSV 내보내기
-        </button>
+        </Button>
       }
     >
       <div className="workspace-filters">
@@ -121,14 +94,14 @@ export function ProductionPage() {
           </select>
         </label>
         <span className="filter-count">시간대별 실적 / {zoneLabel}</span>
-        <button
+        <Button theme="light" variant="secondary"
           className="workspace-button"
           type="button"
           disabled={query.isFetching}
           onClick={() => void query.refetch()}
         >
           {query.isFetching ? "실적 확인 중…" : "실적 새로고침"}
-        </button>
+        </Button>
       </div>
       {query.isError ? (
         <div className="workspace-error" role="alert">
@@ -369,83 +342,5 @@ export function ProductionPage() {
         </>
       )}
     </WorkspaceLayout>
-  );
-}
-
-function ProductionBars({
-  buckets,
-}: {
-  buckets: ReturnType<typeof groupProduction>;
-}) {
-  const { formatDateTime } = useTimeFormat();
-  const maximum = Math.max(1, ...buckets.map((item) => item.inspectedMeters));
-  const column = 760 / Math.max(1, buckets.length);
-  return (
-    <svg
-      className="production-bars"
-      viewBox="0 0 820 230"
-      role="img"
-      aria-label="구간별 양품 및 불량 판정 길이. 정확한 값은 아래 생산 실적 표에서 확인할 수 있습니다."
-    >
-      <line x1="40" x2="800" y1="185" y2="185" stroke="#ced7e0" />
-      {[0.5, 1].map((ratio) => (
-        <g key={ratio}>
-          <line
-            x1="40"
-            x2="800"
-            y1={185 - ratio * 150}
-            y2={185 - ratio * 150}
-            stroke="#e7edf2"
-          />
-          <text
-            x="36"
-            y={189 - ratio * 150}
-            textAnchor="end"
-            fontSize="10"
-            fill="#526573"
-          >
-            {((maximum * ratio) / 1_000).toFixed(0)}k
-          </text>
-        </g>
-      ))}
-      {buckets.map((item, index) => {
-        const good = (item.acceptedMeters / maximum) * 150;
-        const rejected = (item.rejectedMeters / maximum) * 150;
-        const x = 40 + index * column + column * 0.15;
-        return (
-          <g key={item.startedAt}>
-            <title>
-              {`${formatDateTime(item.startedAt)}: ${item.runCount ? `양품 ${integer.format(item.acceptedMeters)}m, 불량 판정 ${integer.format(item.rejectedMeters)}m` : "집계 자료 없음"}`}
-            </title>
-            <rect
-              x={x}
-              y={185 - good}
-              width={column * 0.7}
-              height={good}
-              fill="#356ae6"
-              rx="2"
-            />
-            <rect
-              x={x}
-              y={185 - good - rejected}
-              width={column * 0.7}
-              height={rejected}
-              fill="#a250b8"
-            />
-            {index % Math.max(1, Math.ceil(buckets.length / 6)) === 0 ? (
-              <text
-                x={x + column * 0.35}
-                y="209"
-                textAnchor="middle"
-                fontSize="10"
-                fill="#526573"
-              >
-                {formatDateTime(item.startedAt).slice(5)}
-              </text>
-            ) : null}
-          </g>
-        );
-      })}
-    </svg>
   );
 }

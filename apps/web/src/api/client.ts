@@ -5,8 +5,8 @@ import type {
   VerificationRecord,
   VerificationRequest,
 } from "@nexus/contracts";
+import { historyFetched, historyRequested } from "../observability/performanceProbe";
 import { isHistory, isPlantSummary, isProductionResponse, isVerificationRecord } from "./validation";
-import { historyRequested, historyFetched } from "../observability/performanceProbe";
 
 interface HistoryResponse {
   equipmentId: string;
@@ -59,6 +59,21 @@ export const api = {
     if (!isHistory(data) || data.equipmentId !== equipmentId) throw new ApiError("선택한 설비의 유효한 센서 이력이 없습니다.");
     historyFetched(equipmentId);
     return data;
+  },
+  getVerification: async (input: VerificationRequest): Promise<VerificationRecord | null> => {
+    if (!input.requestId) return null;
+    const data = await requestJson<unknown>(`/api/verifications/by-request/${encodeURIComponent(input.requestId)}`);
+    if (typeof data !== "object" || data === null || !("status" in data))
+      throw new ApiError("작업 요청 조회 결과의 형식을 확인할 수 없습니다.");
+    if (data.status === "unknown") return null;
+    if (data.status !== "found" || !("record" in data) || !isVerificationRecord(data.record))
+      throw new ApiError("작업 요청 조회 결과의 형식을 확인할 수 없습니다.");
+    const record = data.record;
+    if (record.requestId !== input.requestId || record.incidentId !== input.incidentId ||
+      record.assignee !== input.assignee || record.requestedBy !== input.requestedBy ||
+      JSON.stringify(record.checks) !== JSON.stringify(input.checks))
+      throw new ApiError("조회한 작업 결과가 기존 요청과 다릅니다.");
+    return record;
   },
   createVerification: async (input: VerificationRequest): Promise<VerificationRecord> => {
     const data = await requestJson<unknown>("/api/verifications", {

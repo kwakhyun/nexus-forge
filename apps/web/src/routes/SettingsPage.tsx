@@ -1,16 +1,17 @@
+import { Button } from "@nexus/ui";
 import { useState } from "react";
-import { WorkspaceLayout } from "../components/WorkspaceLayout";
-import { DEFAULT_SETTINGS, type WorkspaceSettings } from "../domain/workspace";
-import { useWorkspaceStore } from "../store/workspaceStore";
-import { useOperationsStore } from "../store/operationsStore";
-import { useWorkspaceAction } from "../hooks/useWorkspaceAction";
-import { downloadText } from "../lib/download";
-import { useWorkspaceDraft } from "../hooks/useWorkspaceDraft";
-import { useWorkspaceDraftStore } from "../store/workspaceDraftStore";
 import {
   DraftNotice,
   WorkspaceFeedback,
 } from "../components/WorkspaceFeedback";
+import { WorkspaceLayout } from "../components/WorkspaceLayout";
+import { DEFAULT_SETTINGS, type WorkspaceSettings } from "../domain/workspace";
+import { useWorkspaceAction } from "../hooks/useWorkspaceAction";
+import { useWorkspaceDraft } from "../hooks/useWorkspaceDraft";
+import { downloadText } from "../lib/download";
+import { useOperationsStore } from "../store/operationsStore";
+import { useWorkspaceDraftStore } from "../store/workspaceDraftStore";
+import { useWorkspaceStore } from "../store/workspaceStore";
 
 export function SettingsPage() {
   const document = useWorkspaceStore((state) => state.document);
@@ -73,7 +74,7 @@ export function SettingsPage() {
             현재 탭에만 남으며 새로고침 시 초기화됩니다. 새 작업 요청은 서버
             검증이 필요합니다.
           </p>
-          <button
+          <Button theme="light" variant="secondary"
             className="workspace-button"
             type="button"
             disabled={status !== "ready" || pending > 0}
@@ -94,7 +95,7 @@ export function SettingsPage() {
             }
           >
             데모 기록 내보내기
-          </button>
+          </Button>
           <small className="export-note">
             열람용 JSON 파일입니다. 기록 가져오기 기능은 제공하지 않습니다.
           </small>
@@ -146,7 +147,7 @@ export function SettingsPage() {
                   autoComplete="off"
                 />
               </label>
-              <button
+              <Button theme="light" variant="danger"
                 className="workspace-button is-danger"
                 disabled={
                   confirmation !== "초기화" ||
@@ -156,7 +157,7 @@ export function SettingsPage() {
                 }
               >
                 데모 기록 삭제 및 초기화
-              </button>
+              </Button>
               {document.pendingVerification ? (
                 <p>
                   결과를 확인하지 못한 작업 요청이 있습니다. 먼저 신호 분석에서
@@ -279,20 +280,20 @@ function SettingsForm({
         <small>끄기 전에 생성된 알림과 작업 기록은 유지됩니다.</small>
       </fieldset>
       <div className="workspace-actions">
-        <button
+        <Button theme="light" variant="primary"
           className="workspace-button is-primary"
           disabled={disabled || !dirty || editing.conflicting.length > 0}
         >
           설정 저장
-        </button>
-        <button
+        </Button>
+        <Button theme="light" variant="secondary"
           className="workspace-button"
           type="button"
           disabled={disabled}
           onClick={() => change({ ...DEFAULT_SETTINGS })}
         >
           기본값 채우기
-        </button>
+        </Button>
       </div>
       {editing.conflicting.length ? (
         <p role="alert" className="workspace-inline-error">

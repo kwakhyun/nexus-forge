@@ -168,6 +168,21 @@ export function createOperationsHandler({
       return;
     }
 
+    const lookupPrefix = "/api/verifications/by-request/";
+    if (method === "GET" && pathname.startsWith(lookupPrefix)) {
+      let requestId: string;
+      try { requestId = decodeURIComponent(pathname.slice(lookupPrefix.length)); }
+      catch { json(response, 400, { error: "invalid_request_id" }); return; }
+      if (!isBoundedText(requestId, 80)) {
+        json(response, 400, { error: "invalid_request_id" });
+        return;
+      }
+      const record = verificationRecords.find((item) => item.requestId === requestId);
+      // Absence is not proof of non-issuance: memory can be lost or belong to another instance.
+      json(response, 200, record ? { status: "found", record } : { status: "unknown" });
+      return;
+    }
+
     if (method === "GET" && pathname === "/api/verifications") {
       json(response, 200, verificationRecords);
       return;

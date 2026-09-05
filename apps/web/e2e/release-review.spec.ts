@@ -68,6 +68,10 @@ test("all eight route instances finish loading without clipping at both final mo
           await expect.poll(() => readLayout(page)).toEqual({ pageOverflow: 0, clipped: [] });
           await page.screenshot({ path: testInfo.outputPath(`${name}-390-bottom.png`) });
         }
+        if (viewport.width === 390 && route.startsWith("/diagnostics/")) {
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.screenshot({ path: testInfo.outputPath(`${route.split("/").at(-1)}-390-top.png`) });
+        }
         results.push({ route, viewport, ready: true, ...await readLayout(page) });
       });
     }

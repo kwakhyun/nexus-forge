@@ -1,3 +1,4 @@
+import { Button } from "@nexus/ui";
 import { useId, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useWorkspaceDraftStore } from "../store/workspaceDraftStore";
@@ -118,14 +119,14 @@ export function WorkspaceDraftsNotice() {
                 >
                   해당 기록으로 이동
                 </Link>
-                <button
+                <Button theme="light" variant="secondary"
                   type="button"
                   className="workspace-button"
                   onClick={() => discard(key)}
                   aria-describedby={headingId}
                 >
                   이 입력 지우기
-                </button>
+                </Button>
               </div>
             </li>
           );

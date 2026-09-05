@@ -20,6 +20,19 @@ function ComponentGallery() {
         <Button variant="secondary">취소</Button>
         <Button disabled>요청 처리 중</Button>
       </div>
+      <section style={{ display: "grid", gap: 16, padding: 20, background: "#f7f9fc", color: "#284051" }} aria-label="밝은 업무 화면">
+        <div style={{ display: "flex", gap: 10 }}>
+          <StatusBadge appearance="pill" tone="neutral">미확인</StatusBadge>
+          <StatusBadge appearance="pill" tone="accent">조치 중</StatusBadge>
+          <StatusBadge appearance="pill" tone="normal">완료</StatusBadge>
+        </div>
+        <div style={{ display: "flex", gap: 12 }}>
+          <Button theme="light">변경 저장</Button>
+          <Button theme="light" variant="secondary">취소</Button>
+          <Button theme="light" variant="danger">기록 초기화</Button>
+          <Button theme="light" disabled>저장 중</Button>
+        </div>
+      </section>
     </div>
   );
 }

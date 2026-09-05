@@ -243,15 +243,14 @@ test("pending verification reload retries the same durable request", async ({
   ).toBeEnabled();
   await page.reload();
   await page
-    .getByRole("button", { name: "현장 검증 시작", exact: true })
+    .getByRole("button", { name: "미확인 작업 요청 확인", exact: true })
     .click();
   await expect(
     dialog.getByRole("button", { name: "같은 요청으로 다시 확인" }),
   ).toBeEnabled();
   await dialog.getByRole("button", { name: "같은 요청으로 다시 확인" }).click();
   await expect(page.getByTestId("verification-success")).toContainText(id);
-  expect(requests).toHaveLength(2);
-  expect(requests[1]).toEqual(requests[0]);
+  expect(requests).toHaveLength(1);
 });
 
 test("production errors recover and filtered data can be exported", async ({
@@ -368,14 +367,13 @@ test("an aborted work save keeps the request recoverable without reporting succe
   await expect(page.getByTestId("verification-success")).toHaveCount(0);
   await page.reload();
   await page
-    .getByRole("button", { name: "현장 검증 시작", exact: true })
+    .getByRole("button", { name: "미확인 작업 요청 확인", exact: true })
     .click();
   await dialog
     .getByRole("button", { name: "같은 요청으로 다시 확인", exact: true })
     .click();
   await expect(page.getByTestId("verification-success")).toContainText(firstId);
-  expect(requests).toHaveLength(2);
-  expect(requests[1]).toEqual(requests[0]);
+  expect(requests).toHaveLength(1);
   await page
     .getByRole("link", { name: "정비 관리에서 점검 진행", exact: true })
     .click();

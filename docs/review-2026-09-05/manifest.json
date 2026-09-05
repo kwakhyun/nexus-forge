@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-05",
+  "baseCommit": "6f1e97b",
+  "source": "local working tree with review improvements",
+  "captures": [
+    {
+      "file": "after-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1024
+      },
+      "runner": "agent-browser",
+      "server": "local Vite development server",
+      "capturedAt": "2026-09-05T13:20:00+09:00"
+    },
+    {
+      "file": "after-mobile.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "runner": "Playwright Chromium",
+      "server": "local production preview",
+      "capturedAt": "2026-09-05T13:37:00+09:00"
+    }
+  ],
+  "limitations": [
+    "Local synthetic data; not the public deployment.",
+    "Desktop captured before the final mobile height adjustment; final mobile capture includes it."
+  ]
+}

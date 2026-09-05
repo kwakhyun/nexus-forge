@@ -23,7 +23,7 @@ const incident: Incident = {
   status: "open",
 };
 
-function renderDialog(role: "operator" | "manager") {
+function renderDialog(role: "operator" | "manager", canIssue = true) {
   useOperationsStore.setState({ role, verificationOpen: true, verificationRecord: null, verificationAttempt: null });
   const queryClient = new QueryClient({
     defaultOptions: { mutations: { retry: false } },
@@ -31,7 +31,7 @@ function renderDialog(role: "operator" | "manager") {
 
   return render(
     <QueryClientProvider client={queryClient}><MemoryRouter>
-      <VerificationDialog incident={incident} />
+      <VerificationDialog incident={incident} canIssue={canIssue} />
     </MemoryRouter></QueryClientProvider>,
   );
 }
@@ -84,6 +84,7 @@ describe("verification role workflow", () => {
       if (inputs.length === 1) throw new Error("response lost");
       return { ...input, id: "WO-12345678", status: "issued", issuedAt: 1_000, dueAt: 2_000 };
     });
+    const lookup = vi.spyOn(api, "getVerification").mockImplementation(async (input) => ({ ...input, id: "WO-12345678", status: "issued", issuedAt: 1_000, dueAt: 2_000 }));
     renderDialog("manager");
     screen.getAllByRole("checkbox").forEach((checkbox) => fireEvent.click(checkbox));
     fireEvent.click(screen.getByRole("button", { name: "검증 작업 지시 발행" }));
@@ -91,8 +92,8 @@ describe("verification role workflow", () => {
     await waitFor(() => expect(retry).toBeEnabled());
     fireEvent.click(retry);
     await screen.findByTestId("verification-success");
-    expect(inputs).toHaveLength(2);
-    expect(inputs[0]).toEqual(inputs[1]);
+    expect(inputs).toHaveLength(1);
+    expect(lookup).toHaveBeenCalledWith(inputs[0]);
     expect(inputs[0]?.requestId).toBeTruthy();
   });
 
@@ -110,4 +111,44 @@ describe("verification role workflow", () => {
     expect(screen.getByLabelText("작업 담당자")).toHaveValue("설비 보전팀 이민호");
     expect(screen.getByText(/작업 담당자를 지정하고 안전 조건을 확인해 주세요/)).toBeInTheDocument();
   });
+});
+
+async function preparePendingRequest() {
+  const input = { requestId: "expired-review", incidentId: incident.id, requestedBy: "관리자", assignee: "설비 보전팀 이민호", checks: ["가동 중 점검"] };
+  const { verificationChecklist } = await import("@nexus/contracts");
+  input.checks = [...verificationChecklist(incident.equipmentId)];
+  await act(async () => {
+    await useWorkspaceStore.getState().dispatch({ type: "seed", incident });
+    await useWorkspaceStore.getState().dispatch({ type: "prepare-verification", request: input });
+    useOperationsStore.getState().setVerificationAttempt(input);
+  });
+  return input;
+}
+
+it("recovers an existing request when diagnostic evidence is no longer valid without issuing again", async () => {
+  const create = vi.spyOn(api, "createVerification");
+  const lookup = vi.spyOn(api, "getVerification").mockImplementation(async (input) => ({ ...input, id: "WO-RECOVER", status: "issued", issuedAt: 1_000, dueAt: 2_000 }));
+  renderDialog("operator", false);
+  const input = await preparePendingRequest();
+  fireEvent.click(screen.getByRole("button", { name: "같은 요청으로 다시 확인" }));
+  await screen.findByTestId("verification-success");
+  expect(lookup).toHaveBeenCalledWith(input);
+  expect(create).not.toHaveBeenCalled();
+  expect(useWorkspaceStore.getState().document.pendingVerification).toBeNull();
+});
+
+it("keeps unknown results pending until the user explicitly ends tracking and records that uncertainty", async () => {
+  vi.spyOn(api, "getVerification").mockResolvedValue(null);
+  const create = vi.spyOn(api, "createVerification");
+  renderDialog("operator", false);
+  await preparePendingRequest();
+  fireEvent.click(screen.getByRole("button", { name: "같은 요청으로 다시 확인" }));
+  const end = await screen.findByRole("button", { name: "미확정 요청 추적 종료" });
+  expect(end).toBeDisabled();
+  expect(useWorkspaceStore.getState().document.pendingVerification).not.toBeNull();
+  fireEvent.click(screen.getByRole("checkbox", { name: "발행 여부가 미확정이며 작업 취소가 아님을 확인했습니다" }));
+  fireEvent.click(end);
+  await waitFor(() => expect(useWorkspaceStore.getState().document.pendingVerification).toBeNull());
+  expect(useWorkspaceStore.getState().document.cases.find((item) => item.id === incident.id)?.activity.at(-1)?.message).toContain("발행 여부 미확정");
+  expect(create).not.toHaveBeenCalled();
 });

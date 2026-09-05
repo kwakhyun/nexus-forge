@@ -33,13 +33,13 @@
 
 ## 검증 근거
 
-- [E2E 재사용 검사](../apps/web/e2e/equipment-reuse.spec.ts): 실제 HTTP와 WebSocket의 설비 전환, 새로고침, 건조기 안전 조건, 작업 발행과 점검 완료, 다른 설비의 결과 혼입 방지, 미확인 요청의 동일 본문 재시도를 검사한다.
+- [E2E 재사용 검사](../apps/web/e2e/equipment-reuse.spec.ts): 실제 HTTP와 WebSocket의 설비 전환, 새로고침, 건조기 안전 조건, 작업 발행과 점검 완료, 다른 설비의 결과 혼입 방지, 미확인 요청의 읽기 전용 결과 조회와 원래 요청 정보 대조를 검사한다.
 - [스토어 검사](../apps/web/src/store/operationsStore.test.ts): 전환 이후 이전 설비의 이력과 센서 데이터, 연결 상태가 현재 데이터를 덮어쓰지 않는지 확인한다.
 - [API 검사](../apps/web/src/api/client.test.ts), [서버 검사](../apps/stream-server/src/runtime.test.ts): 이력 ID 불일치와 설비에 맞지 않는 안전 체크리스트를 거부한다.
 - [차트 검사](../apps/web/src/components/SignalWorkbench.test.tsx): 건조기의 3개 패널, 4개 시리즈와 165°C 설정값, 장력 패널 제외를 검사한다.
 - [반응형 검사](../apps/web/e2e/responsive-layout.spec.ts), [접근성 검사](../apps/web/e2e/ux-recovery.spec.ts): 두 진단 구성을 모두 대상으로 한다. 자동 검사이며 실기기나 전체 화면의 육안 검수와 같지 않다.
 
-최신 실행 결과는 [제출 준비 기록](./SUBMISSION_REVIEW_2026-08-31.md), 실제 화면 갱신 계측은 [성능 문서](./PERFORMANCE.md)를 따른다.
+최신 실행 결과는 [9월 5일 개선 기록](./IMPROVEMENTS_2026-09-05.md)과 이전 [제출 준비 기록](./SUBMISSION_REVIEW_2026-08-31.md), 실제 화면 갱신 계측은 [성능 문서](./PERFORMANCE.md)를 따른다.
 
 ## 재사용 범위와 남은 비용
 

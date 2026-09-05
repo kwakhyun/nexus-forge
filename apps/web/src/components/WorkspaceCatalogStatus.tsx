@@ -1,6 +1,7 @@
+import { Button } from "@nexus/ui";
 import { usePlantSummary } from "../hooks/usePlantSummary";
-import { EmptyState } from "./WorkspaceLayout";
 import { useWorkspaceStore } from "../store/workspaceStore";
+import { EmptyState } from "./WorkspaceLayout";
 
 export function WorkspaceCatalogStatus() {
   const status = useWorkspaceStore((state) => state.status);
@@ -28,14 +29,14 @@ export function WorkspaceCatalogStatus() {
           : "공정 현황을 확인하고 이 브라우저의 기록을 연결합니다."}
       </p>
       {summary.isError && status === "ready" ? (
-        <button
+        <Button theme="light" variant="secondary"
           type="button"
           className="workspace-button"
           disabled={summary.isFetching}
           onClick={() => void summary.refetch()}
         >
           공정 현황 다시 불러오기
-        </button>
+        </Button>
       ) : null}
     </EmptyState>
   );

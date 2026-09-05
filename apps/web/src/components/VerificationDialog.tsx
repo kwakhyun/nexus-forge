@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { verificationChecklist, type Incident, type VerificationRequest } from "@nexus/contracts";
-import { CheckCircleIcon, ClipboardTextIcon, ShieldCheckIcon, XIcon } from "@phosphor-icons/react";
 import { Button } from "@nexus/ui";
+import { CheckCircleIcon, ClipboardTextIcon, ShieldCheckIcon, XIcon } from "@phosphor-icons/react";
+import { useMutation } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { api, ApiError } from "../api/client";
+import { ASSIGNEES, WORK_LABELS } from "../domain/workspace";
 import { useTimeFormat } from "../hooks/useTimeFormat";
+import { useWorkspaceAction } from "../hooks/useWorkspaceAction";
+import { verificationPresented, verificationStarted, verificationStored } from "../observability/performanceProbe";
 import { useOperationsStore } from "../store/operationsStore";
 import { useWorkspaceStore } from "../store/workspaceStore";
-import { ASSIGNEES, WORK_LABELS } from "../domain/workspace";
-import { verificationStarted, verificationStored, verificationPresented } from "../observability/performanceProbe";
 
 const defaultAssignee = "설비 보전팀 이민호";
 const assignees = ASSIGNEES;
@@ -39,34 +40,50 @@ export function VerificationDialog({ incident, canIssue = true }: { incident: In
   const assignedDefault = localCase?.assignee || defaultAssignee;
   const [assignee, setAssignee] = useState(attempt?.assignee ?? assignedDefault);
   const isManager = role === "manager";
+  const [missingRequest, setMissingRequest] = useState<VerificationRequest | null>(null);
+  const [acknowledgedUnknown, setAcknowledgedUnknown] = useState(false);
+  const recoveryAction = useWorkspaceAction();
+  const canRecover = Boolean(attempt) && !otherAttempt && workspaceStatus === "ready";
+  const unknownResult = missingRequest !== null && missingRequest.requestId === attempt?.requestId;
   const allowed = !otherAttempt && canIssue && incident.safeToVerifyWhileRunning && incident.status !== "resolved" && localCase?.status !== "resolved" && workspaceStatus === "ready";
 
   const mutation = useMutation({
-    mutationFn: async (input: VerificationRequest) => {
+    mutationFn: async ({ input, recovery }: { input: VerificationRequest; recovery: boolean }) => {
       if (input.requestId) verificationStarted(input.requestId, incident.equipmentId);
       const dispatch = useWorkspaceStore.getState().dispatch;
-      await dispatch({ type: "seed", incident });
-      await dispatch({ type: "prepare-verification", request: input });
-      const result = await api.createVerification(input);
+      let result;
+      if (recovery) {
+        result = await api.getVerification(input);
+        if (!result) return null;
+      } else {
+        await dispatch({ type: "seed", incident });
+        await dispatch({ type: "prepare-verification", request: input });
+        result = await api.createVerification(input);
+      }
       await dispatch({ type: "register-verification", record: result });
       if (input.requestId) verificationStored(input.requestId);
       return result;
     },
-    onSuccess: (result) => {
+    onSuccess: (result, { input }) => {
+      if (!result) { setMissingRequest(input); return; }
+      setMissingRequest(null);
       setRecord(result);
       setAttempt(null);
     },
-    onError: async (error) => {
-      // A definitive validation rejection can be edited. Ambiguous failures retry the same request.
-      if (error instanceof ApiError && error.status && [400, 404].includes(error.status)) {
-        setAttempt(null);
-        await useWorkspaceStore.getState().dispatch({ type: "clear-verification" }).catch(() => undefined);
+    onError: async (error, { input, recovery }) => {
+      // Only a rejected new issuance is definitive. Lookup failures preserve the original request.
+      if (!recovery && error instanceof ApiError && error.status && [400, 404].includes(error.status)) {
+        try {
+          await useWorkspaceStore.getState().dispatch({ type: "clear-verification", requestId: input.requestId });
+          setAttempt(null);
+        } catch { /* A different tab may own the current pending request. */ }
       }
+      setAttempt(useWorkspaceStore.getState().document.pendingVerification);
     },
     onSettled: () => { busyRef.current = false; },
   });
   const resetMutation = mutation.reset;
-  const locked = mutation.isPending || attempt !== null;
+  const locked = mutation.isPending || recoveryAction.busy || attempt !== null;
   const closeDialog = useCallback(() => {
     if (busyRef.current) return;
     if (!useOperationsStore.getState().verificationAttempt) {
@@ -133,7 +150,7 @@ export function VerificationDialog({ incident, canIssue = true }: { incident: In
   if (!open) return null;
 
   const submit = () => {
-    if (busyRef.current || !allowed || !confirmedChecks.every(Boolean) || record) return;
+    if (busyRef.current || recoveryAction.busy || !(attempt ? canRecover : allowed) || !confirmedChecks.every(Boolean) || record) return;
     const input = attempt ?? {
       requestId: crypto.randomUUID(),
       incidentId: incident.id,
@@ -143,7 +160,9 @@ export function VerificationDialog({ incident, canIssue = true }: { incident: In
     };
     busyRef.current = true;
     setAttempt(input);
-    mutation.mutate(input);
+    setMissingRequest(null);
+    setAcknowledgedUnknown(false);
+    mutation.mutate({ input, recovery: Boolean(attempt) });
   };
 
   return (
@@ -202,12 +221,31 @@ export function VerificationDialog({ incident, canIssue = true }: { incident: In
               ))}
             </fieldset>
             {otherAttempt ? <p className="form-error" role="alert">다른 설비의 작업 요청 결과를 먼저 확인해야 합니다. {otherEquipmentId ? <Link to={`/diagnostics/${otherEquipmentId}`} onClick={closeDialog}>해당 설비의 요청 확인</Link> : "이상 관리에서 요청한 설비를 확인해 주세요."}</p>
-              : !allowed ? <p className="form-error" role="alert">최신 데이터 또는 안전 조건을 확인할 수 없어 발행을 보류합니다. 진단 화면의 안내를 확인해 주세요.</p> : null}
+              : !allowed && !canRecover ? <p className="form-error" role="alert">최신 데이터 또는 안전 조건을 확인할 수 없어 발행을 보류합니다. 진단 화면의 안내를 확인해 주세요.</p> : null}
             {mutation.isPending ? <p className="form-status" role="status" tabIndex={-1} ref={pendingStatusRef}>작업 지시 발행 결과를 확인 중입니다. 중복 요청을 막기 위해 잠시 기다려 주세요.</p> : null}
-            {mutation.isError || (attempt && !mutation.isPending) ? <p className="form-error" role="alert" tabIndex={-1} ref={errorRef}>발행 결과를 확인하지 못했습니다. {attempt ? "담당자와 안전 조건을 유지한 채 같은 요청으로 다시 확인합니다." : "입력 내용과 연결 상태를 확인한 뒤 다시 시도해 주세요."}</p> : null}
+            {mutation.isError || (attempt && !mutation.isPending && !unknownResult) ? <p className="form-error" role="alert" tabIndex={-1} ref={errorRef}>발행 결과를 확인하지 못했습니다. {attempt ? "기존 요청의 저장된 결과만 조회합니다. 새 작업은 발행하지 않습니다." : "입력 내용과 연결 상태를 확인한 뒤 다시 시도해 주세요."}</p> : null}
+            {unknownResult && attempt ? <section className="unknown-verification" aria-label="발행 여부 미확정">
+              <h3>서버에서 결과를 찾지 못했습니다</h3>
+              <p>서버 재시작이나 기록 만료로 결과가 없을 수 있습니다. 미발행으로 판단하거나 자동 재발행하지 않습니다. 다시 조회하거나 기록을 내보낸 뒤 이 데모의 요청 추적을 종료할 수 있습니다.</p>
+              <Link to="/settings" onClick={closeDialog}>기록 내보내기</Link>
+              <label><input type="checkbox" checked={acknowledgedUnknown} disabled={recoveryAction.busy}
+                onChange={(event) => setAcknowledgedUnknown(event.target.checked)} />발행 여부가 미확정이며 작업 취소가 아님을 확인했습니다</label>
+              <Button variant="secondary" disabled={!acknowledgedUnknown || recoveryAction.busy || mutation.isPending}
+                onClick={async () => {
+                  busyRef.current = true;
+                  try {
+                    if (await recoveryAction.run({ type: "dismiss-verification", requestId: attempt.requestId,
+                      actor: isManager ? "교대 관리자" : "라인 엔지니어" }, "미확정 요청의 추적을 종료했습니다.")) {
+                      setAttempt(null); setMissingRequest(null); setChecked(checklist.map(() => false));
+                      resetMutation(); setOpen(false);
+                    }
+                  } finally { busyRef.current = false; }
+                }}>미확정 요청 추적 종료</Button>
+              {recoveryAction.error ? <p role="alert">{recoveryAction.error}</p> : null}
+            </section> : null}
             <footer>
               <Button variant="secondary" disabled={mutation.isPending} onClick={closeDialog}>취소</Button>
-              <Button disabled={!confirmedChecks.every(Boolean) || mutation.isPending || !allowed} aria-busy={mutation.isPending} onClick={submit}>
+              <Button disabled={!confirmedChecks.every(Boolean) || mutation.isPending || recoveryAction.busy || !(attempt ? canRecover : allowed)} aria-busy={mutation.isPending} onClick={submit}>
                 {mutation.isPending ? "작업 지시 발행 중…" : attempt ? "같은 요청으로 다시 확인" : "검증 작업 지시 발행"}
               </Button>
             </footer>

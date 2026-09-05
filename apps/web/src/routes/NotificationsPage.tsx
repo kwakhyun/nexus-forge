@@ -1,16 +1,17 @@
+import { Button } from "@nexus/ui";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { WorkspaceCatalogStatus } from "../components/WorkspaceCatalogStatus";
+import { WorkspaceFeedback } from "../components/WorkspaceFeedback";
 import {
-  WorkspaceLayout,
   EmptyState,
   StatusPill,
+  WorkspaceLayout,
 } from "../components/WorkspaceLayout";
-import { WorkspaceCatalogStatus } from "../components/WorkspaceCatalogStatus";
-import { useWorkspaceStore } from "../store/workspaceStore";
-import { useWorkspaceAction } from "../hooks/useWorkspaceAction";
-import { useTimeFormat } from "../hooks/useTimeFormat";
 import type { NotificationKind } from "../domain/workspace";
-import { WorkspaceFeedback } from "../components/WorkspaceFeedback";
+import { useTimeFormat } from "../hooks/useTimeFormat";
+import { useWorkspaceAction } from "../hooks/useWorkspaceAction";
+import { useWorkspaceStore } from "../store/workspaceStore";
 
 const kindLabels: Record<NotificationKind, string> = {
   incident: "이상 처리",
@@ -57,7 +58,7 @@ export function NotificationsPage() {
           앱을 열어 둔 동안 생성하며 최근 200건을 보관합니다. 외부 푸시나 메일은
           발송하지 않습니다.
         </p>
-        <button
+        <Button theme="light" variant="secondary"
           className="workspace-button"
           type="button"
           disabled={!unread || !action.ready || action.busy}
@@ -69,7 +70,7 @@ export function NotificationsPage() {
           }
         >
           전체 읽음 처리
-        </button>
+        </Button>
       </div>
       {!settings.notifyIncident ||
       !settings.notifyWork ||
@@ -146,7 +147,7 @@ export function NotificationsPage() {
                 </time>
               </div>
               <div className="notification-actions">
-                <button
+                <Button theme="light" variant="secondary"
                   type="button"
                   className="workspace-button"
                   aria-describedby={`notification-${item.id}`}
@@ -168,7 +169,7 @@ export function NotificationsPage() {
                   }}
                 >
                   관련 기록 보기
-                </button>
+                </Button>
                 {item.readAt === null ? (
                   <button
                     className="workspace-text-button"
@@ -201,7 +202,7 @@ export function NotificationsPage() {
             작업 처리 결과는 연결된 이상과 정비 관리에서도 확인할 수 있습니다.
           </p>
           {filter !== "all" || kind !== "all" ? (
-            <button
+            <Button theme="light" variant="secondary"
               type="button"
               className="workspace-button"
               onClick={() => {
@@ -210,7 +211,7 @@ export function NotificationsPage() {
               }}
             >
               알림 필터 초기화
-            </button>
+            </Button>
           ) : null}
         </EmptyState>
       )}

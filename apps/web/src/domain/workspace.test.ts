@@ -41,6 +41,21 @@ const issued = () =>
   apply(seeded(), { type: "register-verification", record }, now);
 
 describe("shared demo workflow", () => {
+  it("refuses stale request cleanup and leaves the newer pending request intact", () => {
+    const pending = apply(seeded(), { type: "prepare-verification", request: record }, now);
+    expect(() => apply(pending, { type: "clear-verification", requestId: "OLDER-REQUEST" })).toThrow(/다른 요청/);
+    expect(() => apply(pending, { type: "dismiss-verification", requestId: "OLDER-REQUEST", actor: "관리자" })).toThrow(/다른 요청/);
+    expect(pending.pendingVerification?.requestId).toBe(record.requestId);
+  });
+  it("records uncertainty when tracking ends without creating a work order or cancelling the incident", () => {
+    const pending = apply(seeded(), { type: "prepare-verification", request: record }, now);
+    const ended = apply(pending, { type: "dismiss-verification", requestId: record.requestId, actor: "관리자" }, now + 1);
+    expect(ended.pendingVerification).toBeNull();
+    expect(ended.workOrders).toEqual(pending.workOrders);
+    const item = ended.cases.find((item) => item.id === incident.id)!;
+    expect(item.status).toBe("open");
+    expect(item.activity.some((event) => event.message.includes(record.requestId!) && event.message.includes("미확정"))).toBe(true);
+  });
   it("merges independent settings fields and rejects a stale same-field save", () => {
     const initial = seeded();
     const changed = apply(initial, {

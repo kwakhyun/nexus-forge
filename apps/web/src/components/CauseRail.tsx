@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
 import type { Incident } from "@nexus/contracts";
 import { isDiagnosticEquipmentId } from "@nexus/contracts";
-import { DIAGNOSTIC_PROFILES } from "../domain/diagnosticProfiles";
+import { Button, StatusBadge } from "@nexus/ui";
 import {
   ArrowDownIcon,
   CameraIcon,
@@ -12,12 +11,13 @@ import {
   WarningIcon,
   WaveformIcon,
 } from "@phosphor-icons/react";
-import { Button, StatusBadge } from "@nexus/ui";
-import { useTimeFormat } from "../hooks/useTimeFormat";
-import { useWorkspaceStore } from "../store/workspaceStore";
-import { CASE_LABELS } from "../domain/workspace";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { DIAGNOSTIC_PROFILES } from "../domain/diagnosticProfiles";
+import { CASE_LABELS } from "../domain/workspace";
+import { useTimeFormat } from "../hooks/useTimeFormat";
 import { useOperationsStore } from "../store/operationsStore";
+import { useWorkspaceStore } from "../store/workspaceStore";
 
 interface CauseRailProps {
   incident: Incident;
@@ -33,6 +33,7 @@ export function CauseRail({ incident, diagnosticsStatus, revealEvidence = false,
   const { formatTime } = useTimeFormat();
   const localCase = useWorkspaceStore((state) => state.document.cases.find((item) => item.id === incident.id));
   const role = useOperationsStore((state) => state.role);
+  const pending = useWorkspaceStore((state) => state.document.pendingVerification?.incidentId === incident.id);
   const record = useOperationsStore((state) => state.verificationRecord?.incidentId === incident.id ? state.verificationRecord : null);
   const [allEvidenceVisible, setAllEvidenceVisible] = useState(revealEvidence);
   const evidenceHeading = useRef<HTMLHeadingElement>(null);
@@ -48,6 +49,7 @@ export function CauseRail({ incident, diagnosticsStatus, revealEvidence = false,
   }[diagnosticsStatus];
   const canIssue = diagnosticsReady && incident.safeToVerifyWhileRunning && incident.status !== "resolved" && localCase?.status !== "resolved";
   const actionLabel = record ? "발행한 작업 지시 보기"
+    : pending ? "미확인 작업 요청 확인"
     : diagnosticsStatus === "error" ? "이력 복구 후 진행"
       : diagnosticsStatus === "loading" ? "이력 확인 중"
         : !canIssue ? "현장 검증 보류"
@@ -93,6 +95,28 @@ export function CauseRail({ incident, diagnosticsStatus, revealEvidence = false,
         {localCase ? <p className="diagnostic-workflow-status">업무 처리: {CASE_LABELS[localCase.status]} <Link to={`/incidents?incident=${encodeURIComponent(incident.id)}`}>처리 기록 보기</Link></p> : null}
       </section>
 
+      <section className="recommended-action" id="recommended-action" aria-labelledby="action-heading" tabIndex={-1}>
+        <h2 id="action-heading" tabIndex={-1}>권장 조치</h2>
+        <div className="action-card">
+          <div className="action-summary">
+            <StatusBadge tone={record ? "normal" : diagnosticsStatus === "error" ? "critical" : "warning"}>
+              {record ? "작업 지시 발행됨" : pending ? "발행 결과 확인 필요" : canIssue ? "안전 확인 필요" : diagnosticsStatus === "error" ? "이력 복구 필요" : "현장 검증 보류"}
+            </StatusBadge>
+            <p>{record ? `${record.id} / ${record.assignee}` : pending ? "기존 요청의 결과를 조회할 수 있습니다. 진단 이력이 만료되어도 새 작업을 발행하지 않고 확인합니다." : canIssue ? profile.safetyNote :
+              diagnosticsReady ? "가동 중 점검이 허용되지 않은 상태입니다. 현장 안전 절차를 먼저 확인하세요." : "판단 근거가 준비될 때까지 대기하세요."}</p>
+          </div>
+          <Button
+            fullWidth
+            icon={<PlayIcon size={19} weight="fill" />}
+            disabled={!record && !pending && !canIssue}
+            onClick={onStartVerification}
+          >
+            {actionLabel}
+          </Button>
+          <small>{record ? "정비 관리에서 점검을 진행할 수 있습니다. 실제 작업은 전송되지 않습니다." : canIssue ? `시나리오상 예상 점검 시간 약 ${profile.estimatedSeconds}초` : diagnosticsMessage}</small>
+        </div>
+      </section>
+
       <section className={`cause-chain ${diagnosticsReady ? "" : "cause-chain--unverified"}`} aria-labelledby="cause-heading">
         <h2 id="cause-heading">원인 후보 <small>{diagnosticsReady ? "관련도 순" : "이력 미확인, 참고용"}</small></h2>
         {incident.causalChain.map((label, index) => {
@@ -133,27 +157,7 @@ export function CauseRail({ incident, diagnosticsStatus, revealEvidence = false,
         ) : null}
       </section>
 
-      <section className="recommended-action" id="recommended-action" aria-labelledby="action-heading" tabIndex={-1}>
-        <h2 id="action-heading" tabIndex={-1}>권장 조치</h2>
-        <div className="action-card">
-          <div className="action-summary">
-            <StatusBadge tone={record ? "normal" : diagnosticsStatus === "error" ? "critical" : "warning"}>
-              {record ? "작업 지시 발행됨" : canIssue ? "안전 확인 필요" : diagnosticsStatus === "error" ? "이력 복구 필요" : "현장 검증 보류"}
-            </StatusBadge>
-            <p>{record ? `${record.id} / ${record.assignee}` : canIssue ? profile.safetyNote :
-              diagnosticsReady ? "가동 중 점검이 허용되지 않은 상태입니다. 현장 안전 절차를 먼저 확인하세요." : "판단 근거가 준비될 때까지 대기하세요."}</p>
-          </div>
-          <Button
-            fullWidth
-            icon={<PlayIcon size={19} weight="fill" />}
-            disabled={!record && !canIssue}
-            onClick={onStartVerification}
-          >
-            {actionLabel}
-          </Button>
-          <small>{record ? "정비 관리에서 점검을 진행할 수 있습니다. 실제 작업은 전송되지 않습니다." : canIssue ? `시나리오상 예상 점검 시간 약 ${profile.estimatedSeconds}초` : diagnosticsMessage}</small>
-        </div>
-      </section>
+
     </aside>
   );
 }

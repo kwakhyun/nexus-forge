@@ -94,17 +94,16 @@ test("pending issuance is locked and a lost response retries the same order afte
   await dialog.getByRole("button", { name: "취소" }).click();
   await page.getByRole("link", { name: "전체 공정", exact: true }).click();
   await page.getByRole("link", { name: "신호 분석", exact: true }).click();
-  await page.getByRole("button", { name: "현장 검증 요청", exact: true }).click();
+  await page.getByRole("button", { name: "미확인 작업 요청 확인", exact: true }).click();
   await dialog.getByRole("button", { name: "같은 요청으로 다시 확인" }).click();
   await expect(page.getByTestId("verification-success")).toContainText(issuedId);
-  expect(payloads).toHaveLength(2);
-  expect(payloads[1]).toEqual(payloads[0]);
+  expect(payloads).toHaveLength(1);
   const records = await (await request.get("/api/verifications")).json();
   expect(records.filter((record: { id: string }) => record.id === issuedId)).toHaveLength(1);
   await dialog.getByRole("button", { name: "진단 화면으로 돌아가기" }).click();
   await page.getByRole("button", { name: "발행한 작업 지시 보기" }).click();
   await expect(page.getByTestId("verification-success")).toContainText(issuedId);
-  expect(payloads).toHaveLength(2);
+  expect(payloads).toHaveLength(1);
 });
 
 test("heartbeat-only traffic blocks issuance and removes misleading live KPI values", async ({ page }) => {

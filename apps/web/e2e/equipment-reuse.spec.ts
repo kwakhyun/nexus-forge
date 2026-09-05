@@ -106,9 +106,8 @@ test("a pending dryer request cannot be overwritten by a coater request", async 
   expect(requests).toHaveLength(1);
   await dialog.getByRole("link", { name: "해당 설비의 요청 확인", exact: true }).click();
   await expectEquipmentReady(page, "DRYER-02");
-  await page.getByRole("button", { name: "현장 검증 시작", exact: true }).click();
+  await page.getByRole("button", { name: "미확인 작업 요청 확인", exact: true }).click();
   await dialog.getByRole("button", { name: "같은 요청으로 다시 확인", exact: true }).click();
   await expect(page.getByTestId("verification-success")).toBeVisible();
-  expect(requests).toHaveLength(2);
-  expect(requests[1]).toEqual(requests[0]);
+  expect(requests).toHaveLength(1);
 });
