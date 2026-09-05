@@ -392,5 +392,5 @@ try {
   stream?.close();
   server.closeAllConnections();
   if (server.listening) await new Promise((done) => server.close(done));
-  // Keep this named temporary build for inspection; only the explicit JSON output is portfolio evidence.
+  // Keep this named temporary build for inspection; only the explicit JSON output is the measurement record.
 }

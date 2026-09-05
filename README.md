@@ -2,7 +2,7 @@
 
 > 제조 이상 진단과 점검 결과 처리를 구현한 실시간 프론트엔드 공개 데모
 
-**곽현, Frontend Engineer**
+**개발: 곽현**
 
 배터리 코팅 라인의 이상을 찾고, 센서 신호를 비교해 점검을 요청한 뒤 결과와 이상 종결 사유를 기록하는 웹 애플리케이션입니다. React와 TypeScript로 실시간 시각화, 장애 복구, 업무 상태 전이를 구현했습니다.
 
@@ -11,8 +11,6 @@
 [공개 데모](https://nexus-forge-ten.vercel.app/overview) | [핵심 화면](#핵심-화면) | [3분 검토 동선](#3분-검토-동선) | [기술 판단 사례](./docs/ENGINEERING_CASE_STUDIES.md) | [설비 재사용](./docs/EQUIPMENT_REUSE.md) | [성능 측정](#실측-성능-비교) | [CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
 
 [![CI](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml)
-
-**제출 PDF 안내:** 9월 1일 작성된 PDF의 테스트 수, 성능 표와 화면은 당시 버전의 기록입니다. 핵심 기능과 구조를 유지한 후속 개선이며, 최신 화면과 측정 결과는 아래 기록을 따릅니다. [제출본과 현재 버전의 정합성 대조](./docs/PORTFOLIO_COMPATIBILITY_2026-09-05.md)를 보관합니다.
 
 **9월 5일 개선:** 이력 만료 후 미확인 발행 요청 복구, 5분/15분 차트 축소와 진단 설비 복귀를 수정했습니다. 차트 키보드 조작과 모바일 정보 배치를 개선하고, 불필요한 센서 구독과 차트 전체 갱신을 줄였습니다. 업무 도메인, 상세 화면과 스타일도 기능별로 분리했습니다. [개선 내역과 현재 소스 검증](./docs/IMPROVEMENTS_2026-09-05.md)을 확인할 수 있습니다.
 
@@ -180,11 +178,11 @@ npm run benchmark:chart:stress
 
 `npm run benchmark:stress`로 재현할 수 있습니다. [10만 시점, 60분 원본](./docs/benchmarks/application-stress-2026-09-01.json), [일반 조건 원본](./docs/benchmarks/application-flow-2026-08-31.json)과 [구간 정의, 범위와 한계](./docs/PERFORMANCE.md)에 개별 표본과 소스 해시를 공개합니다.
 
-## 기여 범위
+## 개발과 검증
 
-2026년 8월 30일 시작한 개인 프로젝트입니다. 작성자는 지원 포지션과 개발 범위, 개선 우선순위, 공개 데모 표시 기준을 정했습니다. 실제 화면에서 발견한 결함의 재현 조건과 완료 기준을 기록하고, 수정 후 테스트와 배포 결과를 확인했습니다. GitHub 저장소 생성과 Vercel 연결도 직접 진행했습니다.
+2026년 8월 30일 시작한 개인 프로젝트입니다. 작성자는 제품 범위, 개선 우선순위, 공개 데모 표시 기준을 정했습니다. 실제 화면에서 발견한 결함의 재현 조건과 완료 기준을 기록하고, 수정 후 테스트와 배포 결과를 확인했습니다. GitHub 저장소 생성과 Vercel 연결도 직접 진행했습니다.
 
-제품 방향과 디자인 대안을 탐색하고 구현, 테스트, 문서를 작성하는 과정에서 AI 개발 도구를 활용했습니다. 작성자는 요구사항 충족 여부, 검증 결과와 공개 범위를 최종 확인했습니다. 이 프로젝트를 실제 제조 고객사 운영 경험이나 모든 코드를 수작업으로 작성한 사례로 제시하지 않습니다. [기술 판단 사례와 역할 구분](./docs/ENGINEERING_CASE_STUDIES.md)에 재현한 문제, 선택한 대안, 검증과 남은 비용을 기록했습니다.
+제품 방향과 디자인 대안을 탐색하고 구현, 테스트, 문서를 작성하는 과정에서 AI 개발 도구를 활용했습니다. 작성자는 요구사항 충족 여부, 검증 결과와 공개 범위를 최종 확인했습니다. [기술 판단 사례와 역할 구분](./docs/ENGINEERING_CASE_STUDIES.md)에 재현한 문제, 선택한 대안, 검증과 남은 비용을 기록했습니다.
 
 ## 검증 결과
 
@@ -200,7 +198,7 @@ npm run benchmark:chart:stress
 | 후속 모바일/키보드 | 8개 경로 × 두 모바일 크기의 16조건 통과. 현재 메뉴 노출, 실제 Tab/Shift+Tab, Enter와 방향키 스크롤 확인. 새 캡처 6장 보관 |
 | 공개 상태 확인 | [최신 CI와 자동 배포](https://github.com/kwakhyun/nexus-forge/actions/workflows/ci.yml), [공개 상태 API](https://nexus-forge-ten.vercel.app/api/health)에서 현재 배포 SHA 확인. `5474706`의 8월 31일 결과는 [당시 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md)에 보존 |
 
-[최종 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md)에 후속 결과를, [제출 준비 기록](./docs/SUBMISSION_REVIEW_2026-08-31.md)에 이전 버전별 검사 결과를, [직접 검수 기록](./docs/BROWSER_REVIEW_2026-08-31.md)에 화면별 행동과 당시 제한을 모았습니다. 자동 검사나 대표 화면의 확인을 모든 크기의 시각적 완성도와 전체 접근성 준수로 확대하지 않습니다.
+[최종 검증 기록](./docs/FINAL_VERIFICATION_2026-08-31.md)에 후속 결과를, [릴리스 검증 기록](./docs/RELEASE_REVIEW_2026-08-31.md)에 이전 버전별 검사 결과를, [직접 검수 기록](./docs/BROWSER_REVIEW_2026-08-31.md)에 화면별 행동과 당시 제한을 모았습니다. 자동 검사나 대표 화면의 확인을 모든 크기의 시각적 완성도와 전체 접근성 준수로 확대하지 않습니다.
 
 ## 로컬 실행
 
@@ -249,9 +247,9 @@ REST와 스트림의 공통 런타임을 로컬 Node 서버와 Vercel Functions�
 
 ## 문서와 화면 기록
 
-- [기술 판단 사례](./docs/ENGINEERING_CASE_STUDIES.md), [두 설비 재사용](./docs/EQUIPMENT_REUSE.md), [결정 기록](./docs/DECISIONS.md), [채용 요건 대응표](./docs/REQUIREMENTS_MAPPING.md)
+- [기술 판단 사례](./docs/ENGINEERING_CASE_STUDIES.md), [두 설비 재사용](./docs/EQUIPMENT_REUSE.md), [결정 기록](./docs/DECISIONS.md), [기능과 구현 근거](./docs/REQUIREMENTS_MAPPING.md)
 - [제품 명세](./docs/PRODUCT_SPEC.md), [아키텍처](./docs/ARCHITECTURE.md), [성능 측정](./docs/PERFORMANCE.md)
-- [최종 검증과 공개 반영](./docs/FINAL_VERIFICATION_2026-08-31.md), [제출 준비와 이전 검증](./docs/SUBMISSION_REVIEW_2026-08-31.md)
+- [최종 검증과 공개 반영](./docs/FINAL_VERIFICATION_2026-08-31.md), [릴리스 준비와 이전 검증](./docs/RELEASE_REVIEW_2026-08-31.md)
 - [8월 31일 전 화면 직접 검수](./docs/BROWSER_REVIEW_2026-08-31.md), [캡처와 출처 목록](./docs/design/review-2026-08-31/manifest.json)
 - 이전 검토: [진단 UI](./docs/UI_UX_REVIEW_2026-08-31.md), [다섯 메뉴 구현](./docs/OPERATIONS_MODULES_2026-08-31.md), [운영 화면 재검토](./docs/OPERATIONS_UI_UX_REVIEW_2026-08-31.md), [문구](./docs/COPY_AUDIT.md)
 - 초기 화면: [공정 개요](./docs/design/implementation-overview-final.png), [진단](./docs/design/implementation-diagnostic-final.png), [작업 지시 발행](./docs/design/implementation-verification-success.png), [당시 디자인 검수](./docs/design-qa.md)

@@ -90,7 +90,7 @@ Turborepo가 패키지 빌드 순서와 캐시를 관리합니다. 웹과 서버
 
 ## 공개 데모 배포 경계
 
-Vercel의 Production target을 공개 포트폴리오 데모의 배포 환경으로 사용합니다. `dist/client`의 정적 자산은 CDN으로 제공하고, REST API와 WebSocket 스트림은 동일 저장소의 Vercel Functions로 배포합니다. Functions와 로컬 Node 서버는 같은 요청 처리 및 센서 시뮬레이션 모듈을 사용하므로 실행 환경에 따른 계약 차이를 줄였습니다. 이 구성은 실제 제조 고객사의 상용 운영 환경을 의미하지 않습니다.
+Vercel의 Production target을 공개 데모의 배포 환경으로 사용합니다. `dist/client`의 정적 자산은 CDN으로 제공하고, REST API와 WebSocket 스트림은 동일 저장소의 Vercel Functions로 배포합니다. Functions와 로컬 Node 서버는 같은 요청 처리 및 센서 시뮬레이션 모듈을 사용하므로 실행 환경에 따른 계약 차이를 줄였습니다. 이 구성은 실제 제조 고객사의 상용 운영 환경을 의미하지 않습니다.
 
 Vercel의 Git 푸시 직접 배포는 `vercel.json`에서 끕니다. `main`에 푸시하면 GitHub Actions가 lint, typecheck, 단위 및 컴포넌트 테스트, 빌드, Storybook과 Chromium E2E를 병렬 검증합니다. 두 작업이 모두 성공한 뒤에만 암호화된 Vercel 배포 훅을 호출합니다. 배포가 끝나면 공개 `/api/health`의 `release`가 해당 GitHub 커밋 SHA와 일치하는지 확인하고, UI 셸, 공정 요약, 센서 이력, WebSocket 수신까지 스모크 테스트합니다. 빌드 성공과 공개 승격 사이의 검증 순서를 명시적으로 고정한 구성입니다.
 

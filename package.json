@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Public battery manufacturing operations OS portfolio demo",
+  "description": "Public battery manufacturing operations demo",
   "workspaces": [
     "apps/*",
     "packages/*"

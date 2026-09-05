@@ -39,7 +39,7 @@
 - [차트 검사](../apps/web/src/components/SignalWorkbench.test.tsx): 건조기의 3개 패널, 4개 시리즈와 165°C 설정값, 장력 패널 제외를 검사한다.
 - [반응형 검사](../apps/web/e2e/responsive-layout.spec.ts), [접근성 검사](../apps/web/e2e/ux-recovery.spec.ts): 두 진단 구성을 모두 대상으로 한다. 자동 검사이며 실기기나 전체 화면의 육안 검수와 같지 않다.
 
-최신 실행 결과는 [9월 5일 개선 기록](./IMPROVEMENTS_2026-09-05.md)과 이전 [제출 준비 기록](./SUBMISSION_REVIEW_2026-08-31.md), 실제 화면 갱신 계측은 [성능 문서](./PERFORMANCE.md)를 따른다.
+최신 실행 결과는 [9월 5일 개선 기록](./IMPROVEMENTS_2026-09-05.md)과 이전 [릴리스 검증 기록](./RELEASE_REVIEW_2026-08-31.md), 실제 화면 갱신 계측은 [성능 문서](./PERFORMANCE.md)를 따른다.
 
 ## 재사용 범위와 남은 비용
 
