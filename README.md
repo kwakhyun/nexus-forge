@@ -125,7 +125,7 @@ E2E는 웹과 서버를 빌드한 뒤 로컬 production preview에서 실행합�
 
 배포 작업은 직렬로 실행합니다. 빌드 전과 승격 직전에 `main`이 다른 커밋으로 이동했다면 해당 실행은 공개 반영을 건너뜁니다. 브랜치의 최신 커밋을 배포하던 Deploy Hook은 사용하지 않습니다.
 
-GitHub의 `production` environment에 다음 설정이 필요합니다. 기존 Deploy Hook secret만 있는 환경은 새 설정 전까지 명확한 오류와 함께 배포가 중단됩니다.
+자동 배포를 사용하려면 GitHub의 `production` environment에 다음 설정이 필요합니다. `VERCEL_TOKEN`이 없으면 배포 준비와 실행을 모두 건너뛰고 실행 요약에 사유를 남깁니다. 정적 검사와 E2E가 통과하면 수동 배포 환경에서도 CI는 성공합니다. 토큰이 있는 경우에는 나머지 필수 설정 누락이나 실제 배포 오류를 실패로 처리합니다.
 
 - Secret `VERCEL_TOKEN`: 대상 Vercel 프로젝트를 배포할 수 있는 토큰
 - Variables `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`: 연결된 `.vercel/project.json`의 조직과 프로젝트 ID

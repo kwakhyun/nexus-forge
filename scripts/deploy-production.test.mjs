@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
+import { promisify } from "node:util";
 import { deployProduction } from "./deploy-production.mjs";
 import { deploymentAccess } from "./verify-production.mjs";
 
@@ -148,4 +152,38 @@ test("CI gates and serializes production releases at the tested checkout", async
   assert.match(workflow, /EXPECTED_RELEASE: \$\{\{ github\.sha \}\}/);
   assert.match(workflow, /run: node scripts\/deploy-production\.mjs/);
   assert.doesNotMatch(workflow, /VERCEL_DEPLOY_HOOK_URL/);
+  const releaseSteps = workflow.split("\n  deploy:\n")[1].split("\n    steps:\n")[1]
+    .split(/(?=^      - )/m).filter((step) => step.trim());
+  assert.match(releaseSteps[0], /id: deployment/);
+  assert.equal(releaseSteps.length, 6);
+  for (const step of releaseSteps.slice(1)) {
+    assert.match(step, /if: steps\.deployment\.outputs\.enabled == 'true'/);
+  }
+  assert.doesNotMatch(workflow, /continue-on-error/);
+});
+
+test("CI token check skips missing credentials and enables configured releases without exposing the token", async () => {
+  const workflow = await readFile(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+  const check = workflow.split("id: deployment\n")[1].match(/        run: \|\n((?:          .*\n)+)/)[1]
+    .replace(/^          /gm, "");
+  const directory = await mkdtemp(join(tmpdir(), "nexus-deployment-gate-"));
+  try {
+    for (const token of [undefined, "", "test-token-must-stay-private"]) {
+      const output = join(directory, "output");
+      const summary = join(directory, "summary");
+      await Promise.all([writeFile(output, ""), writeFile(summary, "")]);
+      const env = { ...process.env, GITHUB_OUTPUT: output, GITHUB_STEP_SUMMARY: summary };
+      delete env.VERCEL_TOKEN;
+      if (token !== undefined) env.VERCEL_TOKEN = token;
+      const result = await promisify(execFile)("bash", ["-e", "-o", "pipefail", "-c", check], { env });
+      assert.equal(await readFile(output, "utf8"), `enabled=${Boolean(token)}\n`);
+      const explanation = await readFile(summary, "utf8");
+      if (token) assert.equal(explanation, "");
+      else assert.match(explanation, /Automatic deployment skipped: VERCEL_TOKEN is not configured/);
+      assert.equal(result.stdout, "");
+      assert.equal(result.stderr, "");
+    }
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });

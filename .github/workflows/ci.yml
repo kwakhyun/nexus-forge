@@ -44,17 +44,33 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Check automatic deployment availability
+        id: deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -n "$VERCEL_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Automatic deployment skipped: VERCEL_TOKEN is not configured. Manual deployment remains available." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - uses: actions/checkout@v7
+        if: steps.deployment.outputs.enabled == 'true'
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v7
+        if: steps.deployment.outputs.enabled == 'true'
         with:
           node-version: 22
       - run: npm ci
+        if: steps.deployment.outputs.enabled == 'true'
       - name: Install the pinned Vercel CLI
+        if: steps.deployment.outputs.enabled == 'true'
         run: npm install --global vercel@54.18.6
       - name: Stage, verify, and promote the tested commit
+        if: steps.deployment.outputs.enabled == 'true'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
