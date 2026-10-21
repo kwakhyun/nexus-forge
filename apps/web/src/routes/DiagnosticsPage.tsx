@@ -33,6 +33,8 @@ export function DiagnosticsPage() {
     queryKey: ["history", equipmentId],
     queryFn: ({ signal }) => api.getHistory(equipmentId!, signal),
     enabled: supported,
+    // Streaming stops on other screens, even while this query's cache is fresh.
+    refetchOnMount: "always",
     refetchOnWindowFocus: "always",
     retry: 1,
     retryDelay: 500,
@@ -73,7 +75,7 @@ export function DiagnosticsPage() {
   if (!incident) return <RouteFeedback title="이 설비의 진단 정보를 불러오지 못했습니다." description="서버의 설비 구성을 확인한 뒤 다시 시도해 주세요." onRetry={() => void summaryQuery.refetch()} />;
   const summaryStale = summaryQuery.isError || (points.at(-1)?.timestamp ?? summary.updatedAt) - summary.updatedAt > 25_000;
   const incidentInRange = nearestIncidentPoint(points, incident.startedAt) !== undefined;
-  const diagnosticsStatus = historyQuery.isFetching && historyQuery.data === undefined
+  const diagnosticsStatus = historyQuery.fetchStatus !== "idle"
     ? "loading"
     : historyQuery.isError
       ? "error"

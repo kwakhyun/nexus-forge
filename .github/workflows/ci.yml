@@ -34,27 +34,32 @@ jobs:
       - run: npm run test:e2e
 
   deploy:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [quality, e2e]
     runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production-release
+      cancel-in-progress: false
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - name: Trigger the gated Vercel deployment
+      - run: npm ci
+      - name: Install the pinned Vercel CLI
+        run: npm install --global vercel@54.18.6
+      - name: Stage, verify, and promote the tested commit
         env:
-          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
-        run: |
-          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
-            echo "VERCEL_DEPLOY_HOOK_URL is not configured" >&2
-            exit 1
-          fi
-          curl --fail --silent --show-error --max-time 30 --request POST "$VERCEL_DEPLOY_HOOK_URL" >/dev/null
-      - name: Verify the exact release on the public site
-        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           PRODUCTION_URL: https://nexus-forge-ten.vercel.app
           EXPECTED_RELEASE: ${{ github.sha }}
-        run: node scripts/verify-production.mjs
+        run: node scripts/deploy-production.mjs

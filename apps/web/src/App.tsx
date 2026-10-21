@@ -45,7 +45,8 @@ export function App() {
   useEffect(() => {
     if (diagnosticRoute) useOperationsStore.getState().rememberDiagnosticEquipment(routeEquipment);
   }, [diagnosticRoute, routeEquipment]);
-  useSensorStream(pathname === "/" || pathname === "/overview" || diagnosticRoute,
+  const overviewRoute = Boolean(matchPath("/overview", pathname));
+  useSensorStream(pathname === "/" || overviewRoute || diagnosticRoute,
     diagnosticRoute ? routeEquipment : SELECTED_EQUIPMENT_ID);
 
   return (

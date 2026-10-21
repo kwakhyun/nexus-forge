@@ -13,6 +13,12 @@ vi.mock("./routes/MaintenancePage", () => ({ MaintenancePage: () => <div>정비 
 vi.mock("./routes/OverviewPage", () => ({ OverviewPage: () => <div>개요 화면</div> }));
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
+it.each(["/overview", "/overview/", "/Overview", "/OVERVIEW/"])("subscribes on the overview route %s", (path) => {
+  render(<MemoryRouter initialEntries={[path]}><App /></MemoryRouter>);
+  expect(screen.getByText("개요 화면")).toBeInTheDocument();
+  expect(useSensorStream).toHaveBeenLastCalledWith(true, "COATER-02");
+});
+
 it("retains the last diagnostic equipment through maintenance and overview while scoping subscriptions", async () => {
   useOperationsStore.setState({ lastDiagnosticEquipmentId: "COATER-02" });
   render(<MemoryRouter initialEntries={["/diagnostics/DRYER-02"]}>

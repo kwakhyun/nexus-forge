@@ -1,6 +1,7 @@
 import type { SensorPoint, StreamMessage } from "@nexus/contracts";
 import { SELECTED_EQUIPMENT_ID, isDiagnosticEquipmentId } from "@nexus/contracts";
-import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { getStreamHealth } from "../lib/streamHealth";
 import { batchCommitted, streamReceived } from "../observability/performanceProbe";
 import { useOperationsStore } from "../store/operationsStore";
@@ -56,6 +57,8 @@ export function parseStreamMessage(payload: string): StreamMessage | null {
 }
 
 export function useSensorStream(enabled: boolean, equipmentId = SELECTED_EQUIPMENT_ID): void {
+  const queryClient = useQueryClient();
+  const interrupted = useRef(false);
   const [visible, setVisible] = useState(() => document.visibilityState !== "hidden");
   useEffect(() => {
     const update = () => setVisible(document.visibilityState !== "hidden");
@@ -83,6 +86,7 @@ export function useSensorStream(enabled: boolean, equipmentId = SELECTED_EQUIPME
     let lastFrameAt: number | null = null;
     let lastSensorAt: number | null = null;
     let reportedConnection = useOperationsStore.getState().connection;
+    const historyQuery = { queryKey: ["history", equipmentId], exact: true };
 
     const reportConnection = (connection: Parameters<typeof setConnection>[0]) => {
       if (reportedConnection === connection) return;
@@ -122,6 +126,17 @@ export function useSensorStream(enabled: boolean, equipmentId = SELECTED_EQUIPME
         lastFrameAt = null;
         lastSensorAt = null;
         reportConnection("connecting");
+        const refreshHistory = () => {
+          if (disposed || activeSocket !== socket || activeSocket.readyState !== WebSocket.OPEN) return;
+          interrupted.current = false;
+          // Reuse the first mount's fetch. Inactive equipment queries are
+          // marked stale until their screen opens.
+          void queryClient.invalidateQueries(historyQuery, { cancelRefetch: false });
+        };
+        // Requests can start while disconnected or hidden. A resumed stream
+        // needs a new snapshot even when no cached data exists yet.
+        if (interrupted.current) void queryClient.cancelQueries(historyQuery).then(refreshHistory);
+        else refreshHistory();
       });
 
       activeSocket.addEventListener("message", (event) => {
@@ -151,6 +166,8 @@ export function useSensorStream(enabled: boolean, equipmentId = SELECTED_EQUIPME
 
       activeSocket.addEventListener("close", () => {
         if (disposed || activeSocket !== socket) return;
+        interrupted.current = true;
+        void queryClient.cancelQueries(historyQuery);
         socket = null;
         reconnectAttempts += 1;
         reportConnection(reconnectAttempts > 4 ? "offline" : "reconnecting");
@@ -165,10 +182,13 @@ export function useSensorStream(enabled: boolean, equipmentId = SELECTED_EQUIPME
 
     return () => {
       disposed = true;
+      interrupted.current = true;
+      // Discard snapshots requested before a route change or hidden interval.
+      void queryClient.cancelQueries(historyQuery);
       window.clearInterval(flushTimer);
       window.clearInterval(healthTimer);
       if (retryTimer) window.clearTimeout(retryTimer);
       socket?.close();
     };
-  }, [appendStreamPoints, enabled, equipmentId, setConnection, visible]);
+  }, [appendStreamPoints, enabled, equipmentId, queryClient, setConnection, visible]);
 }

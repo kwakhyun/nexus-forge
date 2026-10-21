@@ -23,7 +23,6 @@ const incidentStartedAt = simulationStartedAt - (3 * 60_000 + 43_000);
 const predictedImpactAt = simulationStartedAt + 18 * 60_000;
 const eventTimeFor = (equipmentId: DiagnosticEquipmentId) => incidentStartedAt - (equipmentId === DRYER_EQUIPMENT_ID ? 120_000 : 0);
 const verificationRecords: VerificationRecord[] = [];
-const release = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local";
 
 type BodyAwareRequest = IncomingMessage & { body?: unknown };
 type ClientCountScope = "process" | "unavailable";
@@ -109,13 +108,20 @@ export function createOperationsHandler({
   clientCountScope = "unavailable",
   historyPointCount,
 }: OperationsHandlerOptions = {}) {
+  const release = process.env.NEXUS_RELEASE_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local";
   if (historyPointCount !== undefined &&
     (!Number.isInteger(historyPointCount) || historyPointCount < 2 || historyPointCount > MAX_HISTORY_POINTS)) {
     throw new Error(`historyPointCount must be an integer between 2 and ${MAX_HISTORY_POINTS}`);
   }
   return async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     const method = request.method ?? "GET";
-    const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
+    let url: URL;
+    try {
+      url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
+    } catch {
+      json(response, 400, { error: "invalid_request" });
+      return;
+    }
     const rewrittenPath = url.searchParams.get("__path");
     const pathname = rewrittenPath ? `/api/${rewrittenPath.replace(/^\/+/, "")}` : url.pathname;
 
@@ -291,7 +297,21 @@ export function attachOperationsStream(server: Server) {
   };
 
   streamServer.on("connection", (socket, request) => {
-    const equipmentId = new URL(request.url ?? "/stream", "http://localhost").searchParams.get("equipmentId") ?? SELECTED_EQUIPMENT_ID;
+    // Protocol errors belong to this connection, including connections we reject below.
+    socket.on("error", () => socket.terminate());
+    socket.on("close", () => {
+      subscriptions.delete(socket);
+      if (streamServer.clients.size === 0) stopTimers();
+    });
+
+    let url: URL;
+    try {
+      url = new URL(request.url ?? "/stream", "http://localhost");
+    } catch {
+      socket.close(1008, "invalid stream URL");
+      return;
+    }
+    const equipmentId = url.searchParams.get("equipmentId") ?? SELECTED_EQUIPMENT_ID;
     if (!isDiagnosticEquipmentId(equipmentId)) {
       socket.close(1008, "unsupported equipment");
       return;
@@ -306,10 +326,6 @@ export function attachOperationsStream(server: Server) {
     };
     socket.send(JSON.stringify(hello));
     startTimers();
-
-    socket.on("close", () => {
-      if (streamServer.clients.size === 0) stopTimers();
-    });
   });
 
   return {

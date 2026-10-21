@@ -23,8 +23,8 @@ const incident: Incident = {
   status: "open",
 };
 
-function renderDialog(role: "operator" | "manager", canIssue = true) {
-  useOperationsStore.setState({ role, verificationOpen: true, verificationRecord: null, verificationAttempt: null });
+function renderDialog(role: "operator" | "manager", canIssue = true, open = true) {
+  useOperationsStore.setState({ role, verificationOpen: open, verificationRecord: null, verificationAttempt: null });
   const queryClient = new QueryClient({
     defaultOptions: { mutations: { retry: false } },
   });
@@ -34,6 +34,13 @@ function renderDialog(role: "operator" | "manager", canIssue = true) {
       <VerificationDialog incident={incident} canIssue={canIssue} />
     </MemoryRouter></QueryClientProvider>,
   );
+}
+
+async function assignCase(assignee: string) {
+  await act(async () => {
+    await useWorkspaceStore.getState().dispatch({ type: "seed", incident });
+    await useWorkspaceStore.getState().dispatch({ type: "assign", id: incident.id, assignee, actor: "교대 관리자" });
+  });
 }
 
 beforeEach(() => {
@@ -55,6 +62,55 @@ afterEach(() => {
 });
 
 describe("verification role workflow", () => {
+  it("discards a canceled draft and issues to the saved assignee after reopening", async () => {
+    await assignCase("공정 기술팀 최유진");
+    const create = vi.spyOn(api, "createVerification").mockImplementation(async (input) => ({
+      ...input, id: "WO-SAVED-ASSIGNEE", status: "issued", issuedAt: 1_000, dueAt: 2_000,
+    }));
+    renderDialog("manager");
+    expect(screen.getByLabelText("작업 담당자")).toHaveValue("공정 기술팀 최유진");
+    fireEvent.change(screen.getByLabelText("작업 담당자"), { target: { value: "코팅 2호 라인 정다은" } });
+    fireEvent.click(screen.getAllByRole("checkbox")[0]!);
+    fireEvent.click(screen.getByRole("button", { name: "취소" }));
+
+    act(() => useOperationsStore.getState().setVerificationOpen(true));
+    expect(screen.getByLabelText("작업 담당자")).toHaveValue("공정 기술팀 최유진");
+    screen.getAllByRole("checkbox").forEach((checkbox) => expect(checkbox).not.toBeChecked());
+    screen.getAllByRole("checkbox").forEach((checkbox) => fireEvent.click(checkbox));
+    fireEvent.click(screen.getByRole("button", { name: "검증 작업 지시 발행" }));
+
+    await screen.findByTestId("verification-success");
+    expect(create).toHaveBeenCalledOnce();
+    expect(create.mock.calls[0]![0].assignee).toBe("공정 기술팀 최유진");
+    expect(useWorkspaceStore.getState().document.cases.find((item) => item.id === incident.id)?.assignee).toBe("공정 기술팀 최유진");
+  });
+
+  it("uses the persisted assignee when the workspace loads before the first opening", async () => {
+    const saved = applyWorkspaceCommand(applyWorkspaceCommand(emptyWorkspace(), { type: "seed", incident }), {
+      type: "assign", id: incident.id, assignee: "공정 기술팀 최유진", actor: "교대 관리자",
+    });
+    vi.spyOn(workspaceDatabase, "read").mockResolvedValue(saved);
+    useWorkspaceStore.setState({ status: "loading" });
+    renderDialog("manager", true, false);
+    await act(async () => useWorkspaceStore.getState().load());
+
+    act(() => useOperationsStore.getState().setVerificationOpen(true));
+    expect(screen.getByLabelText("작업 담당자")).toHaveValue("공정 기술팀 최유진");
+  });
+
+  it("reflects a changed saved assignee on reopening and preserves an active selection", async () => {
+    await assignCase("공정 기술팀 최유진");
+    renderDialog("manager");
+    fireEvent.click(screen.getByRole("button", { name: "취소" }));
+    await assignCase("코팅 2호 라인 정다은");
+
+    act(() => useOperationsStore.getState().setVerificationOpen(true));
+    expect(screen.getByLabelText("작업 담당자")).toHaveValue("코팅 2호 라인 정다은");
+    fireEvent.change(screen.getByLabelText("작업 담당자"), { target: { value: "공정 기술팀 최유진" } });
+    await assignCase("설비 보전팀 이민호");
+    expect(screen.getByLabelText("작업 담당자")).toHaveValue("공정 기술팀 최유진");
+  });
+
   it("locks pending requests and preserves the issued result after reopening", async () => {
     let resolve!: (record: VerificationRecord) => void;
     const create = vi.spyOn(api, "createVerification").mockImplementation(() => new Promise((done) => { resolve = done; }));
@@ -86,14 +142,20 @@ describe("verification role workflow", () => {
     });
     const lookup = vi.spyOn(api, "getVerification").mockImplementation(async (input) => ({ ...input, id: "WO-12345678", status: "issued", issuedAt: 1_000, dueAt: 2_000 }));
     renderDialog("manager");
+    fireEvent.change(screen.getByLabelText("작업 담당자"), { target: { value: "코팅 2호 라인 정다은" } });
     screen.getAllByRole("checkbox").forEach((checkbox) => fireEvent.click(checkbox));
     fireEvent.click(screen.getByRole("button", { name: "검증 작업 지시 발행" }));
     const retry = await screen.findByRole("button", { name: "같은 요청으로 다시 확인" });
     await waitFor(() => expect(retry).toBeEnabled());
-    fireEvent.click(retry);
+    fireEvent.click(screen.getByRole("button", { name: "취소" }));
+    act(() => useOperationsStore.getState().setVerificationOpen(true));
+    expect(screen.getByLabelText("작업 담당자")).toHaveValue("코팅 2호 라인 정다은");
+    expect(screen.getByLabelText("작업 담당자")).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "같은 요청으로 다시 확인" }));
     await screen.findByTestId("verification-success");
     expect(inputs).toHaveLength(1);
     expect(lookup).toHaveBeenCalledWith(inputs[0]);
+    expect(inputs[0]?.assignee).toBe("코팅 2호 라인 정다은");
     expect(inputs[0]?.requestId).toBeTruthy();
   });
 

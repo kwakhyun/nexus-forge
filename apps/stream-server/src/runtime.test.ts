@@ -1,8 +1,12 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-import { describe, expect, it } from "vitest";
+import { once } from "node:events";
+import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { connect } from "node:net";
+import { WebSocket } from "ws";
+import { describe, expect, it, vi } from "vitest";
 import { ACTIVE_INCIDENT_ID, VERIFICATION_CHECKLIST, DRYER_INCIDENT_ID, DRYER_VERIFICATION_CHECKLIST } from "@nexus/contracts";
 import {
   createOperationsHandler,
+  attachOperationsStream,
   normalizeHistoryInterval,
   normalizeVerificationRequest,
 } from "./runtime.js";
@@ -31,8 +35,9 @@ async function requestApi(
   url: string,
   body?: unknown,
   options?: Parameters<typeof createOperationsHandler>[0],
+  host = "localhost",
 ) {
-  const request = { method: body === undefined ? "GET" : "POST", url, body, headers: { host: "localhost" } } as unknown as IncomingMessage;
+  const request = { method: body === undefined ? "GET" : "POST", url, body, headers: { host } } as unknown as IncomingMessage;
   let output = "";
   const headers = new Map<string, string>();
   const response = {
@@ -45,6 +50,16 @@ async function requestApi(
 }
 
 describe("operations runtime input boundaries", () => {
+  it.each([
+    ["/health", "invalid host"],
+    ["http://[", "localhost"],
+  ])("rejects an invalid request URL or Host (%s, %s)", async (url, host) => {
+    const response = await requestApi(url, undefined, undefined, host);
+    expect(response.status).toBe(400);
+    expect(response.data).toEqual({ error: "invalid_request" });
+    expect((await requestHealth()).body.status).toBe("ok");
+  });
+
   it("serves a distinct dryer scenario and enforces its safety checklist", async () => {
     const summary = await requestApi("/api/plant/summary");
     expect(summary.data.diagnosticIncidents.map((item: { equipmentId: string }) => item.equipmentId)).toEqual(["COATER-02", "DRYER-02"]);
@@ -151,6 +166,19 @@ describe("operations runtime input boundaries", () => {
     expect(result.body.now).toEqual(expect.any(Number));
   });
 
+  it("reports the explicitly deployed prebuilt SHA ahead of provider Git metadata", async () => {
+    vi.stubEnv("NEXUS_RELEASE_SHA", "a".repeat(40));
+    vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "b".repeat(40));
+    vi.stubEnv("GITHUB_SHA", "c".repeat(40));
+    try {
+      expect((await requestHealth()).body.release).toBe("a".repeat(40));
+      vi.stubEnv("NEXUS_RELEASE_SHA", undefined);
+      expect((await requestHealth()).body.release).toBe("b".repeat(40));
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("reports the current process client count in the local integrated server", async () => {
     const result = await requestHealth({
       getClientCount: () => 3,
@@ -162,6 +190,74 @@ describe("operations runtime input boundaries", () => {
       clientCountScope: "process",
     });
   });
+});
+
+describe("operations stream connection isolation", () => {
+  it.each([
+    ["COATER-02", "/stream?equipmentId=COATER-02"],
+    ["unsupported equipment", "/stream?equipmentId=UNSUPPORTED"],
+    ["an invalid URL", "http://["],
+  ])(
+    "keeps healthy streams and HTTP available after a malformed frame for %s",
+    async (_description, requestTarget) => {
+      let operations: ReturnType<typeof attachOperationsStream> | undefined;
+      const server = createServer(createOperationsHandler({
+        getClientCount: () => operations?.streamServer.clients.size ?? 0,
+        clientCountScope: "process",
+      }));
+      operations = attachOperationsStream(server);
+      const { streamServer } = operations;
+      await new Promise<void>((resolve, reject) => {
+        streamServer.once("error", reject);
+        server.listen(0, "127.0.0.1", () => {
+          streamServer.off("error", reject);
+          resolve();
+        });
+      });
+      const address = server.address();
+      if (!address || typeof address === "string") throw new Error("Expected a TCP address");
+      const baseUrl = `http://127.0.0.1:${address.port}`;
+      const healthy = new WebSocket(`${baseUrl.replace("http:", "ws:")}/stream?equipmentId=COATER-02`);
+      const malformed = connect(address.port, "127.0.0.1");
+      let handshake = "";
+      malformed.on("data", (data: Buffer) => { handshake += data.toString("utf8"); });
+
+      try {
+        const connected = once(malformed, "connect");
+        expect(JSON.parse(String((await once(healthy, "message"))[0])).type).toBe("hello");
+        await connected;
+        const rejected = once(malformed, "close");
+        // A client frame must be masked. Send the invalid frame with the upgrade
+        // request so even an immediately rejected equipment connection receives it.
+        malformed.write(Buffer.concat([
+          Buffer.from([
+            `GET ${requestTarget} HTTP/1.1`,
+            `Host: 127.0.0.1:${address.port}`,
+            "Upgrade: websocket",
+            "Connection: Upgrade",
+            "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==",
+            "Sec-WebSocket-Version: 13",
+            "\r\n",
+          ].join("\r\n")),
+          Buffer.from([0x81, 0x01, 0x61]),
+        ]));
+        await rejected;
+        expect(handshake).toContain("101 Switching Protocols");
+        const point = JSON.parse(String((await once(healthy, "message"))[0]));
+        expect(point).toMatchObject({ type: "sensor.point", equipmentId: "COATER-02" });
+        expect(healthy.readyState).toBe(WebSocket.OPEN);
+        const health = await fetch(`${baseUrl}/health`);
+        expect(health.status).toBe(200);
+        expect(await health.json()).toMatchObject({ status: "ok", clients: 1 });
+      } finally {
+        malformed.destroy();
+        healthy.terminate();
+        operations.close();
+        server.closeAllConnections();
+        await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+      }
+    },
+  );
 });
 
 it("looks up a previously issued request without creating records, including unknown requests", async () => {

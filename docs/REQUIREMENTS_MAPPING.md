@@ -15,7 +15,7 @@
 | 디자인 시스템 | 색상, 간격, 서체, 상태 토큰과 Button, StatusBadge, KpiValue 패키지 |
 | 모노레포 | npm workspaces와 Turborepo, 앱 2개와 패키지 2개 구성 |
 | 테스트 | Vitest, Testing Library, Playwright 정상/장애/다중 탭 업무 흐름과 반응형·axe 검사, Storybook a11y 설정 |
-| CI/CD | GitHub Actions의 정적 검증과 Chromium E2E 성공 후 Vercel 배포 훅 실행, 커밋 일치와 공개 UI, REST, WebSocket 스모크 확인 |
+| CI/CD | GitHub Actions의 정적 검증과 Chromium E2E 성공 후 검증한 SHA의 prebuilt 산출물을 배포, 커밋 일치와 UI, REST, WebSocket 사전 검사 후 같은 배포를 공개 승격 |
 | 운영 도구 | 선택적 Sentry 초기화, 배포 SHA 헬스 체크, 센서 신선도 상태, 이력 장애 안전 차단, 소스맵 빌드 |
 | AI 도구 활용 | 공개 자료 조사, 디자인 대안, 구현 보조와 QA에 AI를 사용. 코드, 자동 테스트와 수행 시점별 브라우저 검수를 구분해 기록 |
 

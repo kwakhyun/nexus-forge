@@ -38,7 +38,8 @@ export function VerificationDialog({ incident, canIssue = true }: { incident: In
   const [checked, setChecked] = useState(() => checklist.map((check) => attempt?.checks.includes(check) ?? false));
   const confirmedChecks = attempt ? checklist.map((check) => attempt.checks.includes(check)) : checked;
   const assignedDefault = localCase?.assignee || defaultAssignee;
-  const [assignee, setAssignee] = useState(attempt?.assignee ?? assignedDefault);
+  const [draftAssignee, setDraftAssignee] = useState<string | null>(null);
+  const assignee = draftAssignee ?? assignedDefault;
   const isManager = role === "manager";
   const [missingRequest, setMissingRequest] = useState<VerificationRequest | null>(null);
   const [acknowledgedUnknown, setAcknowledgedUnknown] = useState(false);
@@ -88,7 +89,7 @@ export function VerificationDialog({ incident, canIssue = true }: { incident: In
     if (busyRef.current) return;
     if (!useOperationsStore.getState().verificationAttempt) {
       setChecked(checklist.map(() => false));
-      setAssignee(defaultAssignee);
+      setDraftAssignee(null);
       resetMutation();
     }
     setOpen(false);
@@ -206,7 +207,7 @@ export function VerificationDialog({ incident, canIssue = true }: { incident: In
             <div className="assignment-field">
               {isManager ? <>
                 <label htmlFor="verification-assignee">작업 담당자</label>
-                <select id="verification-assignee" value={attempt?.assignee ?? assignee} disabled={locked} onChange={(event) => setAssignee(event.target.value)}>
+                <select id="verification-assignee" value={attempt?.assignee ?? assignee} disabled={locked} onChange={(event) => setDraftAssignee(event.target.value)}>
                   {assignees.map((name) => <option value={name} key={name}>{name}</option>)}
                 </select>
               </> : <><span className="assignment-field__label">{attempt ? "기존 요청 담당자" : "기본 담당자"}</span><strong className="assignment-field__value">{attempt?.assignee ?? assignedDefault}</strong></>}
@@ -236,7 +237,7 @@ export function VerificationDialog({ incident, canIssue = true }: { incident: In
                   try {
                     if (await recoveryAction.run({ type: "dismiss-verification", requestId: attempt.requestId,
                       actor: isManager ? "교대 관리자" : "라인 엔지니어" }, "미확정 요청의 추적을 종료했습니다.")) {
-                      setAttempt(null); setMissingRequest(null); setChecked(checklist.map(() => false));
+                      setAttempt(null); setMissingRequest(null); setChecked(checklist.map(() => false)); setDraftAssignee(null);
                       resetMutation(); setOpen(false);
                     }
                   } finally { busyRef.current = false; }

@@ -121,7 +121,18 @@ E2E는 웹과 서버를 빌드한 뒤 로컬 production preview에서 실행합�
 
 ## 배포
 
-`main`의 GitHub Actions에서 정적 검사와 Chromium E2E가 모두 성공하면 Vercel 배포를 시작합니다. 재시도 후에만 통과한 E2E도 배포를 차단합니다. 배포 뒤에는 `/api/health`의 SHA, 화면 경로, REST 이력과 WebSocket 수신을 확인합니다.
+`main`의 GitHub Actions에서 정적 검사와 Chromium E2E가 모두 성공하면, 검사한 커밋 SHA를 체크아웃해 Vercel production 산출물을 빌드합니다. 이 산출물을 공개 도메인 연결 없이 배포하고 `/api/health`의 SHA, 화면 경로, REST 이력과 WebSocket 수신을 검사합니다. 모두 통과한 배포 URL만 공개 도메인으로 승격하고 같은 검사를 다시 수행합니다. 재시도 후에만 통과한 E2E도 배포를 차단합니다.
+
+배포 작업은 직렬로 실행합니다. 빌드 전과 승격 직전에 `main`이 다른 커밋으로 이동했다면 해당 실행은 공개 반영을 건너뜁니다. 브랜치의 최신 커밋을 배포하던 Deploy Hook은 사용하지 않습니다.
+
+GitHub의 `production` environment에 다음 설정이 필요합니다. 기존 Deploy Hook secret만 있는 환경은 새 설정 전까지 명확한 오류와 함께 배포가 중단됩니다.
+
+- Secret `VERCEL_TOKEN`: 대상 Vercel 프로젝트를 배포할 수 있는 토큰
+- Variables `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`: 연결된 `.vercel/project.json`의 조직과 프로젝트 ID
+- Secret `VERCEL_AUTOMATION_BYPASS_SECRET`: Deployment Protection을 사용하는 경우 HTTP와 WebSocket 사전 검사용 우회 secret
+- `production` environment의 배포 브랜치를 `main`으로 제한하고 필요한 승인자를 설정합니다. Vercel Git 자동 배포는 기존 `vercel.json`의 비활성 설정을 유지합니다.
+
+토큰 값은 저장소에 기록하지 않습니다. CI는 고정 버전 Vercel CLI로 `build --prod`와 `deploy --prebuilt --prod --skip-domain`을 실행한 뒤 검증한 URL을 `promote`합니다. 산출물의 커밋은 런타임 `NEXUS_RELEASE_SHA`에 명시해 Git 메타데이터보다 우선 사용합니다. 새 흐름의 경합과 실패 처리는 `node --test scripts/deploy-production.test.mjs`로 외부 배포 없이 검사할 수 있습니다. 로컬 회귀 검사는 실제 GitHub/Vercel 설정의 등록 여부나 원격 배포 성공을 검증하지 않습니다. 설정과 동작의 근거는 [Vercel의 단계적 production 배포 안내](https://vercel.com/docs/cli/deploying-from-cli#deploying-a-staged-production-build)를 참고하세요.
 
 로컬 Node 서버와 Vercel Functions는 같은 API 및 스트림 런타임을 사용합니다. ChatGPT Sites용 정적 산출물도 생성합니다.
 

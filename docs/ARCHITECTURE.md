@@ -92,7 +92,7 @@ Turborepo가 패키지 빌드 순서와 캐시를 관리합니다. 웹과 서버
 
 Vercel의 Production target을 공개 데모의 배포 환경으로 사용합니다. `dist/client`의 정적 자산은 CDN으로 제공하고, REST API와 WebSocket 스트림은 동일 저장소의 Vercel Functions로 배포합니다. Functions와 로컬 Node 서버는 같은 요청 처리 및 센서 시뮬레이션 모듈을 사용하므로 실행 환경에 따른 계약 차이를 줄였습니다. 이 구성은 실제 제조 고객사의 상용 운영 환경을 의미하지 않습니다.
 
-Vercel의 Git 푸시 직접 배포는 `vercel.json`에서 끕니다. `main`에 푸시하면 GitHub Actions가 lint, typecheck, 단위 및 컴포넌트 테스트, 빌드, Storybook과 Chromium E2E를 병렬 검증합니다. 두 작업이 모두 성공한 뒤에만 암호화된 Vercel 배포 훅을 호출합니다. 배포가 끝나면 공개 `/api/health`의 `release`가 해당 GitHub 커밋 SHA와 일치하는지 확인하고, UI 셸, 공정 요약, 센서 이력, WebSocket 수신까지 스모크 테스트합니다. 빌드 성공과 공개 승격 사이의 검증 순서를 명시적으로 고정한 구성입니다.
+Vercel의 Git 푸시 직접 배포는 `vercel.json`에서 끕니다. `main`에 푸시하면 GitHub Actions가 lint, typecheck, 단위 및 컴포넌트 테스트, 빌드, Storybook과 Chromium E2E를 병렬 검증합니다. 두 작업이 모두 성공하면 검사한 커밋 SHA를 체크아웃하고 `vercel build --prod`로 산출물을 생성합니다. `deploy --prebuilt --prod --skip-domain`으로 공개 도메인 연결 없이 배포한 뒤, 해당 URL의 `/api/health`에서 SHA를 대조하고 UI 셸, 공정 요약, 센서 이력과 WebSocket 수신을 검사합니다. 통과한 동일 배포 URL만 `promote`하고 공개 주소에서 검사를 반복합니다. 런타임은 명시적으로 전달한 `NEXUS_RELEASE_SHA`를 Git 메타데이터보다 우선 사용합니다. 배포 작업은 직렬 실행하며 빌드 전이나 승격 직전에 `main`이 다른 커밋으로 이동했다면 해당 실행의 공개 반영을 건너뜁니다.
 
 클라이언트는 Functions 재시작과 배포 교체에 대비해 WebSocket 연결을 지수 백오프로 다시 맺습니다. 서버의 발행 기록은 런타임 메모리에, 사용자 후속 처리는 브라우저 IndexedDB에 보관됩니다. 서버가 브라우저의 진행/완료 상태를 관리하거나 다른 기기에 전달하지 않습니다. 실제 다중 사용자 운영에는 인증과 관계형 데이터베이스 등의 영속 저장소가 필요합니다.
 
